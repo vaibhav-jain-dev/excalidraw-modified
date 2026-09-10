@@ -52,6 +52,15 @@ const MIGRATIONS: ReadonlyArray<readonly [number, string]> = [
       ON scene_versions (scene_id, version DESC);
   `,
   ],
+  [
+    2,
+    `
+    ALTER TABLE scenes ADD COLUMN description TEXT NOT NULL DEFAULT '';
+    ALTER TABLE scenes ADD COLUMN category TEXT NOT NULL DEFAULT '';
+    ALTER TABLE scenes ADD COLUMN thumbnail_updated_at TEXT;
+    CREATE INDEX idx_scenes_category ON scenes (category);
+  `,
+  ],
 ];
 
 const migrate = (): void => {

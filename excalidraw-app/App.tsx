@@ -122,6 +122,9 @@ import {
   localStorageQuotaExceededAtom,
 } from "./data/LocalData";
 import { isBrowserStorageStateNewer } from "./data/tabSync";
+import { ServerData } from "./data/ServerData";
+import { setActiveLocalSceneId, syncActiveLocalScene } from "./data/localScene";
+import { Dashboard } from "./components/Dashboard/Dashboard";
 import { ShareDialog, shareDialogStateAtom } from "./share/ShareDialog";
 import CollabError, { collabErrorIndicatorAtom } from "./collab/CollabError";
 import { useHandleAppTheme } from "./useHandleAppTheme";
@@ -220,6 +223,39 @@ const initializeScene = async (opts: {
   const externalUrlMatch = window.location.hash.match(/^#url=(.*)$/);
 
   const localDataState = importFromLocalStorage();
+
+  // scene opened from the excalidraw-local dashboard (`#local=<id>`) — load it
+  // from the server and let `onChange` sync edits back
+  const localSceneMatch = window.location.hash.match(/^#local=([\w-]+)/);
+  if (localSceneMatch) {
+    const localSceneId = localSceneMatch[1];
+    try {
+      const remote = await ServerData.getScene(localSceneId);
+      setActiveLocalSceneId(localSceneId);
+      return {
+        scene: {
+          elements: restoreElements(remote.elements, null, {
+            repairBindings: true,
+            deleteInvisibleElements: true,
+          }),
+          appState: restoreAppState(remote.appState, localDataState?.appState),
+          files: remote.files ?? undefined,
+          scrollToContent: true,
+        },
+        isExternalScene: false,
+      };
+    } catch (error: any) {
+      console.error("failed to load local scene", error);
+      return {
+        scene: {
+          appState: {
+            errorMessage: t("alerts.invalidSceneUrl"),
+          },
+        },
+        isExternalScene: false,
+      };
+    }
+  }
 
   let scene: Omit<
     RestoredDataState,
@@ -707,6 +743,9 @@ const ExcalidrawWrapper = () => {
     if (collabAPI?.isCollaborating()) {
       collabAPI.syncElements(elements);
     }
+
+    // sync to the excalidraw-local server when opened via `#local=<id>`
+    syncActiveLocalScene(elements, appState, files);
 
     // this check is redundant, but since this is a hot path, it's best
     // not to evaludate the nested expression every time
@@ -1196,11 +1235,74 @@ const ExcalidrawWrapper = () => {
   );
 };
 
+/**
+ * Route: the dashboard shows for a bare URL (no hash / query) when the
+ * excalidraw-local server is reachable; anything that names a scene
+ * (`#local=`, `#room=`, `#json=`, `#url=`, `?id=`) opens the editor.
+ */
+const isEditorRoute = () =>
+  !!(
+    window.location.search ||
+    (window.location.hash && window.location.hash !== "#")
+  );
+
+const useLocalFirstRoute = () => {
+  const [route, setRoute] = useState<"loading" | "dashboard" | "editor">(
+    isTestEnv() || isEditorRoute() ? "editor" : "loading",
+  );
+
+  useEffect(() => {
+    if (isTestEnv()) {
+      return;
+    }
+    let cancelled = false;
+
+    const resolve = async () => {
+      if (isEditorRoute()) {
+        setRoute("editor");
+        return;
+      }
+      const available = await ServerData.isAvailable();
+      if (!cancelled) {
+        setRoute(available ? "dashboard" : "editor");
+      }
+    };
+
+    void resolve();
+    const onHashChange = () => {
+      setRoute(isEditorRoute() ? "editor" : "loading");
+      void resolve();
+    };
+    window.addEventListener("hashchange", onHashChange);
+    return () => {
+      cancelled = true;
+      window.removeEventListener("hashchange", onHashChange);
+    };
+  }, []);
+
+  return route;
+};
+
 const ExcalidrawApp = () => {
   const isCloudExportWindow =
     window.location.pathname === "/excalidraw-plus-export";
+
+  const route = useLocalFirstRoute();
+
   if (isCloudExportWindow) {
     return <ExcalidrawPlusIframeExport />;
+  }
+
+  if (route === "loading") {
+    return null;
+  }
+
+  if (route === "dashboard") {
+    return (
+      <TopErrorBoundary>
+        <Dashboard />
+      </TopErrorBoundary>
+    );
   }
 
   return (

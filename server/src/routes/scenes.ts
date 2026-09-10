@@ -1,11 +1,16 @@
+import fs from "node:fs";
+
 import type { FastifyInstance, FastifyReply } from "fastify";
 
+import { ensureDir, thumbFile, thumbsDir } from "../paths.ts";
 import {
   createScene,
   getSceneContent,
   getSceneSummary,
+  listCategories,
   listScenes,
   listVersions,
+  markThumbnailUpdated,
   saveScene,
   SceneNotFoundError,
   setVersionPinned,
@@ -13,6 +18,16 @@ import {
   updateSceneMeta,
   type SceneContent,
 } from "../store/scenes.ts";
+
+interface SceneMetaBody {
+  name?: string;
+  description?: string;
+  category?: string;
+  tags?: string[];
+  pinned?: boolean;
+}
+
+const MAX_THUMBNAIL_BYTES = 2 * 1024 * 1024;
 
 interface IdParams {
   id: string;
@@ -46,9 +61,16 @@ const parseVersion = (raw: string): number | null => {
 export const registerSceneRoutes = (app: FastifyInstance): void => {
   app.get("/api/scenes", async () => ({ scenes: listScenes() }));
 
+  app.get("/api/categories", async () => ({ categories: listCategories() }));
+
   app.post("/api/scenes", async (request, reply) => {
-    const body = (request.body ?? {}) as { name?: string; tags?: string[] };
-    const scene = createScene({ name: body.name, tags: body.tags });
+    const body = (request.body ?? {}) as SceneMetaBody;
+    const scene = createScene({
+      name: body.name,
+      description: body.description,
+      category: body.category,
+      tags: body.tags,
+    });
     reply.code(201);
     return { scene };
   });
@@ -79,11 +101,7 @@ export const registerSceneRoutes = (app: FastifyInstance): void => {
   });
 
   app.patch<{ Params: IdParams }>("/api/scenes/:id", async (request, reply) => {
-    const body = (request.body ?? {}) as {
-      name?: string;
-      tags?: string[];
-      pinned?: boolean;
-    };
+    const body = (request.body ?? {}) as SceneMetaBody;
     try {
       return { scene: updateSceneMeta(request.params.id, body) };
     } catch (error) {
@@ -154,6 +172,42 @@ export const registerSceneRoutes = (app: FastifyInstance): void => {
         }
         throw error;
       }
+    },
+  );
+
+  // --- thumbnails: rendered client-side on save, one PNG per scene ---
+
+  app.put<{ Params: IdParams }>(
+    "/api/scenes/:id/thumbnail",
+    async (request, reply) => {
+      if (!getSceneSummary(request.params.id)) {
+        return notFound(reply);
+      }
+      const body = request.body;
+      if (!Buffer.isBuffer(body) || body.length === 0) {
+        return reply.code(400).send({ error: "expected image bytes" });
+      }
+      if (body.length > MAX_THUMBNAIL_BYTES) {
+        return reply.code(413).send({ error: "thumbnail too large" });
+      }
+      ensureDir(thumbsDir());
+      fs.writeFileSync(thumbFile(request.params.id), body);
+      markThumbnailUpdated(request.params.id);
+      return { ok: true };
+    },
+  );
+
+  app.get<{ Params: IdParams }>(
+    "/api/scenes/:id/thumbnail",
+    async (request, reply) => {
+      const file = thumbFile(request.params.id);
+      if (!fs.existsSync(file)) {
+        return reply.code(404).send({ error: "no thumbnail" });
+      }
+      return reply
+        .type("image/png")
+        .header("cache-control", "no-cache")
+        .send(fs.readFileSync(file));
     },
   );
 };

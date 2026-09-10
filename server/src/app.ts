@@ -14,6 +14,13 @@ export const buildApp = (): FastifyInstance => {
     bodyLimit: config.bodyLimitBytes,
   });
 
+  // raw bytes for thumbnail uploads (PUT /api/scenes/:id/thumbnail)
+  app.addContentTypeParser(
+    ["image/png", "application/octet-stream"],
+    { parseAs: "buffer" },
+    (_request, body, done) => done(null, body),
+  );
+
   app.get("/api/health", async () => ({
     ok: true,
     ts: new Date().toISOString(),

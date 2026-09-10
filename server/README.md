@@ -6,11 +6,14 @@ roadmap.
 
 ## Status
 
-**Step 1 — skeleton.** Fastify server, SQLite metadata store (`node:sqlite`,
-no native deps), scene CRUD + version history, static hosting of the built app.
+**Steps 1–2.** Fastify server, SQLite metadata store (`node:sqlite`, no native
+deps), scene CRUD + version history, title/description/category, client-rendered
+PNG thumbnails, static hosting of the built app. The app shows a **dashboard**
+(thumbnail grid, search, category filter) for a bare URL and opens the editor
+for `#local=<id>`, syncing edits back on a debounce.
 
-Not yet: derived markdown/semantic views, full-text/vector search, PNG
-rendering, MCP, live-reload websocket.
+Not yet: server-side PNG rendering, derived markdown/semantic views,
+full-text/vector search, MCP, live-reload websocket.
 
 ## Requirements
 
@@ -63,14 +66,17 @@ yarn start:local         # = yarn build && yarn server  ->  http://localhost:305
 | -------- | ------------------------------------- | ---------------------------------- |
 | `GET`    | `/api/health`                        | liveness                           |
 | `GET`    | `/api/scenes`                        | list summaries                     |
-| `POST`   | `/api/scenes`                        | `{ name?, tags? }` → `{ scene }`   |
+| `GET`    | `/api/categories`                    | distinct non-empty categories      |
+| `POST`   | `/api/scenes`                        | `{ name?, description?, category?, tags? }` → `{ scene }` |
 | `GET`    | `/api/scenes/:id`                    | `{ scene, elements, appState, files }` |
 | `PUT`    | `/api/scenes/:id`                    | save → new version                 |
-| `PATCH`  | `/api/scenes/:id`                    | `{ name?, tags?, pinned? }`        |
+| `PATCH`  | `/api/scenes/:id`                    | `{ name?, description?, category?, tags?, pinned? }` |
 | `DELETE` | `/api/scenes/:id`                    | soft delete                        |
 | `GET`    | `/api/scenes/:id/versions`           | version list                       |
 | `GET`    | `/api/scenes/:id/versions/:version`  | full scene at version              |
 | `POST`   | `/api/scenes/:id/versions/:version/pin` | `{ pinned? }` (default `true`)   |
+| `PUT`    | `/api/scenes/:id/thumbnail`          | `image/png` body → stored preview  |
+| `GET`    | `/api/scenes/:id/thumbnail`          | the PNG preview (404 if none)      |
 
 ## Type checking
 

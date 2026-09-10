@@ -1,4 +1,4 @@
-import { eyeIcon } from "@excalidraw/excalidraw/components/icons";
+import { eyeIcon, gridIcon } from "@excalidraw/excalidraw/components/icons";
 import { MainMenu } from "@excalidraw/excalidraw/index";
 import React from "react";
 
@@ -19,6 +19,16 @@ export const AppMainMenu: React.FC<{
 }> = React.memo((props) => {
   return (
     <MainMenu>
+      <MainMenu.Item
+        icon={gridIcon}
+        onSelect={() => {
+          window.location.href = "/";
+          window.location.reload();
+        }}
+      >
+        All drawings
+      </MainMenu.Item>
+      <MainMenu.Separator />
       <MainMenu.DefaultItems.LoadScene />
       <MainMenu.DefaultItems.SaveToActiveFile />
       <MainMenu.DefaultItems.Export />

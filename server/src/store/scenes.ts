@@ -31,12 +31,15 @@ export class SceneNotFoundError extends Error {
 export interface SceneSummary {
   id: string;
   name: string;
+  description: string;
+  category: string;
   tags: string[];
   createdAt: string;
   updatedAt: string;
   latestVersion: number;
   elementCount: number;
   pinned: boolean;
+  hasThumbnail: boolean;
 }
 
 export interface SceneContent {
@@ -56,12 +59,15 @@ export interface SceneVersionInfo {
 interface SceneRow {
   id: string;
   name: string;
+  description: string;
+  category: string;
   tags: string;
   created_at: string;
   updated_at: string;
   latest_version: number;
   element_count: number;
   pinned: number;
+  thumbnail_updated_at: string | null;
 }
 
 const EMPTY_CONTENT = (): SceneContent => ({
@@ -73,12 +79,15 @@ const EMPTY_CONTENT = (): SceneContent => ({
 const rowToSummary = (row: SceneRow): SceneSummary => ({
   id: row.id,
   name: row.name,
+  description: row.description ?? "",
+  category: row.category ?? "",
   tags: parseTags(row.tags),
   createdAt: row.created_at,
   updatedAt: row.updated_at,
   latestVersion: row.latest_version,
   elementCount: row.element_count,
   pinned: row.pinned !== 0,
+  hasThumbnail: row.thumbnail_updated_at != null,
 });
 
 const parseTags = (raw: string): string[] => {
@@ -118,7 +127,12 @@ export const getSceneSummary = (id: string): SceneSummary | null => {
 };
 
 export const createScene = (
-  opts: { name?: string; tags?: string[] } = {},
+  opts: {
+    name?: string;
+    description?: string;
+    category?: string;
+    tags?: string[];
+  } = {},
 ): SceneSummary => {
   const id = newId();
   const now = new Date().toISOString();
@@ -126,9 +140,18 @@ export const createScene = (
   const tags = JSON.stringify(opts.tags ?? []);
 
   db.prepare(
-    `INSERT INTO scenes (id, name, tags, created_at, updated_at)
-     VALUES (?, ?, ?, ?, ?)`,
-  ).run(id, name, tags, now, now);
+    `INSERT INTO scenes
+       (id, name, description, category, tags, created_at, updated_at)
+     VALUES (?, ?, ?, ?, ?, ?, ?)`,
+  ).run(
+    id,
+    name,
+    opts.description?.trim() ?? "",
+    opts.category?.trim() ?? "",
+    tags,
+    now,
+    now,
+  );
   ensureDir(sceneDir(id));
 
   const summary = getSceneSummary(id);
@@ -140,7 +163,13 @@ export const createScene = (
 
 export const updateSceneMeta = (
   id: string,
-  patch: { name?: string; tags?: string[]; pinned?: boolean },
+  patch: {
+    name?: string;
+    description?: string;
+    category?: string;
+    tags?: string[];
+    pinned?: boolean;
+  },
 ): SceneSummary => {
   const summary = getSceneSummary(id);
   if (!summary) {
@@ -148,16 +177,42 @@ export const updateSceneMeta = (
   }
 
   const name = patch.name?.trim() || summary.name;
+  const description = patch.description?.trim() ?? summary.description;
+  const category = patch.category?.trim() ?? summary.category;
   const tags = JSON.stringify(patch.tags ?? summary.tags);
   const pinned = (patch.pinned ?? summary.pinned) ? 1 : 0;
 
   db.prepare(
-    `UPDATE scenes SET name = ?, tags = ?, pinned = ?, updated_at = ?
+    `UPDATE scenes
+     SET name = ?, description = ?, category = ?, tags = ?, pinned = ?,
+         updated_at = ?
      WHERE id = ?`,
-  ).run(name, tags, pinned, new Date().toISOString(), id);
+  ).run(
+    name,
+    description,
+    category,
+    tags,
+    pinned,
+    new Date().toISOString(),
+    id,
+  );
 
   return getSceneSummary(id) as SceneSummary;
 };
+
+/** Record that a fresh thumbnail was written for the scene. */
+export const markThumbnailUpdated = (id: string): void => {
+  db.prepare(
+    "UPDATE scenes SET thumbnail_updated_at = ? WHERE id = ?",
+  ).run(new Date().toISOString(), id);
+};
+
+export const listCategories = (): string[] =>
+  queryRows<{ category: string }>(
+    `SELECT DISTINCT category FROM scenes
+     WHERE deleted_at IS NULL AND category <> ''
+     ORDER BY category`,
+  ).map((row) => row.category);
 
 export const softDeleteScene = (id: string): boolean => {
   const result = db
