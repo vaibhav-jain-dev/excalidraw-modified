@@ -37,6 +37,9 @@ export const getDefaultAppState = (): Omit<
     currentItemOpacity: DEFAULT_ELEMENT_PROPS.opacity,
     currentItemRoughness: DEFAULT_ELEMENT_PROPS.roughness,
     currentItemStrokeVariability: "constant",
+    // tests draw freehand strokes and assert on `freedraw` elements; keep the
+    // pencil "dumb" there and opt in explicitly where the behavior is tested
+    currentItemFreedrawSnapToShape: !isTestEnv(),
     currentItemStartArrowhead: null,
     currentItemStrokeColor: DEFAULT_ELEMENT_PROPS.strokeColor,
     currentItemStickynoteStrokeColor: DEFAULT_ELEMENT_PROPS.strokeColor,
@@ -180,6 +183,11 @@ const APP_STATE_STORAGE_CONF = (<
   currentItemOpacity: { browser: true, export: false, server: false },
   currentItemRoughness: { browser: true, export: false, server: false },
   currentItemStrokeVariability: {
+    browser: true,
+    export: false,
+    server: false,
+  },
+  currentItemFreedrawSnapToShape: {
     browser: true,
     export: false,
     server: false,

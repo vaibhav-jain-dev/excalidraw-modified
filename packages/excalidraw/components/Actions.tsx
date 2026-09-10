@@ -178,6 +178,9 @@ export const SelectedShapeActions = ({
 
       {predicates.freedrawMode && renderAction("changeFreedrawMode")}
 
+      {predicates.freedrawSnapToShape &&
+        renderAction("changeFreedrawSnapToShape")}
+
       {predicates.sloppiness && <>{renderAction("changeSloppiness")}</>}
 
       {predicates.roundness && <>{renderAction("changeRoundness")}</>}
@@ -297,6 +300,8 @@ const CombinedShapeProperties = ({
                 */
                 predicates.freedrawMode && renderAction("changeFreedrawMode")
               }
+              {predicates.freedrawSnapToShape &&
+                renderAction("changeFreedrawSnapToShape")}
               {predicates.strokeStyle && (
                 <>{renderAction("changeStrokeStyle")}</>
               )}
@@ -655,6 +660,13 @@ export const CompactShapeActions = ({
       {predicates.freedrawMode && (
         <div className="compact-action-item">
           {renderAction("changeFreedrawMode", { cycle: true })}
+        </div>
+      )}
+
+      {/* Smart pencil: standalone button toggling freehand vs snap-to-shape */}
+      {predicates.freedrawSnapToShape && (
+        <div className="compact-action-item">
+          {renderAction("changeFreedrawSnapToShape", { cycle: true })}
         </div>
       )}
 

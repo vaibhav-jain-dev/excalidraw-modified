@@ -141,6 +141,8 @@ export const getShapeActionPredicates = (
     // stroke / shape properties
     strokeWidth: forToolOrSelection(hasStrokeWidth),
     freedrawMode: forToolOrSelection(hasFreedrawMode),
+    // "smart pencil" toggle — only meaningful while the freedraw tool is armed
+    freedrawSnapToShape: activeToolType === "freedraw",
     strokeStyle: forToolOrSelection(hasStrokeStyle),
     sloppiness: forToolOrSelection(hasRoughness),
     roundness: forToolOrSelection(canChangeRoundness),

@@ -153,6 +153,8 @@ import {
   ArrowheadCardinalityZeroOrOneIcon,
   strokeVariabilityConstantIcon,
   strokeVariabilityVariableIcon,
+  FreedrawIcon,
+  drawShapeToolIcon,
 } from "../components/icons";
 
 import { Fonts } from "../fonts";
@@ -815,6 +817,61 @@ export const actionChangeSloppiness = register<ExcalidrawElement["roughness"]>({
       </div>
     </fieldset>
   ),
+});
+
+export const actionChangeFreedrawSnapToShape = register<boolean>({
+  name: "changeFreedrawSnapToShape",
+  label: "labels.freedrawSnapToShape",
+  trackEvent: false,
+  perform: (elements, appState, value) => {
+    return {
+      appState: { ...appState, currentItemFreedrawSnapToShape: value },
+      captureUpdate: CaptureUpdateAction.EVENTUALLY,
+    };
+  },
+  PanelComponent: ({ appState, updateData, data }) => {
+    const snapToShape = appState.currentItemFreedrawSnapToShape;
+
+    // compact / mobile toolbar: a single button toggling the mode
+    if (data?.cycle) {
+      return (
+        <IconButton
+          type="button"
+          icon={snapToShape ? drawShapeToolIcon : FreedrawIcon}
+          title={t("labels.freedrawSnapToShape")}
+          aria-label={t("labels.freedrawSnapToShape")}
+          onClick={() => updateData(!snapToShape)}
+        />
+      );
+    }
+
+    return (
+      <fieldset>
+        <legend>{t("labels.freedrawSnapToShape")}</legend>
+        <div className="buttonList">
+          <RadioSelection<boolean>
+            group="freedrawSnapToShape"
+            options={[
+              {
+                value: false,
+                text: t("labels.freedrawSnapToShape_off"),
+                icon: FreedrawIcon,
+                testId: "freedraw-snap-off",
+              },
+              {
+                value: true,
+                text: t("labels.freedrawSnapToShape_on"),
+                icon: drawShapeToolIcon,
+                testId: "freedraw-snap-on",
+              },
+            ]}
+            value={snapToShape}
+            onChange={(value) => updateData(value)}
+          />
+        </div>
+      </fieldset>
+    );
+  },
 });
 
 export const actionChangeFreedrawMode = register<StrokeVariability>({

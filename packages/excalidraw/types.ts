@@ -425,6 +425,12 @@ export interface AppState {
   currentItemStrokeStyle: ExcalidrawElement["strokeStyle"];
   currentItemRoughness: number;
   currentItemStrokeVariability: StrokeVariability;
+  /**
+   * When drawing with the freedraw ("pencil") tool, recognize a finished
+   * stroke that looks like a rectangle/ellipse/diamond/line/arrow and replace
+   * it with that clean shape. Unrecognized strokes are left as freehand.
+   */
+  currentItemFreedrawSnapToShape: boolean;
   currentItemOpacity: number;
   currentItemFontFamily: FontFamilyValues;
   currentItemFontSize: number;

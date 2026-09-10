@@ -1,5 +1,7 @@
 import { randomInteger } from "@excalidraw/common";
 
+import { pointFrom } from "@excalidraw/math";
+
 import {
   bindBindingElement,
   convertToShape,
@@ -13,8 +15,11 @@ import {
   updateBoundPoint,
 } from "@excalidraw/element";
 
+import type { GlobalPoint } from "@excalidraw/math";
+
 import type {
   ExcalidrawArrowElement,
+  ExcalidrawFreeDrawElement,
   ExcalidrawLineElement,
   NonDeleted,
   NonDeletedExcalidrawElement,
@@ -261,5 +266,64 @@ export class AppDrawShape {
     }
 
     this.trail.clearTrails();
+  };
+
+  /**
+   * Smart-pencil hook. A just-finished freedraw stroke is re-read by the shape
+   * recognizer; if a shape/line/arrow is confidently recognized the freedraw
+   * element is swapped for it in place (same z-order neighbourhood, group and
+   * frame). An unrecognized stroke is left untouched — unlike the `autoshape`
+   * tool, which only ever yields a shape.
+   *
+   * Runs on pointerup (no live preview), so the pencil behaves exactly like
+   * the normal freedraw tool while drawing. Call before `actionFinalize` so
+   * the swap is captured as a single history entry. Returns the inserted
+   * element, or `null` when nothing was converted.
+   */
+  maybeConvertFreedrawStroke = (
+    freedraw: ExcalidrawFreeDrawElement,
+  ): NonDeletedExcalidrawElement | null => {
+    const { app } = this;
+
+    const points = freedraw.points.map(([x, y]) =>
+      pointFrom<GlobalPoint>(freedraw.x + x, freedraw.y + y),
+    );
+    if (points.length < 3) {
+      return null;
+    }
+
+    // `convertToShape` returns undefined when the recognizer falls back to
+    // "freedraw", i.e. the stroke didn't look like anything — keep it as-is.
+    const detectedElement = convertToShape(
+      points,
+      app.state,
+      app.scene.getNonDeletedElementsMap(),
+      null,
+      app.scene.getNonDeletedFramesLikes(),
+    );
+    if (!detectedElement) {
+      return null;
+    }
+
+    let element: NonDeletedExcalidrawElement = {
+      ...detectedElement,
+      seed: randomInteger(),
+      groupIds: freedraw.groupIds,
+      frameId: freedraw.frameId ?? detectedElement.frameId,
+      opacity: freedraw.opacity,
+    };
+
+    if (app.state.isBindingEnabled && isLineElement(element)) {
+      element = this.maybeUpgradeLineToArrow(element) ?? element;
+    }
+
+    app.scene.mutateElement(freedraw, { isDeleted: true });
+    app.insertNewElement(element);
+
+    if (app.state.isBindingEnabled && isBindingElement(element)) {
+      this.bindRecognizedArrow(element);
+    }
+
+    return element;
   };
 }

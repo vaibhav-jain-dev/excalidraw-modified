@@ -11907,6 +11907,15 @@ class App extends React.Component<AppProps, AppState> {
           pressures,
         });
 
+        // smart pencil: swap a stroke that reads as a shape for the real
+        // thing before the stroke is committed to history
+        if (
+          this.state.activeTool.type === "freedraw" &&
+          this.state.currentItemFreedrawSnapToShape
+        ) {
+          this.drawShape.maybeConvertFreedrawStroke(newElement);
+        }
+
         this.actionManager.executeAction(actionFinalize);
 
         return;

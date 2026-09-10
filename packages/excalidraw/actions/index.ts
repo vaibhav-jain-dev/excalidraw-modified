@@ -15,6 +15,7 @@ export {
   actionChangeFillStyle,
   actionChangeSloppiness,
   actionChangeFreedrawMode,
+  actionChangeFreedrawSnapToShape,
   actionChangeOpacity,
   actionChangeFontSize,
   actionChangeFontFamily,
