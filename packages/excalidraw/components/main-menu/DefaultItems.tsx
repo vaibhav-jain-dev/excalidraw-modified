@@ -9,6 +9,7 @@ import {
   actionLoadScene,
   actionSaveToActiveFile,
   actionShortcuts,
+  actionOpenSettings,
   actionToggleArrowBinding,
   actionToggleGridMode,
   actionToggleMidpointSnapping,
@@ -204,6 +205,23 @@ export const Help = () => {
   );
 };
 Help.displayName = "Help";
+
+export const Settings = () => {
+  const { t } = useI18n();
+  const actionManager = useExcalidrawActionManager();
+
+  return (
+    <DropdownMenuItem
+      data-testid="settings-menu-item"
+      icon={settingsIcon}
+      onSelect={() => actionManager.executeAction(actionOpenSettings)}
+      aria-label={t("keybindings.title")}
+    >
+      {t("keybindings.menuItem")}
+    </DropdownMenuItem>
+  );
+};
+Settings.displayName = "Settings";
 
 export const ClearCanvas = () => {
   const { t } = useI18n();

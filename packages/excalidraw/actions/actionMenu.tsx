@@ -2,7 +2,7 @@ import { KEYS } from "@excalidraw/common";
 
 import { CaptureUpdateAction } from "@excalidraw/element";
 
-import { HelpIconThin } from "../components/icons";
+import { HelpIconThin, settingsIcon } from "../components/icons";
 
 import { register } from "./register";
 
@@ -32,4 +32,24 @@ export const actionShortcuts = register({
     };
   },
   keyTest: (event) => event.key === KEYS.QUESTION_MARK,
+});
+
+export const actionOpenSettings = register({
+  name: "openSettings",
+  label: "keybindings.menuItem",
+  icon: settingsIcon,
+  viewMode: true,
+  trackEvent: { category: "menu", action: "openSettings" },
+  perform: (_elements, appState) => ({
+    appState: {
+      ...appState,
+      openDialog:
+        appState.openDialog?.name === "settings"
+          ? null
+          : { name: "settings" as const },
+      openMenu: null,
+      openPopup: null,
+    },
+    captureUpdate: CaptureUpdateAction.EVENTUALLY,
+  }),
 });

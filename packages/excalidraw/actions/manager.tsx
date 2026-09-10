@@ -8,6 +8,7 @@ import type {
 } from "@excalidraw/element/types";
 
 import { trackEvent } from "../analytics";
+import { isActionRemapped, matchOverriddenAction } from "../keybindings";
 
 import type { AppClassProperties, AppState } from "../types";
 import type {
@@ -95,21 +96,34 @@ export class ActionManager {
     }
 
     const canvasActions = this.app.props.UIOptions.canvasActions;
-    const data = Object.values(this.actions)
-      .sort((a, b) => (b.keyPriority || 0) - (a.keyPriority || 0))
-      .filter(
-        (action) =>
-          (action.name in canvasActions
-            ? canvasActions[action.name as keyof typeof canvasActions]
-            : true) &&
-          action.keyTest &&
-          action.keyTest(
-            event,
-            this.getAppState(),
-            this.getElementsIncludingDeleted(),
-            this.app,
-          ),
-      );
+    const isEnabled = (action: Action) =>
+      action.name in canvasActions
+        ? canvasActions[action.name as keyof typeof canvasActions]
+        : true;
+
+    // user-remapped shortcut: it wins over the default keyTests, and its own
+    // default keyTest is ignored (see `isActionRemapped` in the filter below)
+    const overriddenName = matchOverriddenAction(event);
+    const overridden =
+      overriddenName && this.actions[overriddenName as ActionName];
+
+    const data =
+      overridden && isEnabled(overridden)
+        ? [overridden]
+        : Object.values(this.actions)
+            .sort((a, b) => (b.keyPriority || 0) - (a.keyPriority || 0))
+            .filter(
+              (action) =>
+                isEnabled(action) &&
+                !isActionRemapped(action.name) &&
+                action.keyTest &&
+                action.keyTest(
+                  event,
+                  this.getAppState(),
+                  this.getElementsIncludingDeleted(),
+                  this.app,
+                ),
+            );
 
     if (data.length !== 1) {
       if (data.length > 1) {

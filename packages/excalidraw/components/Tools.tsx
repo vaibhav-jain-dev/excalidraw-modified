@@ -7,6 +7,7 @@ import type { PointerType } from "@excalidraw/element/types";
 
 import { trackEvent } from "../analytics";
 import { t } from "../i18n";
+import { isToolRemapped } from "../keybindings";
 import { getShortcutKey } from "../shortcut";
 
 import { IconButton } from "./IconButton";
@@ -200,6 +201,10 @@ export const findShapeByKey = (
   const lowerKey = key.toLowerCase();
 
   for (const type of Object.keys(TOOLS) as ToolbarToolType[]) {
+    // a user-remapped tool no longer answers to its built-in key
+    if (isToolRemapped(type)) {
+      continue;
+    }
     const { letterKey, numericKey, shiftKey: requiresShift } = TOOLS[type];
     // shift-bound tools require shift; plain-bound ones require its absence
     if (shiftKey !== Boolean(requiresShift)) {

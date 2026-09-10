@@ -438,6 +438,8 @@ import {
   resolveColorTarget,
 } from "../actions/colorTargets";
 
+import { matchOverriddenTool } from "../keybindings";
+
 import ConvertElementTypePopup, {
   getConversionTypeFromElements,
   convertElementTypePopupAtom,
@@ -5635,6 +5637,23 @@ class App extends React.Component<AppProps, AppState> {
         event.key === KEYS.ESCAPE
       ) {
         this.setActiveTool({ type: "selection" });
+        return;
+      }
+
+      // user-remapped tool shortcut (may carry Ctrl/Alt/Meta, unlike the
+      // built-in tool keys)
+      const overriddenTool = matchOverriddenTool(event);
+      if (
+        overriddenTool &&
+        !shouldPreventToolSwitching &&
+        !this.state.newElement &&
+        !this.state.selectionElement &&
+        !this.state.selectedElementsAreBeingDragged &&
+        (!this.state.viewModeEnabled ||
+          oneOf(overriddenTool, ["laser", "hand"]))
+      ) {
+        this.setActiveTool({ type: overriddenTool });
+        event.preventDefault();
         return;
       }
 

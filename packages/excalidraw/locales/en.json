@@ -760,5 +760,32 @@
     "spacebar": "Space",
     "delete": "Delete",
     "mmb": "Scroll wheel"
+  },
+  "keybindings": {
+    "title": "Keyboard shortcuts",
+    "menuItem": "Keyboard shortcuts…",
+    "tools": "Tools",
+    "actions": "Actions",
+    "search": "Search shortcuts…",
+    "recording": "Press keys…",
+    "edit": "Change",
+    "clear": "Remove",
+    "reset": "Reset",
+    "resetAll": "Reset all to defaults",
+    "conflict": "Also used by \"{{name}}\"",
+    "custom": "Custom",
+    "hint": "Click a shortcut to record a new key combination. Some keys handled elsewhere (canvas panning, arrow-key nudging) aren't listed.",
+    "toggleElementLock": "Lock / unlock selection",
+    "hyperlink": "Add link",
+    "zoomIn": "Zoom in",
+    "zoomOut": "Zoom out",
+    "resetZoom": "Reset zoom",
+    "snapMode": "Toggle snapping",
+    "stats": "Toggle stats",
+    "commandPalette": "Command palette",
+    "search_action": "Find on canvas",
+    "save": "Save to file",
+    "exportImage": "Export image",
+    "open": "Open file"
   }
 }
