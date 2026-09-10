@@ -9982,7 +9982,13 @@ class App extends React.Component<AppProps, AppState> {
 
     const simulatePressure = event.pressure === 0.5;
 
-    const strokeVariability = this.state.currentItemStrokeVariability;
+    // a real pressure pen (reports a genuine, non-zero pressure) always draws
+    // a pressure-sensitive, variable-width stroke — the "Pressure" panel
+    // setting only governs mouse / trackpad / pressureless input
+    const hasRealPressure = !simulatePressure && event.pressure > 0;
+    const strokeVariability = hasRealPressure
+      ? "variable"
+      : this.state.currentItemStrokeVariability;
 
     const element = newFreeDrawElement({
       type: elementType,
