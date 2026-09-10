@@ -19,9 +19,18 @@ import type {
 
 import { CLIENT_ID, ServerData } from "./ServerData";
 
-const SAVE_DEBOUNCE_MS = 1000;
-const THUMBNAIL_DEBOUNCE_MS = 4000;
+const SAVE_DEBOUNCE_MS = 1200;
+const THUMBNAIL_DEBOUNCE_MS = 5000;
 const THUMBNAIL_MAX_DIMENSION = 480;
+
+/** run heavy work off the interaction path so drawing stays smooth */
+const whenIdle = (fn: () => void) => {
+  if (typeof requestIdleCallback === "function") {
+    requestIdleCallback(fn, { timeout: 2000 });
+  } else {
+    setTimeout(fn, 0);
+  }
+};
 
 let activeLocalSceneId: string | null = null;
 
@@ -38,38 +47,44 @@ const pushSave = debounce(
     appState: Partial<AppState>,
     files: BinaryFiles,
   ) => {
-    void ServerData.saveScene(id, elements, appState, files).catch((error) => {
-      console.warn("excalidraw-local: scene save failed", error);
+    whenIdle(() => {
+      void ServerData.saveScene(id, elements, appState, files).catch(
+        (error) => {
+          console.warn("excalidraw-local: scene save failed", error);
+        },
+      );
     });
   },
   SAVE_DEBOUNCE_MS,
 );
 
 const pushThumbnail = debounce(
-  async (
+  (
     id: string,
     elements: readonly OrderedExcalidrawElement[],
     appState: AppState,
     files: BinaryFiles,
   ) => {
-    try {
-      const blob = await exportToBlob({
-        elements: getNonDeletedElements(elements),
-        appState: {
-          ...appState,
-          exportBackground: true,
-          exportScale: 1,
-        },
-        files,
-        maxWidthOrHeight: THUMBNAIL_MAX_DIMENSION,
-        mimeType: "image/png",
-      });
-      if (blob && blob.size > 0) {
-        await ServerData.uploadThumbnail(id, blob);
+    whenIdle(async () => {
+      try {
+        const blob = await exportToBlob({
+          elements: getNonDeletedElements(elements),
+          appState: {
+            ...appState,
+            exportBackground: true,
+            exportScale: 1,
+          },
+          files,
+          maxWidthOrHeight: THUMBNAIL_MAX_DIMENSION,
+          mimeType: "image/png",
+        });
+        if (blob && blob.size > 0) {
+          await ServerData.uploadThumbnail(id, blob);
+        }
+      } catch (error) {
+        console.warn("excalidraw-local: thumbnail update failed", error);
       }
-    } catch (error) {
-      console.warn("excalidraw-local: thumbnail update failed", error);
-    }
+    });
   },
   THUMBNAIL_DEBOUNCE_MS,
 );

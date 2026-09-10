@@ -11418,22 +11418,42 @@ class App extends React.Component<AppProps, AppState> {
 
         if (newElement.type === "freedraw") {
           const points = newElement.points;
-          const dx = pointerCoords.x - newElement.x;
-          const dy = pointerCoords.y - newElement.y;
 
-          const lastPoint = points.length > 0 && points[points.length - 1];
-          const discardPoint =
-            lastPoint && lastPoint[0] === dx && lastPoint[1] === dy;
+          // capture every sub-frame pointer sample the browser merged into
+          // this (rAF-throttled) event, so fast strokes stay accurate and
+          // track the cursor tightly — without extra React renders
+          const samples =
+            typeof event.getCoalescedEvents === "function"
+              ? event.getCoalescedEvents()
+              : [];
 
-          if (!discardPoint) {
+          const appendedPoints: LocalPoint[] = [];
+          const appendedPressures: number[] = [];
+          let prev: LocalPoint | readonly [number, number] | undefined =
+            points.length > 0 ? points[points.length - 1] : undefined;
+
+          for (const sample of samples.length ? samples : [event]) {
+            const coords = viewportCoordsToSceneCoords(sample, this.state);
+            const dx = coords.x - newElement.x;
+            const dy = coords.y - newElement.y;
+            if (prev && prev[0] === dx && prev[1] === dy) {
+              continue;
+            }
+            const point = pointFrom<LocalPoint>(dx, dy);
+            appendedPoints.push(point);
+            appendedPressures.push(sample.pressure);
+            prev = point;
+          }
+
+          if (appendedPoints.length) {
             const pressures = newElement.simulatePressure
               ? newElement.pressures
-              : [...newElement.pressures, event.pressure];
+              : [...newElement.pressures, ...appendedPressures];
 
             this.scene.mutateElement(
               newElement,
               {
-                points: [...points, pointFrom<LocalPoint>(dx, dy)],
+                points: [...points, ...appendedPoints],
                 pressures,
               },
               {
