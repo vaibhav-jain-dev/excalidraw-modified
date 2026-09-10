@@ -1,6 +1,6 @@
 import path from "path";
 
-import { defineConfig } from "vitest/config";
+import { configDefaults, defineConfig } from "vitest/config";
 
 export default defineConfig({
   resolve: {
@@ -82,6 +82,8 @@ export default defineConfig({
     setupFiles: ["./setupTests.ts"],
     globals: true,
     environment: "jsdom",
+    // the `server/` workspace runs on `node --test`, not vitest
+    exclude: [...configDefaults.exclude, "server/**"],
     // don't list skipped tests in the failure tree — keeps output readable
     hideSkippedTests: true,
     coverage: {

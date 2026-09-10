@@ -2,16 +2,26 @@ import fs from "node:fs";
 
 import type { FastifyInstance, FastifyReply } from "fastify";
 
+import type { SemanticScene } from "../derive/semantic.ts";
+import {
+  reportPresence,
+  subscribeEvents,
+  type SceneChangedEvent,
+} from "../events.ts";
 import { ensureDir, thumbFile, thumbsDir } from "../paths.ts";
 import {
+  appendSemantic,
   createScene,
+  getMarkdown,
   getSceneContent,
   getSceneSummary,
+  getSemantic,
   listCategories,
   listScenes,
   listVersions,
   markThumbnailUpdated,
   saveScene,
+  saveSceneFromSemantic,
   SceneNotFoundError,
   setVersionPinned,
   softDeleteScene,
@@ -64,13 +74,18 @@ export const registerSceneRoutes = (app: FastifyInstance): void => {
   app.get("/api/categories", async () => ({ categories: listCategories() }));
 
   app.post("/api/scenes", async (request, reply) => {
-    const body = (request.body ?? {}) as SceneMetaBody;
-    const scene = createScene({
+    const body = (request.body ?? {}) as SceneMetaBody & {
+      semantic?: Partial<SemanticScene>;
+    };
+    let scene = createScene({
       name: body.name,
       description: body.description,
       category: body.category,
       tags: body.tags,
     });
+    if (body.semantic) {
+      scene = saveSceneFromSemantic(scene.id, body.semantic).summary;
+    }
     reply.code(201);
     return { scene };
   });
@@ -85,11 +100,13 @@ export const registerSceneRoutes = (app: FastifyInstance): void => {
   });
 
   app.put<{ Params: IdParams }>("/api/scenes/:id", async (request, reply) => {
+    const clientId = request.headers["x-client-id"];
     try {
       const { version, summary } = saveScene(
         request.params.id,
         asContent(request.body),
-        "api",
+        "editor",
+        typeof clientId === "string" ? clientId : undefined,
       );
       return { scene: summary, version };
     } catch (error) {
@@ -98,6 +115,42 @@ export const registerSceneRoutes = (app: FastifyInstance): void => {
       }
       throw error;
     }
+  });
+
+  // editor -> server: "this scene is open right now"
+  app.post<{ Params: IdParams }>(
+    "/api/scenes/:id/presence",
+    async (request, reply) => {
+      if (!getSceneSummary(request.params.id)) {
+        return notFound(reply);
+      }
+      const body = (request.body ?? {}) as { clientId?: string };
+      reportPresence(request.params.id, body.clientId);
+      return { ok: true };
+    },
+  );
+
+  // server -> clients: live `scene-changed` stream (Server-Sent Events)
+  app.get("/api/events", (request, reply) => {
+    reply.raw.writeHead(200, {
+      "content-type": "text/event-stream",
+      "cache-control": "no-cache, no-transform",
+      connection: "keep-alive",
+    });
+    reply.raw.write(": connected\n\n");
+
+    const send = (event: SceneChangedEvent) => {
+      reply.raw.write(`data: ${JSON.stringify(event)}\n\n`);
+    };
+    const heartbeat = setInterval(() => reply.raw.write(": ping\n\n"), 25_000);
+    const unsubscribe = subscribeEvents(send);
+
+    request.raw.on("close", () => {
+      clearInterval(heartbeat);
+      unsubscribe();
+    });
+
+    reply.hijack();
   });
 
   app.patch<{ Params: IdParams }>("/api/scenes/:id", async (request, reply) => {
@@ -166,6 +219,68 @@ export const registerSceneRoutes = (app: FastifyInstance): void => {
       try {
         setVersionPinned(request.params.id, version, body.pinned !== false);
         return { ok: true };
+      } catch (error) {
+        if (error instanceof SceneNotFoundError) {
+          return notFound(reply, error.message);
+        }
+        throw error;
+      }
+    },
+  );
+
+  // --- semantic (bot-friendly) views ---
+
+  app.get<{ Params: IdParams }>(
+    "/api/scenes/:id/semantic",
+    async (request, reply) => {
+      const semantic = getSemantic(request.params.id);
+      if (!semantic) {
+        return notFound(reply);
+      }
+      return semantic;
+    },
+  );
+
+  app.get<{ Params: IdParams }>(
+    "/api/scenes/:id/markdown",
+    async (request, reply) => {
+      const markdown = getMarkdown(request.params.id);
+      if (markdown == null) {
+        return notFound(reply);
+      }
+      return reply.type("text/markdown").send(markdown);
+    },
+  );
+
+  app.put<{ Params: IdParams }>(
+    "/api/scenes/:id/semantic",
+    async (request, reply) => {
+      try {
+        const { summary, version } = saveSceneFromSemantic(
+          request.params.id,
+          (request.body ?? {}) as Partial<SemanticScene>,
+          "api",
+        );
+        return { scene: summary, version };
+      } catch (error) {
+        if (error instanceof SceneNotFoundError) {
+          return notFound(reply, error.message);
+        }
+        throw error;
+      }
+    },
+  );
+
+  app.post<{ Params: IdParams }>(
+    "/api/scenes/:id/semantic/append",
+    async (request, reply) => {
+      try {
+        const { summary, version } = appendSemantic(
+          request.params.id,
+          (request.body ?? {}) as Partial<SemanticScene>,
+          "api",
+        );
+        return { scene: summary, version };
       } catch (error) {
         if (error instanceof SceneNotFoundError) {
           return notFound(reply, error.message);

@@ -18,6 +18,12 @@ export const versionFile = (id: string, version: number): string =>
 export const latestFile = (id: string): string =>
   path.join(sceneDir(id), "latest.excalidraw");
 
+export const semanticFile = (id: string): string =>
+  path.join(sceneDir(id), "scene.semantic.json");
+
+export const markdownFile = (id: string): string =>
+  path.join(sceneDir(id), "scene.md");
+
 export const thumbsDir = (): string => path.join(config.dataDir, "thumbs");
 
 export const thumbFile = (id: string): string =>

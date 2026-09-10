@@ -2,11 +2,21 @@ import fs from "node:fs";
 
 import { config } from "../config.ts";
 import { db, queryRow, queryRows } from "../db.ts";
+import {
+  fromSemantic,
+  mergeSemantic,
+  toMarkdown,
+  toSemantic,
+  type SemanticScene,
+} from "../derive/semantic.ts";
+import { broadcastSceneChanged } from "../events.ts";
 import { newId } from "../id.ts";
 import {
   ensureDir,
   latestFile,
+  markdownFile,
   sceneDir,
+  semanticFile,
   versionFile,
 } from "../paths.ts";
 
@@ -281,6 +291,7 @@ export const saveScene = (
   id: string,
   content: Partial<SceneContent>,
   source: SceneSource = "editor",
+  originClientId?: string,
 ): { version: number; summary: SceneSummary } => {
   const summary = getSceneSummary(id);
   if (!summary) {
@@ -328,8 +339,84 @@ export const saveScene = (
   }
 
   pruneVersions(id);
+  regenerateDerived(id, elements);
+  broadcastSceneChanged({
+    type: "scene-changed",
+    id,
+    version,
+    source,
+    originClientId,
+  });
 
   return { version, summary: getSceneSummary(id) as SceneSummary };
+};
+
+/** Regenerate the bot-friendly views (`scene.semantic.json`, `scene.md`). */
+const regenerateDerived = (id: string, elements: unknown[]): void => {
+  try {
+    const semantic = toSemantic(elements as Array<Record<string, unknown>>);
+    fs.writeFileSync(
+      semanticFile(id),
+      `${JSON.stringify(semantic, null, 2)}\n`,
+    );
+    const name = getSceneSummary(id)?.name ?? "Untitled";
+    fs.writeFileSync(markdownFile(id), toMarkdown(semantic, name));
+  } catch (error) {
+    // derived views are best-effort — a bad scene must not fail the save
+    console.warn(`failed to regenerate derived views for ${id}`, error);
+  }
+};
+
+// ---------------------------------------------------------------------------
+// semantic (bot-friendly) access
+// ---------------------------------------------------------------------------
+
+export const getSemantic = (id: string): SemanticScene | null => {
+  const content = getSceneContent(id);
+  if (!content) {
+    return null;
+  }
+  return toSemantic(content.elements as Array<Record<string, unknown>>);
+};
+
+export const getMarkdown = (id: string): string | null => {
+  const semantic = getSemantic(id);
+  if (!semantic) {
+    return null;
+  }
+  return toMarkdown(semantic, getSceneSummary(id)?.name ?? "Untitled");
+};
+
+/** Replace a scene's whole content from a semantic graph. */
+export const saveSceneFromSemantic = (
+  id: string,
+  graph: Partial<SemanticScene>,
+  source: SceneSource = "mcp",
+): { version: number; summary: SceneSummary } =>
+  saveScene(id, { elements: fromSemantic(graph), appState: {}, files: {} }, source);
+
+/** Merge a semantic fragment into a scene, keeping what's already there. */
+export const appendSemantic = (
+  id: string,
+  fragment: Partial<SemanticScene>,
+  source: SceneSource = "mcp",
+): { version: number; summary: SceneSummary } => {
+  const content = getSceneContent(id);
+  if (!content) {
+    throw new SceneNotFoundError(id);
+  }
+  return saveScene(
+    id,
+    {
+      elements: mergeSemantic(
+        content.elements as Array<Record<string, unknown>>,
+        fragment,
+      ),
+      appState: {},
+      files: {},
+    },
+    source,
+  );
 };
 
 export const setVersionPinned = (

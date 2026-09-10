@@ -12,6 +12,12 @@ import type { ImportedDataState } from "@excalidraw/excalidraw/data/types";
 
 const API = "/api";
 
+/** Stable per-tab id so the editor can ignore the echo of its own saves. */
+export const CLIENT_ID: string =
+  typeof crypto !== "undefined" && "randomUUID" in crypto
+    ? crypto.randomUUID()
+    : `c${Math.random().toString(36).slice(2)}${Date.now().toString(36)}`;
+
 export interface RemoteSceneSummary {
   id: string;
   name: string;
@@ -118,9 +124,21 @@ export const ServerData = {
   ): Promise<void> {
     await fetch(`${API}/scenes/${encodeURIComponent(id)}`, {
       method: "PUT",
-      headers: jsonHeaders,
+      headers: { ...jsonHeaders, "x-client-id": CLIENT_ID },
       body: serializeAsJSON(elements, appState, files, "local"),
     });
+  },
+
+  async reportPresence(id: string): Promise<void> {
+    try {
+      await fetch(`${API}/scenes/${encodeURIComponent(id)}/presence`, {
+        method: "POST",
+        headers: jsonHeaders,
+        body: JSON.stringify({ clientId: CLIENT_ID }),
+      });
+    } catch {
+      // presence is best-effort
+    }
   },
 
   async uploadThumbnail(id: string, png: Blob): Promise<void> {

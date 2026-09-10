@@ -27,6 +27,12 @@ export default defineConfig(({ mode }) => {
           }`,
           changeOrigin: true,
         },
+        "/mcp": {
+          target: `http://localhost:${
+            envVars.LOCAL_SERVER_PORT || process.env.LOCAL_SERVER_PORT || 3057
+          }`,
+          changeOrigin: true,
+        },
       },
     },
     // We need to specify the envDir since now there are no

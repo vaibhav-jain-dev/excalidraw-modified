@@ -11,6 +11,8 @@
   "scripts": {
     "start": "node src/index.ts",
     "dev": "node --watch src/index.ts",
+    "mcp": "node src/mcp/stdio.ts",
+    "test": "node --test 'src/**/*.test.ts'",
     "typecheck": "tsc -p tsconfig.json"
   },
   "dependencies": {

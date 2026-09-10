@@ -1,6 +1,7 @@
 import Fastify, { type FastifyInstance } from "fastify";
 
 import { config } from "./config.ts";
+import { handleMcpHttp } from "./mcp/server.ts";
 import { registerSceneRoutes } from "./routes/scenes.ts";
 
 /**
@@ -25,6 +26,18 @@ export const buildApp = (): FastifyInstance => {
     ok: true,
     ts: new Date().toISOString(),
   }));
+
+  // Model Context Protocol — Streamable HTTP transport (stateless, JSON replies)
+  app.post("/mcp", async (request, reply) => {
+    const response = await handleMcpHttp(request.body);
+    if (response === null) {
+      return reply.code(202).send();
+    }
+    return reply.type("application/json").send(response);
+  });
+  app.get("/mcp", async (_request, reply) =>
+    reply.code(405).send({ error: "Use POST for MCP messages" }),
+  );
 
   registerSceneRoutes(app);
 

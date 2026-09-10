@@ -6,14 +6,34 @@ roadmap.
 
 ## Status
 
-**Steps 1–2.** Fastify server, SQLite metadata store (`node:sqlite`, no native
+**Steps 1–4.** Fastify server, SQLite metadata store (`node:sqlite`, no native
 deps), scene CRUD + version history, title/description/category, client-rendered
 PNG thumbnails, static hosting of the built app. The app shows a **dashboard**
-(thumbnail grid, search, category filter) for a bare URL and opens the editor
-for `#local=<id>`, syncing edits back on a debounce.
+for a bare URL and opens the editor for `#local=<id>`.
 
-Not yet: server-side PNG rendering, derived markdown/semantic views,
-full-text/vector search, MCP, live-reload websocket.
+- **Semantic JSON** — every scene has a compact `{ nodes, edges, texts,
+  sketches }` view (`scene.semantic.json`, `scene.md`) that a bot can read and
+  author; `fromSemantic` compiles it back to elements (grid layout when
+  positions are omitted). Even a pencil stroke is a `sketch` here.
+- **MCP** — `POST /mcp` (Streamable HTTP) and `yarn mcp` (stdio). Tools work
+  through the semantic view and can target `"active"` — the scene the editor
+  has open — so a bot edits alongside the user.
+- **Live sync** — `GET /api/events` (SSE) broadcasts `scene-changed`; the
+  editor picks up MCP / API / other-tab edits without a reload.
+
+Not yet: server-side PNG rendering, full-text / vector search.
+
+## MCP
+
+```bash
+claude mcp add excalidraw-local -- node <repo>/server/src/mcp/stdio.ts
+# or, against a running server:
+claude mcp add --transport http excalidraw-local http://localhost:3057/mcp
+```
+
+Tools: `list_scenes`, `search_scenes`, `get_active_scene`, `get_scene`,
+`create_scene`, `update_scene`, `append_to_scene`, `set_scene_meta`,
+`delete_scene`, `get_scene_image`.
 
 ## Requirements
 
@@ -77,6 +97,13 @@ yarn start:local         # = yarn build && yarn server  ->  http://localhost:305
 | `POST`   | `/api/scenes/:id/versions/:version/pin` | `{ pinned? }` (default `true`)   |
 | `PUT`    | `/api/scenes/:id/thumbnail`          | `image/png` body → stored preview  |
 | `GET`    | `/api/scenes/:id/thumbnail`          | the PNG preview (404 if none)      |
+| `GET`    | `/api/scenes/:id/semantic`          | compact `{ nodes, edges, texts, sketches }` |
+| `PUT`    | `/api/scenes/:id/semantic`          | replace the scene from a semantic graph |
+| `POST`   | `/api/scenes/:id/semantic/append`   | merge a semantic fragment           |
+| `GET`    | `/api/scenes/:id/markdown`          | readable outline                    |
+| `POST`   | `/api/scenes/:id/presence`          | editor → "this scene is open"       |
+| `GET`    | `/api/events`                       | SSE stream of `scene-changed`       |
+| `POST`   | `/mcp`                              | Model Context Protocol (JSON-RPC)   |
 
 ## Type checking
 

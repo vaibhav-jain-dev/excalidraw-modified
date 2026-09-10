@@ -123,7 +123,12 @@ import {
 } from "./data/LocalData";
 import { isBrowserStorageStateNewer } from "./data/tabSync";
 import { ServerData } from "./data/ServerData";
-import { setActiveLocalSceneId, syncActiveLocalScene } from "./data/localScene";
+import {
+  setActiveLocalSceneId,
+  startLocalSceneSync,
+  stopLocalSceneSync,
+  syncActiveLocalScene,
+} from "./data/localScene";
 import { Dashboard } from "./components/Dashboard/Dashboard";
 import { ShareDialog, shareDialogStateAtom } from "./share/ShareDialog";
 import CollabError, { collabErrorIndicatorAtom } from "./collab/CollabError";
@@ -490,6 +495,10 @@ const ExcalidrawWrapper = () => {
     }
   }, [excalidrawAPI]);
 
+  // live sync (`#local=<id>`) is started once the scene resolves in
+  // `initializeScene`; just tear it down when the editor unmounts
+  useEffect(() => () => stopLocalSceneSync(), []);
+
   // ?collaborators=<N> — populate the canvas with N static fake
   // collaborators for exercising avatar/UserList UI without a real
   // collab room
@@ -588,6 +597,8 @@ const ExcalidrawWrapper = () => {
     initializeScene({ collabAPI, excalidrawAPI }).then(async (data) => {
       loadImages(data, /* isInitialLoad */ true);
       initialStatePromiseRef.current.promise.resolve(data.scene);
+      // now that `#local=<id>` (if any) has been resolved, start live sync
+      startLocalSceneSync(excalidrawAPI);
     });
 
     const onHashChange = async (event: HashChangeEvent) => {
