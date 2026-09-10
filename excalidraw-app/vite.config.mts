@@ -17,6 +17,17 @@ export default defineConfig(({ mode }) => {
       port: Number(envVars.VITE_APP_PORT || 3000),
       // open the browser
       open: true,
+      // proxy local-first API/MCP/WS calls to the excalidraw-local server
+      // (see ../LOCAL_FIRST_PLAN.md). In production that server hosts the built
+      // app directly on the same origin, so no proxy is needed.
+      proxy: {
+        "/api": {
+          target: `http://localhost:${
+            envVars.LOCAL_SERVER_PORT || process.env.LOCAL_SERVER_PORT || 3057
+          }`,
+          changeOrigin: true,
+        },
+      },
     },
     // We need to specify the envDir since now there are no
     //more located in parallel with the vite.config.ts file but in parent dir

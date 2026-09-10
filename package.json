@@ -5,7 +5,8 @@
   "workspaces": [
     "excalidraw-app",
     "packages/*",
-    "examples/*"
+    "examples/*",
+    "server"
   ],
   "devDependencies": {
     "@babel/preset-env": "7.26.9",
@@ -64,12 +65,17 @@
     "build:preview": "yarn --cwd ./excalidraw-app build:preview",
     "start": "yarn --cwd ./excalidraw-app start",
     "start:production": "yarn --cwd ./excalidraw-app start:production",
+    "server": "yarn --cwd ./server start",
+    "server:dev": "yarn --cwd ./server dev",
+    "start:local": "yarn build && yarn server",
+    "dev:local": "yarn --cwd ./server dev & yarn start",
     "start:example": "yarn build:packages && yarn --cwd ./examples/with-script-in-browser start",
     "test:all": "yarn test:typecheck && yarn test:code && yarn test:other && yarn test:app --watch=false",
     "test:app": "vitest",
     "test:code": "eslint --max-warnings=0 --ext .js,.ts,.tsx .",
     "test:other": "yarn prettier --list-different",
     "test:typecheck": "tsc",
+    "test:typecheck:server": "yarn --cwd ./server typecheck",
     "test:update": "yarn test:app --update --watch=false",
     "test": "yarn test:app",
     "test:coverage": "vitest --coverage",
