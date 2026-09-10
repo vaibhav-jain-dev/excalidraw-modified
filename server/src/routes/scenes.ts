@@ -20,6 +20,7 @@ import {
   listScenes,
   listVersions,
   markThumbnailUpdated,
+  refreshTempExpiry,
   saveScene,
   saveSceneFromSemantic,
   SceneNotFoundError,
@@ -35,6 +36,7 @@ interface SceneMetaBody {
   category?: string;
   tags?: string[];
   pinned?: boolean;
+  temporary?: boolean;
 }
 
 const MAX_THUMBNAIL_BYTES = 2 * 1024 * 1024;
@@ -82,6 +84,7 @@ export const registerSceneRoutes = (app: FastifyInstance): void => {
       description: body.description,
       category: body.category,
       tags: body.tags,
+      temporary: body.temporary === true,
     });
     if (body.semantic) {
       scene = saveSceneFromSemantic(scene.id, body.semantic).summary;
@@ -126,6 +129,7 @@ export const registerSceneRoutes = (app: FastifyInstance): void => {
       }
       const body = (request.body ?? {}) as { clientId?: string };
       reportPresence(request.params.id, body.clientId);
+      refreshTempExpiry(request.params.id);
       return { ok: true };
     },
   );

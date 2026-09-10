@@ -5,13 +5,11 @@ import {
   type RemoteSceneMeta,
   type RemoteSceneSummary,
 } from "../../data/ServerData";
+import { routeToScene } from "../../data/route";
 
 import "./Dashboard.scss";
 
-const openScene = (id: string) => {
-  window.location.href = `/#local=${id}`;
-  window.location.reload();
-};
+const openScene = (id: string) => routeToScene(id);
 
 const formatDate = (iso: string) => {
   try {
@@ -53,6 +51,7 @@ const MetaDialog = ({
   const [name, setName] = useState(edit.name);
   const [description, setDescription] = useState(edit.description);
   const [category, setCategory] = useState(edit.category);
+  const [temporary, setTemporary] = useState(false);
   const isNew = edit.id === null;
 
   return (
@@ -91,6 +90,16 @@ const MetaDialog = ({
             ))}
           </datalist>
         </label>
+        {isNew && (
+          <label className="dash-check">
+            <input
+              type="checkbox"
+              checked={temporary}
+              onChange={(event) => setTemporary(event.target.checked)}
+            />
+            Temporary — auto-deletes when idle 15 min / after 1 hour
+          </label>
+        )}
         <div className="dash-modal-actions">
           <button type="button" onClick={onCancel}>
             Cancel
@@ -98,7 +107,7 @@ const MetaDialog = ({
           <button
             type="button"
             className="primary"
-            onClick={() => onSave({ name, description, category })}
+            onClick={() => onSave({ name, description, category, temporary })}
           >
             {isNew ? "Create & open" : "Save"}
           </button>
@@ -147,6 +156,11 @@ const SceneCard = ({
         <div className="dash-card-desc">{scene.description}</div>
       )}
       <div className="dash-card-meta">
+        {scene.temporary && (
+          <span className="dash-card-temp" title="Auto-deletes when idle">
+            temporary
+          </span>
+        )}
         {scene.category && (
           <span className="dash-card-cat">{scene.category}</span>
         )}

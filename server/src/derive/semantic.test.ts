@@ -34,6 +34,7 @@ test("fromSemantic produces valid, restorable elements", () => {
   }
 
   const rect = elements.find((el) => el.id === "a");
+  assert.ok(rect);
   assert.ok(rect.boundElements?.some((b: any) => b.type === "text"));
 });
 

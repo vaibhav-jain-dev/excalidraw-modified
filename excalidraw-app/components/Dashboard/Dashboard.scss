@@ -220,6 +220,27 @@
   font-weight: 600;
 }
 
+.dash-card-temp {
+  padding: 0.1rem 0.45rem;
+  border-radius: 999px;
+  background: rgba(240, 180, 41, 0.18);
+  color: #b6820b;
+  font-weight: 600;
+}
+
+.dash-check {
+  flex-direction: row !important;
+  align-items: center;
+  gap: 0.5rem !important;
+  font-weight: 400 !important;
+  color: var(--dash-text) !important;
+  font-size: 0.85rem !important;
+
+  input {
+    width: auto;
+  }
+}
+
 .dash-card-actions {
   display: flex;
   gap: 0.35rem;

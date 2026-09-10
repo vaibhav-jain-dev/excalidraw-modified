@@ -17,6 +17,7 @@ import {
   markdownFile,
   sceneDir,
   semanticFile,
+  thumbFile,
   versionFile,
 } from "../paths.ts";
 
@@ -50,7 +51,14 @@ export interface SceneSummary {
   elementCount: number;
   pinned: boolean;
   hasThumbnail: boolean;
+  /** a scratch scene — auto-deleted when idle 15 min or after 1 hour */
+  temporary: boolean;
+  expiresAt: string | null;
 }
+
+/** ms a temporary scene lives without activity, and its hard cap. */
+export const TEMP_IDLE_MS = 15 * 60 * 1000;
+export const TEMP_MAX_MS = 60 * 60 * 1000;
 
 export interface SceneContent {
   elements: unknown[];
@@ -78,6 +86,8 @@ interface SceneRow {
   element_count: number;
   pinned: number;
   thumbnail_updated_at: string | null;
+  temporary: number;
+  expires_at: string | null;
 }
 
 const EMPTY_CONTENT = (): SceneContent => ({
@@ -98,6 +108,8 @@ const rowToSummary = (row: SceneRow): SceneSummary => ({
   elementCount: row.element_count,
   pinned: row.pinned !== 0,
   hasThumbnail: row.thumbnail_updated_at != null,
+  temporary: row.temporary !== 0,
+  expiresAt: row.expires_at,
 });
 
 const parseTags = (raw: string): string[] => {
@@ -142,17 +154,22 @@ export const createScene = (
     description?: string;
     category?: string;
     tags?: string[];
+    temporary?: boolean;
   } = {},
 ): SceneSummary => {
   const id = newId();
   const now = new Date().toISOString();
   const name = opts.name?.trim() || "Untitled";
   const tags = JSON.stringify(opts.tags ?? []);
+  const expiresAt = opts.temporary
+    ? new Date(Date.now() + TEMP_IDLE_MS).toISOString()
+    : null;
 
   db.prepare(
     `INSERT INTO scenes
-       (id, name, description, category, tags, created_at, updated_at)
-     VALUES (?, ?, ?, ?, ?, ?, ?)`,
+       (id, name, description, category, tags, created_at, updated_at,
+        temporary, expires_at)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
   ).run(
     id,
     name,
@@ -161,6 +178,8 @@ export const createScene = (
     tags,
     now,
     now,
+    opts.temporary ? 1 : 0,
+    expiresAt,
   );
   ensureDir(sceneDir(id));
 
@@ -231,6 +250,49 @@ export const softDeleteScene = (id: string): boolean => {
     )
     .run(new Date().toISOString(), id);
   return Number(result.changes) > 0;
+};
+
+/** Remove a scene's rows and files entirely (used for expired temp scenes). */
+export const hardDeleteScene = (id: string): void => {
+  db.prepare("DELETE FROM scene_versions WHERE scene_id = ?").run(id);
+  db.prepare("DELETE FROM scenes WHERE id = ?").run(id);
+  try {
+    fs.rmSync(sceneDir(id), { recursive: true, force: true });
+    fs.rmSync(thumbFile(id), { force: true });
+  } catch {
+    // best-effort
+  }
+};
+
+/** Push a temporary scene's expiry out to now + idle window (capped at 1h). */
+export const refreshTempExpiry = (id: string): void => {
+  const summary = getSceneSummary(id);
+  if (!summary?.temporary) {
+    return;
+  }
+  const created = Date.parse(summary.createdAt);
+  const next = Math.min(
+    Date.now() + TEMP_IDLE_MS,
+    created + TEMP_MAX_MS,
+  );
+  db.prepare("UPDATE scenes SET expires_at = ? WHERE id = ?").run(
+    new Date(next).toISOString(),
+    id,
+  );
+};
+
+/** Hard-delete every temporary scene whose expiry has passed. Returns the count. */
+export const sweepExpiredScenes = (): number => {
+  const now = new Date().toISOString();
+  const expired = queryRows<{ id: string }>(
+    `SELECT id FROM scenes
+     WHERE temporary = 1 AND expires_at IS NOT NULL AND expires_at < ?`,
+    now,
+  );
+  for (const { id } of expired) {
+    hardDeleteScene(id);
+  }
+  return expired.length;
 };
 
 export const getSceneContent = (
@@ -340,6 +402,7 @@ export const saveScene = (
 
   pruneVersions(id);
   regenerateDerived(id, elements);
+  refreshTempExpiry(id);
   broadcastSceneChanged({
     type: "scene-changed",
     id,

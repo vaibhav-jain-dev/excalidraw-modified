@@ -248,13 +248,15 @@ export const TOOLS: McpTool[] = [
     name: "create_scene",
     description:
       "Create a new drawing. Pass a `semantic` graph to populate it, or omit " +
-      "it for an empty canvas. Returns the new scene id.",
+      "it for an empty canvas. Set `temporary: true` for a scratch drawing " +
+      "that auto-deletes when idle 15 min / after 1 hour. Returns the id.",
     inputSchema: {
       type: "object",
       properties: {
         name: { type: "string" },
         description: { type: "string" },
         category: { type: "string" },
+        temporary: { type: "boolean" },
         semantic: SEMANTIC_SCHEMA,
       },
     },
@@ -263,6 +265,7 @@ export const TOOLS: McpTool[] = [
         name: args.name,
         description: args.description,
         category: args.category,
+        temporary: args.temporary === true,
       });
       if (args.semantic) {
         scene = saveSceneFromSemantic(scene.id, args.semantic).summary;

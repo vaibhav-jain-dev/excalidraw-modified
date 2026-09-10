@@ -20,7 +20,9 @@ const { h } = window;
 
 const evt = (
   code: string,
-  mods: Partial<Record<"ctrlKey" | "metaKey" | "altKey" | "shiftKey", boolean>> = {},
+  mods: Partial<
+    Record<"ctrlKey" | "metaKey" | "altKey" | "shiftKey", boolean>
+  > = {},
 ) => ({
   code,
   ctrlKey: false,
@@ -34,10 +36,12 @@ describe("keybindings — combo helpers", () => {
   it("round-trips an event through eventToCombo / comboMatchesEvent", () => {
     const combo = eventToCombo(evt("KeyD", { ctrlKey: true, shiftKey: true }));
     expect(combo).toBe("Mod+Shift+KeyD");
-    expect(comboMatchesEvent(combo!, evt("KeyD", { ctrlKey: true, shiftKey: true }))).toBe(
-      true,
+    expect(
+      comboMatchesEvent(combo!, evt("KeyD", { ctrlKey: true, shiftKey: true })),
+    ).toBe(true);
+    expect(comboMatchesEvent(combo!, evt("KeyD", { ctrlKey: true }))).toBe(
+      false,
     );
-    expect(comboMatchesEvent(combo!, evt("KeyD", { ctrlKey: true }))).toBe(false);
   });
 
   it("ignores bare modifier presses", () => {

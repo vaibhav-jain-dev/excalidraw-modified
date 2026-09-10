@@ -30,6 +30,8 @@ export interface RemoteSceneSummary {
   elementCount: number;
   pinned: boolean;
   hasThumbnail: boolean;
+  temporary: boolean;
+  expiresAt: string | null;
 }
 
 export interface RemoteSceneMeta {
@@ -38,6 +40,7 @@ export interface RemoteSceneMeta {
   category?: string;
   tags?: string[];
   pinned?: boolean;
+  temporary?: boolean;
 }
 
 const asJSON = async (response: Response) => {

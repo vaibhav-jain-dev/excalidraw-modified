@@ -7,6 +7,7 @@ import { isDevEnv } from "@excalidraw/common";
 import type { Theme } from "@excalidraw/element/types";
 
 import { LanguageList } from "../app-language/LanguageList";
+import { routeToDashboard } from "../data/route";
 
 import { saveDebugState } from "./DebugCanvas";
 
@@ -19,13 +20,7 @@ export const AppMainMenu: React.FC<{
 }> = React.memo((props) => {
   return (
     <MainMenu>
-      <MainMenu.Item
-        icon={gridIcon}
-        onSelect={() => {
-          window.location.href = "/";
-          window.location.reload();
-        }}
-      >
+      <MainMenu.Item icon={gridIcon} onSelect={() => routeToDashboard()}>
         All drawings
       </MainMenu.Item>
       <MainMenu.Separator />

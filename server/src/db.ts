@@ -61,6 +61,15 @@ const MIGRATIONS: ReadonlyArray<readonly [number, string]> = [
     CREATE INDEX idx_scenes_category ON scenes (category);
   `,
   ],
+  [
+    3,
+    `
+    ALTER TABLE scenes ADD COLUMN temporary INTEGER NOT NULL DEFAULT 0;
+    ALTER TABLE scenes ADD COLUMN expires_at TEXT;
+    CREATE INDEX idx_scenes_expires ON scenes (expires_at)
+      WHERE expires_at IS NOT NULL;
+  `,
+  ],
 ];
 
 const migrate = (): void => {

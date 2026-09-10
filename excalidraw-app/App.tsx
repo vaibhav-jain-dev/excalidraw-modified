@@ -129,6 +129,11 @@ import {
   stopLocalSceneSync,
   syncActiveLocalScene,
 } from "./data/localScene";
+import {
+  getRouteSceneId,
+  isEditorRoute,
+  normalizeLegacyRoute,
+} from "./data/route";
 import { Dashboard } from "./components/Dashboard/Dashboard";
 import { ShareDialog, shareDialogStateAtom } from "./share/ShareDialog";
 import CollabError, { collabErrorIndicatorAtom } from "./collab/CollabError";
@@ -229,11 +234,10 @@ const initializeScene = async (opts: {
 
   const localDataState = importFromLocalStorage();
 
-  // scene opened from the excalidraw-local dashboard (`#local=<id>`) — load it
-  // from the server and let `onChange` sync edits back
-  const localSceneMatch = window.location.hash.match(/^#local=([\w-]+)/);
-  if (localSceneMatch) {
-    const localSceneId = localSceneMatch[1];
+  // scene opened from the excalidraw-local dashboard (`/d/<id>`) — load it from
+  // the server and let `onChange` sync edits back
+  const localSceneId = getRouteSceneId();
+  if (localSceneId) {
     try {
       const remote = await ServerData.getScene(localSceneId);
       setActiveLocalSceneId(localSceneId);
@@ -1247,17 +1251,12 @@ const ExcalidrawWrapper = () => {
 };
 
 /**
- * Route: the dashboard shows for a bare URL (no hash / query) when the
- * excalidraw-local server is reachable; anything that names a scene
- * (`#local=`, `#room=`, `#json=`, `#url=`, `?id=`) opens the editor.
+ * Route: the dashboard shows for a bare URL when the excalidraw-local server is
+ * reachable; `/d/<id>` (or a `#room=` / `#json=` / `?id=` link) opens the
+ * editor. See `data/route.ts`.
  */
-const isEditorRoute = () =>
-  !!(
-    window.location.search ||
-    (window.location.hash && window.location.hash !== "#")
-  );
-
 const useLocalFirstRoute = () => {
+  normalizeLegacyRoute();
   const [route, setRoute] = useState<"loading" | "dashboard" | "editor">(
     isTestEnv() || isEditorRoute() ? "editor" : "loading",
   );
@@ -1280,14 +1279,16 @@ const useLocalFirstRoute = () => {
     };
 
     void resolve();
-    const onHashChange = () => {
+    const onRouteChange = () => {
       setRoute(isEditorRoute() ? "editor" : "loading");
       void resolve();
     };
-    window.addEventListener("hashchange", onHashChange);
+    window.addEventListener("hashchange", onRouteChange);
+    window.addEventListener("popstate", onRouteChange);
     return () => {
       cancelled = true;
-      window.removeEventListener("hashchange", onHashChange);
+      window.removeEventListener("hashchange", onRouteChange);
+      window.removeEventListener("popstate", onRouteChange);
     };
   }, []);
 

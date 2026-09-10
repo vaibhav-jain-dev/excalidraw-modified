@@ -20,6 +20,10 @@ for a bare URL and opens the editor for `#local=<id>`.
   has open — so a bot edits alongside the user.
 - **Live sync** — `GET /api/events` (SSE) broadcasts `scene-changed`; the
   editor picks up MCP / API / other-tab edits without a reload.
+- **Routing** — a drawing opens at `/d/<id>` (bookmarkable, one per window);
+  `#local=<id>` is rewritten to it.
+- **Temporary scenes** — `temporary: true` on create makes a scratch drawing
+  that a 60 s reaper hard-deletes once it's been idle 15 min (or 1 hour old).
 
 Not yet: server-side PNG rendering, full-text / vector search.
 
@@ -87,7 +91,7 @@ yarn start:local         # = yarn build && yarn server  ->  http://localhost:305
 | `GET`    | `/api/health`                        | liveness                           |
 | `GET`    | `/api/scenes`                        | list summaries                     |
 | `GET`    | `/api/categories`                    | distinct non-empty categories      |
-| `POST`   | `/api/scenes`                        | `{ name?, description?, category?, tags? }` → `{ scene }` |
+| `POST`   | `/api/scenes`                        | `{ name?, description?, category?, tags?, temporary?, semantic? }` → `{ scene }` |
 | `GET`    | `/api/scenes/:id`                    | `{ scene, elements, appState, files }` |
 | `PUT`    | `/api/scenes/:id`                    | save → new version                 |
 | `PATCH`  | `/api/scenes/:id`                    | `{ name?, description?, category?, tags?, pinned? }` |
