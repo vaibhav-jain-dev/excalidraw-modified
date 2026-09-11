@@ -37,6 +37,8 @@ export interface SemanticNode {
   bg?: string;
   fill?: "solid" | "hachure" | "cross-hatch";
   sticky?: boolean;
+  /** stable name for deep links / crop-to-element renders (`customData.anchor`) */
+  anchor?: string;
 }
 
 export interface SemanticEdge {
@@ -140,6 +142,9 @@ export const toSemantic = (elements: readonly AnyElement[]): SemanticScene => {
       }
       if (el.type === "stickyNote") {
         node.sticky = true;
+      }
+      if (typeof el.customData?.anchor === "string") {
+        node.anchor = el.customData.anchor;
       }
       nodes.push(node);
       continue;
@@ -310,6 +315,7 @@ export const fromSemantic = (scene: Partial<SemanticScene>): AnyElement[] => {
       strokeColor: node.color ?? DEFAULT_STROKE,
       backgroundColor: node.bg ?? (node.sticky ? "#ffdf6b" : TRANSPARENT),
       fillStyle: node.fill ?? "solid",
+      customData: node.anchor ? { anchor: node.anchor } : undefined,
     });
     elements.push(el);
 

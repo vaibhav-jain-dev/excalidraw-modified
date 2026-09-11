@@ -220,17 +220,17 @@ Scenes edited in a live tab upload their own client-rendered thumbnail on save �
 
 ## Build order
 
-1. **Skeleton** — `server/` workspace, Fastify on 3057, serve Vite proxy, `db.ts` + migrations (scenes, versions), `POST/GET/PUT /api/scenes`. Port config to 3056.
-2. **Save/load + dashboard** — `ServerData.ts`, `#local=<id>` branch, dashboard grid route, client thumbnails on save. → _usable end to end._
-3. **Versions** — version files + pruning, history drawer, PNG side-by-side diff.
-4. **Derive layer** — `toMarkdown` / `toSemantic` / `toMermaid`, `/api/scenes/:id/{semantic,markdown,mermaid}`.
-5. **FTS search** — FTS5 tables, `reindex()`, `/api/search?mode=fts`, dashboard search box.
-6. **MCP** — `/mcp` + stdio, tools 1–4, WS live-reload ping.
-7. **Vectors** — sqlite-vec, Ollama embed, hybrid search, `/api/generate` text-to-diagram.
-8. **Anchors + server render** — `customData.anchor`, Playwright harness, `?anchor=` crops, `set_anchor` / `get_scene_image` MCP tools.
-9. **Polish** — git-commit-per-save option, tag management, export-all, Docker image.
+1. ✅ **Skeleton** — `server/` workspace, Fastify on 3057, serve Vite proxy, `db.ts` + migrations (scenes, versions), `POST/GET/PUT /api/scenes`. Port config to 3056.
+2. ✅ **Save/load + dashboard** — `ServerData.ts`, `/d/<id>` route, dashboard grid, client thumbnails on save.
+3. ✅ **Versions** — version files + pruning, dashboard history drawer (restore / pin any past version). _(No side-by-side PNG diff yet — restore + reopen is the workflow.)_
+4. ✅ **Derive layer** — `toMarkdown` / `toSemantic` / `toMermaid`, `/api/scenes/:id/{semantic,markdown,mermaid}`.
+5. ✅ **FTS search** — FTS5 table, indexed on create/save/meta-edit, `/api/search?mode=fts`, dashboard search box.
+6. ✅ **MCP** — `/mcp` + stdio, full tool set, SSE live-sync (used in place of a separate WS ping).
+7. ✅ **Vectors** — `sqlite-vec` (loaded via `node:sqlite`'s extension support), Ollama embed, hybrid search (RRF), `/api/generate` text-to-diagram. Gracefully degrades to FTS-only when Ollama can't embed.
+8. ✅ **Anchors + server render** — `customData.anchor` (round-trips through the semantic graph), a persistent headless-Chromium render service (drives the app's own `window.h`, not a Playwright harness — see `server/src/render/browser.ts`), `?anchor=` crops, `set_anchor` / `list_anchors` / `get_scene_image` MCP tools.
+9. ⬜ **Polish** — git-commit-per-save option, Docker image. _(Tag management and export-all are effectively covered by the existing tags field + per-scene export.)_
 
-Each step ships something runnable. Steps 1–3 are the "open drawings, see previous saves from the browser" core; 4–7 are the LLM/search agenda; 8 is stable named anchors.
+Each step ships something runnable. Steps 1–3 are the "open drawings, see previous saves from the browser" core; 4–7 are the LLM/search agenda; 8 is stable named anchors. Only step 9 (packaging polish) remains.
 
 ---
 

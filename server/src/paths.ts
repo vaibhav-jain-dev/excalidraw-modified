@@ -24,6 +24,9 @@ export const semanticFile = (id: string): string =>
 export const markdownFile = (id: string): string =>
   path.join(sceneDir(id), "scene.md");
 
+export const mermaidFile = (id: string): string =>
+  path.join(sceneDir(id), "scene.mmd");
+
 export const thumbsDir = (): string => path.join(config.dataDir, "thumbs");
 
 export const thumbFile = (id: string): string =>

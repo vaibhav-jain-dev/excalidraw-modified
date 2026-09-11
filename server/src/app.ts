@@ -3,6 +3,7 @@ import Fastify, { type FastifyInstance } from "fastify";
 import { config } from "./config.ts";
 import { handleMcpHttp } from "./mcp/server.ts";
 import { registerSceneRoutes } from "./routes/scenes.ts";
+import { registerSearchRoutes } from "./routes/search.ts";
 
 /**
  * Builds the Fastify instance with the API routes registered. Static hosting of
@@ -40,6 +41,7 @@ export const buildApp = (): FastifyInstance => {
   );
 
   registerSceneRoutes(app);
+  registerSearchRoutes(app);
 
   return app;
 };

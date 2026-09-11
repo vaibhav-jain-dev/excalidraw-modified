@@ -45,4 +45,20 @@ export const config = {
   ),
 
   logLevel: process.env.LOG_LEVEL ?? "info",
+
+  /** Ollama server used for embeddings (search) and text-to-diagram generation. */
+  ollamaHost: process.env.OLLAMA_HOST ?? "http://localhost:11434",
+  ollamaEmbedModel: process.env.OLLAMA_EMBED_MODEL ?? "nomic-embed-text",
+  ollamaGenerateModel: process.env.OLLAMA_GENERATE_MODEL ?? "llama3.2",
+  /** Must match the chosen embed model's output size (nomic-embed-text: 768). */
+  embedDim: num(process.env.EXCALIDRAW_LOCAL_EMBED_DIM, 768),
+
+  /** Headless Chromium for server-side PNG rendering (get_scene_image, no
+   * client-rendered thumbnail yet). Auto-detected if unset. */
+  chromePath: process.env.CHROME_PATH?.trim() || null,
+  /** Origin the render browser navigates to — defaults to this server, which
+   * only works once `yarn build` has produced an app for it to serve. */
+  renderAppOrigin:
+    process.env.EXCALIDRAW_LOCAL_RENDER_ORIGIN?.trim() ||
+    `http://127.0.0.1:${num(process.env.LOCAL_SERVER_PORT, 3057)}`,
 } as const;

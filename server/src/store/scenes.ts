@@ -9,17 +9,22 @@ import {
   toSemantic,
   type SemanticScene,
 } from "../derive/semantic.ts";
+import { isGraphShaped, toMermaid } from "../derive/mermaid.ts";
 import { broadcastSceneChanged } from "../events.ts";
 import { newId } from "../id.ts";
 import {
   ensureDir,
   latestFile,
   markdownFile,
+  mermaidFile,
   sceneDir,
   semanticFile,
   thumbFile,
   versionFile,
 } from "../paths.ts";
+import { embedText } from "../search/embeddings.ts";
+import { reindexFts } from "../search/fts.ts";
+import { removeSceneVector, upsertSceneVector } from "../search/vector.ts";
 
 /**
  * Scene CRUD + version history. The SQLite row is the index; the authoritative
@@ -187,7 +192,26 @@ export const createScene = (
   if (!summary) {
     throw new Error(`failed to create scene ${id}`);
   }
+  reindexMetaOnly(summary);
   return summary;
+};
+
+/**
+ * Index a scene's title/description/category/tags even before it has any
+ * content (a fresh scene, or a meta-only edit) — `regenerateDerived` (which
+ * also indexes the drawing's body) only runs on save.
+ */
+const reindexMetaOnly = (summary: SceneSummary): void => {
+  const existingBody = fs.existsSync(markdownFile(summary.id))
+    ? fs.readFileSync(markdownFile(summary.id), "utf8")
+    : "";
+  reindexFts(summary.id, {
+    name: summary.name,
+    description: summary.description,
+    category: summary.category,
+    tags: summary.tags,
+    body: existingBody,
+  });
 };
 
 export const updateSceneMeta = (
@@ -226,7 +250,9 @@ export const updateSceneMeta = (
     id,
   );
 
-  return getSceneSummary(id) as SceneSummary;
+  const updated = getSceneSummary(id) as SceneSummary;
+  reindexMetaOnly(updated);
+  return updated;
 };
 
 /** Record that a fresh thumbnail was written for the scene. */
@@ -249,11 +275,20 @@ export const softDeleteScene = (id: string): boolean => {
       "UPDATE scenes SET deleted_at = ? WHERE id = ? AND deleted_at IS NULL",
     )
     .run(new Date().toISOString(), id);
-  return Number(result.changes) > 0;
+  const deleted = Number(result.changes) > 0;
+  if (deleted) {
+    reindexFts(id, null);
+    removeSceneVector(id);
+  }
+  return deleted;
 };
 
 /** Remove a scene's rows and files entirely (used for expired temp scenes). */
 export const hardDeleteScene = (id: string): void => {
+  // remove the vector row first — it's keyed off `scenes.rowid`, which the
+  // scene delete below invalidates
+  removeSceneVector(id);
+  reindexFts(id, null);
   db.prepare("DELETE FROM scene_versions WHERE scene_id = ?").run(id);
   db.prepare("DELETE FROM scenes WHERE id = ?").run(id);
   try {
@@ -414,16 +449,45 @@ export const saveScene = (
   return { version, summary: getSceneSummary(id) as SceneSummary };
 };
 
-/** Regenerate the bot-friendly views (`scene.semantic.json`, `scene.md`). */
+/**
+ * Regenerate the bot-friendly views (`scene.semantic.json`, `scene.md`,
+ * `scene.mmd`) plus the search indexes. The heavy embedding call happens
+ * off to the side — a save is never slowed down by, or fails because of,
+ * Ollama being unavailable.
+ */
 const regenerateDerived = (id: string, elements: unknown[]): void => {
   try {
     const semantic = toSemantic(elements as Array<Record<string, unknown>>);
+    const summary = getSceneSummary(id);
+    const name = summary?.name ?? "Untitled";
+
     fs.writeFileSync(
       semanticFile(id),
       `${JSON.stringify(semantic, null, 2)}\n`,
     );
-    const name = getSceneSummary(id)?.name ?? "Untitled";
-    fs.writeFileSync(markdownFile(id), toMarkdown(semantic, name));
+    const markdown = toMarkdown(semantic, name);
+    fs.writeFileSync(markdownFile(id), markdown);
+
+    if (isGraphShaped(semantic)) {
+      fs.writeFileSync(mermaidFile(id), toMermaid(semantic));
+    } else {
+      fs.rmSync(mermaidFile(id), { force: true });
+    }
+
+    reindexFts(id, {
+      name,
+      description: summary?.description ?? "",
+      category: summary?.category ?? "",
+      tags: summary?.tags ?? [],
+      body: markdown,
+    });
+
+    // fire-and-forget: never let embedding latency or failure touch the save
+    void embedText(markdown).then((vector) => {
+      if (vector) {
+        upsertSceneVector(id, vector);
+      }
+    });
   } catch (error) {
     // derived views are best-effort — a bad scene must not fail the save
     console.warn(`failed to regenerate derived views for ${id}`, error);
@@ -448,6 +512,100 @@ export const getMarkdown = (id: string): string | null => {
     return null;
   }
   return toMarkdown(semantic, getSceneSummary(id)?.name ?? "Untitled");
+};
+
+/** Mermaid flowchart for a graph-shaped scene, or `null` if it isn't one. */
+export const getMermaid = (id: string): string | null => {
+  const semantic = getSemantic(id);
+  if (!semantic || !isGraphShaped(semantic)) {
+    return null;
+  }
+  return toMermaid(semantic);
+};
+
+// ---------------------------------------------------------------------------
+// named anchors — `customData.anchor` on a single element, for stable
+// deep-links and crop-to-element renders
+// ---------------------------------------------------------------------------
+
+export interface AnchorBounds {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+}
+
+/** Tag (or untag) one element in a scene with a stable name. */
+export const setElementAnchor = (
+  sceneId: string,
+  elementId: string,
+  anchor: string | null,
+): boolean => {
+  const content = getSceneContent(sceneId);
+  if (!content) {
+    throw new SceneNotFoundError(sceneId);
+  }
+  let found = false;
+  const elements = (content.elements as Array<Record<string, any>>).map(
+    (element) => {
+      if (element.id !== elementId) {
+        return element;
+      }
+      found = true;
+      const customData = { ...(element.customData ?? {}) };
+      if (anchor) {
+        customData.anchor = anchor;
+      } else {
+        delete customData.anchor;
+      }
+      return { ...element, customData };
+    },
+  );
+  if (!found) {
+    return false;
+  }
+  saveScene(
+    sceneId,
+    { elements, appState: content.appState, files: content.files },
+    "api",
+  );
+  return true;
+};
+
+/** Absolute bounding box of the element tagged with `anchor`, if any. */
+export const findAnchorBounds = (
+  sceneId: string,
+  anchor: string,
+): AnchorBounds | null => {
+  const content = getSceneContent(sceneId);
+  if (!content) {
+    return null;
+  }
+  const element = (content.elements as Array<Record<string, any>>).find(
+    (el) => el && !el.isDeleted && el.customData?.anchor === anchor,
+  );
+  if (!element) {
+    return null;
+  }
+  return {
+    x: element.x ?? 0,
+    y: element.y ?? 0,
+    width: element.width ?? 0,
+    height: element.height ?? 0,
+  };
+};
+
+/** Every anchor name currently tagged in a scene, with the element it names. */
+export const listAnchors = (
+  sceneId: string,
+): Array<{ anchor: string; elementId: string }> => {
+  const content = getSceneContent(sceneId);
+  if (!content) {
+    return [];
+  }
+  return (content.elements as Array<Record<string, any>>)
+    .filter((el) => el && !el.isDeleted && typeof el.customData?.anchor === "string")
+    .map((el) => ({ anchor: el.customData.anchor as string, elementId: el.id }));
 };
 
 /** Replace a scene's whole content from a semantic graph. */

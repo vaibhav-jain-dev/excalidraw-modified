@@ -7,17 +7,23 @@
 import fs from "node:fs";
 
 import { getActiveScene } from "../events.ts";
+import { generateSemanticFromPrompt } from "../generate.ts";
 import { thumbFile } from "../paths.ts";
+import { renderScenePng } from "../render/browser.ts";
+import { searchScenes } from "../search/index.ts";
 import {
   appendSemantic,
   createScene,
   getMarkdown,
+  getMermaid,
   getSceneContent,
   getSceneSummary,
   getSemantic,
+  listAnchors,
   listScenes,
   saveSceneFromSemantic,
   SceneNotFoundError,
+  setElementAnchor,
   softDeleteScene,
   updateSceneMeta,
 } from "../store/scenes.ts";
@@ -172,30 +178,23 @@ export const TOOLS: McpTool[] = [
   {
     name: "search_scenes",
     description:
-      "Find drawings whose title, description, category or tags contain the " +
-      "query (case-insensitive substring).",
+      "Find drawings by meaning, not just exact words — full-text over " +
+      "title/description/category/contents, blended with embedding " +
+      "similarity when available.",
     inputSchema: {
       type: "object",
-      properties: { query: { type: "string" } },
+      properties: {
+        query: { type: "string" },
+        mode: { enum: ["fts", "vector", "hybrid"] },
+      },
       required: ["query"],
     },
-    handler: (args) => {
-      const needle = String(args.query ?? "").toLowerCase();
-      const hits = listScenes().filter(
-        (scene) =>
-          scene.name.toLowerCase().includes(needle) ||
-          scene.description.toLowerCase().includes(needle) ||
-          scene.category.toLowerCase().includes(needle) ||
-          scene.tags.some((tag) => tag.toLowerCase().includes(needle)),
+    handler: async (args) => {
+      const hits = await searchScenes(
+        String(args.query ?? ""),
+        (args.mode as "fts" | "vector" | "hybrid") ?? "hybrid",
       );
-      return text(
-        hits.map((scene) => ({
-          id: scene.id,
-          name: scene.name,
-          description: scene.description,
-          category: scene.category,
-        })),
-      );
+      return text(hits);
     },
   },
   {
@@ -221,13 +220,13 @@ export const TOOLS: McpTool[] = [
     name: "get_scene",
     description:
       "Read a drawing. Default format 'semantic' returns the compact scene " +
-      "graph; 'markdown' returns a readable outline; 'excalidraw' returns " +
-      "the raw element list.",
+      "graph; 'markdown' a readable outline; 'mermaid' a flowchart (only for " +
+      "a graph-shaped scene); 'excalidraw' the raw element list.",
     inputSchema: {
       type: "object",
       properties: {
         id: ID_PROP,
-        format: { enum: ["semantic", "markdown", "excalidraw"] },
+        format: { enum: ["semantic", "markdown", "mermaid", "excalidraw"] },
       },
     },
     handler: (args) => {
@@ -237,6 +236,12 @@ export const TOOLS: McpTool[] = [
       }
       if (args.format === "markdown") {
         return text(getMarkdown(id) ?? "");
+      }
+      if (args.format === "mermaid") {
+        const mermaid = getMermaid(id);
+        return mermaid
+          ? text(mermaid)
+          : fail("scene has no nodes/edges to diagram");
       }
       if (args.format === "excalidraw") {
         return text(getSceneContent(id) ?? {});
@@ -270,7 +275,7 @@ export const TOOLS: McpTool[] = [
       if (args.semantic) {
         scene = saveSceneFromSemantic(scene.id, args.semantic).summary;
       }
-      return text({ id: scene.id, name: scene.name, url: `/#local=${scene.id}` });
+      return text({ id: scene.id, name: scene.name, url: `/d/${scene.id}` });
     },
   },
   {
@@ -382,30 +387,112 @@ export const TOOLS: McpTool[] = [
   {
     name: "get_scene_image",
     description:
-      "Get the drawing's PNG preview (rendered when it was last opened in " +
-      "the editor). Fails if no preview exists yet.",
+      "Get a PNG of the drawing — the client-rendered preview if one exists " +
+      "(from being opened in the editor), otherwise a fresh server-side " +
+      "render. Pass `anchor` to crop to one named element.",
     inputSchema: {
       type: "object",
-      properties: { id: ID_PROP },
+      properties: { id: ID_PROP, anchor: { type: "string" } },
+    },
+    handler: async (args) => {
+      const id = resolveId(args.id);
+      if (!id) {
+        return fail("No scene is open.");
+      }
+      if (!args.anchor) {
+        const file = thumbFile(id);
+        if (fs.existsSync(file)) {
+          return {
+            content: [
+              {
+                type: "image",
+                data: fs.readFileSync(file).toString("base64"),
+                mimeType: "image/png",
+              },
+            ],
+          };
+        }
+      }
+      try {
+        const png = await renderScenePng(id, { anchor: args.anchor });
+        return {
+          content: [
+            { type: "image", data: png.toString("base64"), mimeType: "image/png" },
+          ],
+        };
+      } catch (error) {
+        return fail(`No preview available: ${(error as Error).message}`);
+      }
+    },
+  },
+  {
+    name: "set_anchor",
+    description:
+      "Tag one element with a stable name, so it can be deep-linked or " +
+      "cropped to later (get_scene_image with `anchor`). Pass `anchor: null` " +
+      "to remove the tag. `elementId` is the node/edge/text id from the " +
+      "semantic graph.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        id: ID_PROP,
+        elementId: { type: "string" },
+        anchor: { type: ["string", "null"] },
+      },
+      required: ["elementId"],
     },
     handler: (args) => {
       const id = resolveId(args.id);
       if (!id) {
         return fail("No scene is open.");
       }
-      const file = thumbFile(id);
-      if (!fs.existsSync(file)) {
-        return fail("No preview yet — open this drawing in the editor once.");
+      try {
+        const ok = setElementAnchor(id, String(args.elementId), args.anchor ?? null);
+        return ok ? text({ ok: true }) : fail(`No element ${args.elementId}`);
+      } catch (error) {
+        return fail(
+          error instanceof SceneNotFoundError ? error.message : String(error),
+        );
       }
-      return {
-        content: [
-          {
-            type: "image",
-            data: fs.readFileSync(file).toString("base64"),
-            mimeType: "image/png",
-          },
-        ],
-      };
+    },
+  },
+  {
+    name: "list_anchors",
+    description: "List every named anchor in a drawing and which element it tags.",
+    inputSchema: { type: "object", properties: { id: ID_PROP } },
+    handler: (args) => {
+      const id = resolveId(args.id);
+      if (!id) {
+        return fail("No scene is open.");
+      }
+      return text(listAnchors(id));
+    },
+  },
+  {
+    name: "generate_diagram",
+    description:
+      "Ask the local model (Ollama) to turn a short prompt into a diagram " +
+      "and create it as a new drawing. Requires Ollama running locally with " +
+      "OLLAMA_GENERATE_MODEL installed; otherwise build the semantic graph " +
+      "yourself and use create_scene.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        prompt: { type: "string" },
+        name: { type: "string" },
+      },
+      required: ["prompt"],
+    },
+    handler: async (args) => {
+      const result = await generateSemanticFromPrompt(String(args.prompt));
+      if ("error" in result) {
+        return fail(result.error);
+      }
+      const scene = createScene({
+        name: args.name || String(args.prompt).slice(0, 60),
+      });
+      saveSceneFromSemantic(scene.id, result.scene);
+      return text({ id: scene.id, name: scene.name, url: `/d/${scene.id}` });
     },
   },
 ];

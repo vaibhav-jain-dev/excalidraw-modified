@@ -9,13 +9,17 @@ import {
   type SceneChangedEvent,
 } from "../events.ts";
 import { ensureDir, thumbFile, thumbsDir } from "../paths.ts";
+import { renderScenePng } from "../render/browser.ts";
 import {
   appendSemantic,
   createScene,
+  findAnchorBounds,
   getMarkdown,
+  getMermaid,
   getSceneContent,
   getSceneSummary,
   getSemantic,
+  listAnchors,
   listCategories,
   listScenes,
   listVersions,
@@ -24,6 +28,7 @@ import {
   saveScene,
   saveSceneFromSemantic,
   SceneNotFoundError,
+  setElementAnchor,
   setVersionPinned,
   softDeleteScene,
   updateSceneMeta,
@@ -256,6 +261,22 @@ export const registerSceneRoutes = (app: FastifyInstance): void => {
     },
   );
 
+  app.get<{ Params: IdParams }>(
+    "/api/scenes/:id/mermaid",
+    async (request, reply) => {
+      if (!getSceneSummary(request.params.id)) {
+        return notFound(reply);
+      }
+      const mermaid = getMermaid(request.params.id);
+      if (mermaid == null) {
+        return reply
+          .code(422)
+          .send({ error: "scene has no nodes/edges to diagram" });
+      }
+      return reply.type("text/plain").send(mermaid);
+    },
+  );
+
   app.put<{ Params: IdParams }>(
     "/api/scenes/:id/semantic",
     async (request, reply) => {
@@ -329,4 +350,72 @@ export const registerSceneRoutes = (app: FastifyInstance): void => {
         .send(fs.readFileSync(file));
     },
   );
+
+  // --- named anchors: `customData.anchor` on one element ---
+
+  app.get<{ Params: IdParams }>(
+    "/api/scenes/:id/anchors",
+    async (request, reply) => {
+      if (!getSceneSummary(request.params.id)) {
+        return notFound(reply);
+      }
+      const anchors = listAnchors(request.params.id).map((entry) => ({
+        ...entry,
+        bounds: findAnchorBounds(request.params.id, entry.anchor),
+      }));
+      return { anchors };
+    },
+  );
+
+  app.put<{ Params: { id: string; elementId: string } }>(
+    "/api/scenes/:id/anchors/:elementId",
+    async (request, reply) => {
+      const body = (request.body ?? {}) as { anchor?: string | null };
+      try {
+        const ok = setElementAnchor(
+          request.params.id,
+          request.params.elementId,
+          body.anchor?.trim() || null,
+        );
+        if (!ok) {
+          return reply.code(404).send({ error: "no such element" });
+        }
+        return { ok: true };
+      } catch (error) {
+        if (error instanceof SceneNotFoundError) {
+          return notFound(reply, error.message);
+        }
+        throw error;
+      }
+    },
+  );
+
+  // --- server-side render: for a scene never opened in a browser (no
+  // client-rendered thumbnail), or a crop to a named anchor ---
+
+  app.get<{
+    Params: IdParams;
+    Querystring: { anchor?: string; width?: string; height?: string };
+  }>("/api/scenes/:id/render.png", async (request, reply) => {
+    if (!getSceneSummary(request.params.id)) {
+      return notFound(reply);
+    }
+    try {
+      const png = await renderScenePng(request.params.id, {
+        anchor: request.query.anchor,
+        width: request.query.width ? Number(request.query.width) : undefined,
+        height: request.query.height
+          ? Number(request.query.height)
+          : undefined,
+      });
+      return reply
+        .type("image/png")
+        .header("cache-control", "no-cache")
+        .send(png);
+    } catch (error) {
+      return reply
+        .code(503)
+        .send({ error: `render failed: ${(error as Error).message}` });
+    }
+  });
 };

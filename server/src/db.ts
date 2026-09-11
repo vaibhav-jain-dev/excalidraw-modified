@@ -1,5 +1,7 @@
 import { DatabaseSync } from "node:sqlite";
 
+import { load as loadSqliteVec } from "sqlite-vec";
+
 import { ensureDataDirs, dbFile } from "./paths.ts";
 
 /** Values `node:sqlite` accepts as bound statement parameters. */
@@ -7,17 +9,32 @@ type SqlParam = null | number | bigint | string | Uint8Array;
 
 /**
  * SQLite metadata store. Scene JSON and blobs live on disk (see `store/`); this
- * database only holds what we need to list, order, version and (later) search
- * scenes. Uses the built-in `node:sqlite` module — no native dependency.
+ * database only holds what we need to list, order, version and search scenes.
+ * Uses the built-in `node:sqlite` module (FTS5 is compiled in) plus the
+ * `sqlite-vec` extension for embeddings — no other native dependency.
  */
 
 ensureDataDirs();
 
-export const db: DatabaseSync = new DatabaseSync(dbFile());
+export const db: DatabaseSync = new DatabaseSync(dbFile(), {
+  allowExtension: true,
+});
 
 db.exec("PRAGMA journal_mode = WAL");
 db.exec("PRAGMA foreign_keys = ON");
 db.exec("PRAGMA busy_timeout = 5000");
+
+/** Whether the sqlite-vec extension loaded — false disables vector search. */
+export let vectorSearchAvailable = false;
+try {
+  loadSqliteVec(db);
+  vectorSearchAvailable = true;
+} catch (error) {
+  console.warn(
+    "sqlite-vec extension failed to load — vector search disabled:",
+    error,
+  );
+}
 
 /** Ordered migrations. Append only — never edit an applied migration. */
 const MIGRATIONS: ReadonlyArray<readonly [number, string]> = [
@@ -70,6 +87,28 @@ const MIGRATIONS: ReadonlyArray<readonly [number, string]> = [
       WHERE expires_at IS NOT NULL;
   `,
   ],
+  [
+    4,
+    `
+    CREATE VIRTUAL TABLE scenes_fts USING fts5(
+      scene_id UNINDEXED,
+      name,
+      description,
+      category,
+      tags,
+      body
+    );
+  `,
+  ],
+  [
+    5,
+    `
+    CREATE TABLE kv (
+      key   TEXT PRIMARY KEY,
+      value TEXT NOT NULL
+    );
+  `,
+  ],
 ];
 
 const migrate = (): void => {
@@ -120,3 +159,15 @@ export const queryRow = <T>(
   ...params: SqlParam[]
 ): T | undefined =>
   db.prepare(sql).get(...params) as unknown as T | undefined;
+
+/** Small durable key/value store — used to remember the vector dimension, etc. */
+export const kvGet = (key: string): string | undefined =>
+  queryRow<{ value: string }>("SELECT value FROM kv WHERE key = ?", key)
+    ?.value;
+
+export const kvSet = (key: string, value: string): void => {
+  db.prepare(
+    `INSERT INTO kv (key, value) VALUES (?, ?)
+     ON CONFLICT (key) DO UPDATE SET value = excluded.value`,
+  ).run(key, value);
+};
