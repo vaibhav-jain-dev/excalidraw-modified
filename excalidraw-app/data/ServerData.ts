@@ -34,6 +34,14 @@ export interface RemoteSceneSummary {
   expiresAt: string | null;
 }
 
+export interface RemoteVersionInfo {
+  version: number;
+  createdAt: string;
+  elementCount: number;
+  pinned: boolean;
+  source: string;
+}
+
 export interface RemoteSceneMeta {
   name?: string;
   description?: string;
@@ -75,6 +83,24 @@ export const ServerData = {
 
   async listCategories(): Promise<string[]> {
     return (await asJSON(await fetch(`${API}/categories`))).categories;
+  },
+
+  /** Full-text (+ embedding similarity, when available) search across scenes. */
+  async search(query: string): Promise<
+    Array<{
+      id: string;
+      name: string;
+      description: string;
+      category: string;
+      snippet?: string;
+    }>
+  > {
+    if (!query.trim()) {
+      return [];
+    }
+    return (
+      await asJSON(await fetch(`${API}/search?q=${encodeURIComponent(query)}`))
+    ).results;
   },
 
   async getScene(id: string): Promise<{
@@ -142,6 +168,43 @@ export const ServerData = {
     } catch {
       // presence is best-effort
     }
+  },
+
+  async listVersions(id: string): Promise<RemoteVersionInfo[]> {
+    return (
+      await asJSON(
+        await fetch(`${API}/scenes/${encodeURIComponent(id)}/versions`),
+      )
+    ).versions;
+  },
+
+  async pinVersion(id: string, version: number, pinned = true): Promise<void> {
+    await fetch(
+      `${API}/scenes/${encodeURIComponent(id)}/versions/${version}/pin`,
+      {
+        method: "POST",
+        headers: jsonHeaders,
+        body: JSON.stringify({ pinned }),
+      },
+    );
+  },
+
+  /** Copy an old version's content back onto the scene as a new, latest version. */
+  async restoreVersion(id: string, version: number): Promise<void> {
+    const old = await asJSON(
+      await fetch(
+        `${API}/scenes/${encodeURIComponent(id)}/versions/${version}`,
+      ),
+    );
+    await fetch(`${API}/scenes/${encodeURIComponent(id)}`, {
+      method: "PUT",
+      headers: jsonHeaders,
+      body: JSON.stringify({
+        elements: old.elements,
+        appState: old.appState,
+        files: old.files,
+      }),
+    });
   },
 
   async uploadThumbnail(id: string, png: Blob): Promise<void> {

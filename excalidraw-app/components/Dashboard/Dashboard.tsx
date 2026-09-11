@@ -4,6 +4,7 @@ import {
   ServerData,
   type RemoteSceneMeta,
   type RemoteSceneSummary,
+  type RemoteVersionInfo,
 } from "../../data/ServerData";
 import { routeToScene } from "../../data/route";
 
@@ -20,6 +21,19 @@ const formatDate = (iso: string) => {
     });
   } catch {
     return iso.slice(0, 10);
+  }
+};
+
+const formatDateTime = (iso: string) => {
+  try {
+    return new Date(iso).toLocaleString(undefined, {
+      day: "numeric",
+      month: "short",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  } catch {
+    return iso;
   }
 };
 
@@ -117,16 +131,137 @@ const MetaDialog = ({
   );
 };
 
+const VersionHistory = ({
+  sceneId,
+  sceneName,
+  onClose,
+  onOpenVersion,
+}: {
+  sceneId: string;
+  sceneName: string;
+  onClose: () => void;
+  onOpenVersion: () => Promise<RemoteVersionInfo[]>;
+}) => {
+  const [versions, setVersions] = useState<RemoteVersionInfo[] | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [busyVersion, setBusyVersion] = useState<number | null>(null);
+
+  const load = useCallback(async () => {
+    try {
+      setVersions(await onOpenVersion());
+    } catch (err: any) {
+      setError(err?.message ?? "Could not load version history.");
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    void load();
+  }, [load]);
+
+  return (
+    <div className="dash-modal-backdrop" onClick={onClose}>
+      <div
+        className="dash-modal dash-history"
+        onClick={(event) => event.stopPropagation()}
+      >
+        <h2>History — {sceneName || "Untitled"}</h2>
+        {error && <div className="dash-error">{error}</div>}
+        {versions === null ? (
+          <p className="dash-empty-inline">Loading…</p>
+        ) : versions.length === 0 ? (
+          <p className="dash-empty-inline">No saved versions yet.</p>
+        ) : (
+          <ul className="dash-history-list">
+            {versions.map((version, index) => (
+              <li key={version.version}>
+                <div className="dash-history-info">
+                  <span className="dash-history-version">
+                    v{version.version}
+                    {index === 0 && (
+                      <span className="dash-history-latest">latest</span>
+                    )}
+                    {version.pinned && (
+                      <span className="dash-history-pinned">pinned</span>
+                    )}
+                  </span>
+                  <span className="dash-history-meta">
+                    {formatDateTime(version.createdAt)} · {version.elementCount}{" "}
+                    items · {version.source}
+                  </span>
+                </div>
+                <div className="dash-history-actions">
+                  <button
+                    type="button"
+                    disabled={index === 0 || busyVersion !== null}
+                    onClick={async () => {
+                      if (
+                        !window.confirm(
+                          `Restore v${version.version}? This becomes the new latest version — nothing is lost.`,
+                        )
+                      ) {
+                        return;
+                      }
+                      setBusyVersion(version.version);
+                      try {
+                        await ServerData.restoreVersion(
+                          sceneId,
+                          version.version,
+                        );
+                        await load();
+                      } finally {
+                        setBusyVersion(null);
+                      }
+                    }}
+                  >
+                    Restore
+                  </button>
+                  <button
+                    type="button"
+                    disabled={busyVersion !== null}
+                    onClick={async () => {
+                      setBusyVersion(version.version);
+                      try {
+                        await ServerData.pinVersion(
+                          sceneId,
+                          version.version,
+                          !version.pinned,
+                        );
+                        await load();
+                      } finally {
+                        setBusyVersion(null);
+                      }
+                    }}
+                  >
+                    {version.pinned ? "Unpin" : "Pin"}
+                  </button>
+                </div>
+              </li>
+            ))}
+          </ul>
+        )}
+        <div className="dash-modal-actions">
+          <button type="button" onClick={onClose}>
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const SceneCard = ({
   scene,
   onOpen,
   onEdit,
+  onHistory,
   onDelete,
   onTogglePin,
 }: {
   scene: RemoteSceneSummary;
   onOpen: () => void;
   onEdit: () => void;
+  onHistory: () => void;
   onDelete: () => void;
   onTogglePin: () => void;
 }) => (
@@ -175,6 +310,13 @@ const SceneCard = ({
         <button type="button" onClick={onEdit}>
           Edit
         </button>
+        <button
+          type="button"
+          disabled={scene.latestVersion === 0}
+          onClick={onHistory}
+        >
+          History
+        </button>
         <button type="button" onClick={onTogglePin}>
           {scene.pinned ? "Unpin" : "Pin"}
         </button>
@@ -191,8 +333,10 @@ export const Dashboard = () => {
   const [categories, setCategories] = useState<string[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [query, setQuery] = useState("");
+  const [searchIds, setSearchIds] = useState<string[] | null>(null);
   const [categoryFilter, setCategoryFilter] = useState("");
   const [edit, setEdit] = useState<EditState | null>(null);
+  const [historyFor, setHistoryFor] = useState<RemoteSceneSummary | null>(null);
 
   const refresh = useCallback(async () => {
     try {
@@ -213,23 +357,54 @@ export const Dashboard = () => {
     void refresh();
   }, [refresh]);
 
+  // server-side full-text (+ embedding, when available) search, debounced;
+  // falls back to a plain client-side filter if the request fails
+  useEffect(() => {
+    const needle = query.trim();
+    if (!needle) {
+      setSearchIds(null);
+      return;
+    }
+    let cancelled = false;
+    const timer = window.setTimeout(async () => {
+      try {
+        const results = await ServerData.search(needle);
+        if (!cancelled) {
+          setSearchIds(results.map((result) => result.id));
+        }
+      } catch {
+        if (!cancelled) {
+          setSearchIds(null);
+        }
+      }
+    }, 250);
+    return () => {
+      cancelled = true;
+      window.clearTimeout(timer);
+    };
+  }, [query]);
+
   const visible = useMemo(() => {
+    const all = scenes ?? [];
     const needle = query.trim().toLowerCase();
-    return (scenes ?? []).filter((scene) => {
-      if (categoryFilter && scene.category !== categoryFilter) {
-        return false;
-      }
-      if (!needle) {
-        return true;
-      }
-      return (
-        scene.name.toLowerCase().includes(needle) ||
-        scene.description.toLowerCase().includes(needle) ||
-        scene.category.toLowerCase().includes(needle) ||
-        scene.tags.some((tag) => tag.toLowerCase().includes(needle))
-      );
-    });
-  }, [scenes, query, categoryFilter]);
+    let filtered = all;
+    if (needle) {
+      filtered =
+        searchIds !== null
+          ? all.filter((scene) => searchIds.includes(scene.id))
+          : all.filter(
+              (scene) =>
+                scene.name.toLowerCase().includes(needle) ||
+                scene.description.toLowerCase().includes(needle) ||
+                scene.category.toLowerCase().includes(needle) ||
+                scene.tags.some((tag) => tag.toLowerCase().includes(needle)),
+            );
+    }
+    if (categoryFilter) {
+      filtered = filtered.filter((scene) => scene.category === categoryFilter);
+    }
+    return filtered;
+  }, [scenes, query, searchIds, categoryFilter]);
 
   const handleSaveMeta = async (meta: RemoteSceneMeta) => {
     const target = edit;
@@ -280,7 +455,7 @@ export const Dashboard = () => {
           <input
             className="dash-search"
             type="search"
-            placeholder="Search title, description, category…"
+            placeholder="Search title, description, category, contents…"
             value={query}
             onChange={(event) => setQuery(event.target.value)}
           />
@@ -323,6 +498,7 @@ export const Dashboard = () => {
                   category: scene.category,
                 })
               }
+              onHistory={() => setHistoryFor(scene)}
               onDelete={() => handleDelete(scene)}
               onTogglePin={() => handleTogglePin(scene)}
             />
@@ -336,6 +512,18 @@ export const Dashboard = () => {
           categories={categories}
           onCancel={() => setEdit(null)}
           onSave={handleSaveMeta}
+        />
+      )}
+
+      {historyFor && (
+        <VersionHistory
+          sceneId={historyFor.id}
+          sceneName={historyFor.name}
+          onClose={() => {
+            setHistoryFor(null);
+            void refresh();
+          }}
+          onOpenVersion={() => ServerData.listVersions(historyFor.id)}
         />
       )}
     </div>
