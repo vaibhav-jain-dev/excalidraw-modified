@@ -329,11 +329,7 @@ const CommentThreadPopover = ({
           </div>
         ))}
       </div>
-      <CommentComposer
-        placeholder="Reply…"
-        value={reply}
-        onChange={setReply}
-      />
+      <CommentComposer placeholder="Reply…" value={reply} onChange={setReply} />
       <div className="comment-thread-actions">
         <button type="button" onClick={onClose} disabled={busy}>
           Close

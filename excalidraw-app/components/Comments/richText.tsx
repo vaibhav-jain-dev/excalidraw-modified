@@ -92,11 +92,7 @@ export const renderRichText = (text: string): ReactNode => {
       <li key={`${key}-${i}`}>{renderInline(item, `${key}-${i}`)}</li>
     ));
     blocks.push(
-      list.ordered ? (
-        <ol key={key}>{items}</ol>
-      ) : (
-        <ul key={key}>{items}</ul>
-      ),
+      list.ordered ? <ol key={key}>{items}</ol> : <ul key={key}>{items}</ul>,
     );
     list = null;
   };

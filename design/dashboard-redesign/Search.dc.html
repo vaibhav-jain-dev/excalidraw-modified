@@ -1,453 +1,944 @@
-<!doctype html>
+<!DOCTYPE html>
 <html>
-<head>
-  <meta charset="utf-8">
-  <script src="./support.js"></script>
-</head>
-<body>
-<x-dc>
-<helmet>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Assistant:wght@400;500;600;700&display=swap">
-  <style>
-    body { margin: 0; }
-    a { color: #6965db; text-decoration: none; }
-    a:hover { color: #5753d0; }
-    @media (prefers-color-scheme: dark) { a { color: #a8a5ff; } a:hover { color: #bbb8ff; } }
+  <head>
+    <meta charset="utf-8" />
+    <script src="./support.js"></script>
+  </head>
+  <body>
+    <x-dc>
+      <helmet>
+        <link
+          rel="stylesheet"
+          href="https://fonts.googleapis.com/css2?family=Assistant:wght@400;500;600;700&display=swap"
+        />
+        <style>
+          body {
+            margin: 0;
+          }
+          a {
+            color: #6965db;
+            text-decoration: none;
+          }
+          a:hover {
+            color: #5753d0;
+          }
+          @media (prefers-color-scheme: dark) {
+            a {
+              color: #a8a5ff;
+            }
+            a:hover {
+              color: #bbb8ff;
+            }
+          }
 
-    .sr {
-      --bg: #f6f6f9; --surface: #ffffff; --surface-high: #f1f0ff;
-      --border: #ebebeb; --border-strong: #c5c5d0;
-      --text: #1b1b1f; --muted: #7a7a7a; --muted-dark: #5c5c5c;
-      --accent: var(--accent-src, #6965db); --on-accent: #ffffff;
-      --accent-container: #e0dfff; --on-accent-container: #030064;
-      --hi-bg: #fceeca; --hi-text: #3d3d3d;
-      --sketch-filter: none;
-      --island: 0px 0px 1px 0px rgba(0,0,0,0.17), 0px 0px 3px 0px rgba(0,0,0,0.08), 0px 7px 14px 0px rgba(0,0,0,0.05);
+          .sr {
+            --bg: #f6f6f9;
+            --surface: #ffffff;
+            --surface-high: #f1f0ff;
+            --border: #ebebeb;
+            --border-strong: #c5c5d0;
+            --text: #1b1b1f;
+            --muted: #7a7a7a;
+            --muted-dark: #5c5c5c;
+            --accent: var(--accent-src, #6965db);
+            --on-accent: #ffffff;
+            --accent-container: #e0dfff;
+            --on-accent-container: #030064;
+            --hi-bg: #fceeca;
+            --hi-text: #3d3d3d;
+            --sketch-filter: none;
+            --island: 0px 0px 1px 0px rgba(0, 0, 0, 0.17),
+              0px 0px 3px 0px rgba(0, 0, 0, 0.08),
+              0px 7px 14px 0px rgba(0, 0, 0, 0.05);
 
-      width: 1080px; height: 900px; overflow: hidden;
-      display: flex; flex-direction: column;
-      background: var(--bg); color: var(--text);
-      font-family: Assistant, system-ui, BlinkMacSystemFont, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-      font-size: 14px; -webkit-font-smoothing: antialiased;
-    }
-    .sr * { box-sizing: border-box; }
-    .sr[data-theme="dark"] {
-      --bg: #18181b; --surface: #232329; --surface-high: #2e2d39;
-      --border: #2e2e2e; --border-strong: #46464f;
-      --text: #e3e3e8; --muted: #999999; --muted-dark: #b8b8b8;
-      --accent: color-mix(in oklab, var(--accent-src, #6965db) 60%, #ffffff); --on-accent: #1e1e1e;
-      --accent-container: #403e6a; --on-accent-container: #e0dfff;
-      --hi-bg: #4a3c1e; --hi-text: #f3e6c6;
-      --sketch-filter: invert(93%) hue-rotate(180deg);
-    }
+            width: 1080px;
+            height: 900px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            background: var(--bg);
+            color: var(--text);
+            font-family: Assistant, system-ui, BlinkMacSystemFont, -apple-system,
+              "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            font-size: 14px;
+            -webkit-font-smoothing: antialiased;
+          }
+          .sr * {
+            box-sizing: border-box;
+          }
+          .sr[data-theme="dark"] {
+            --bg: #18181b;
+            --surface: #232329;
+            --surface-high: #2e2d39;
+            --border: #2e2e2e;
+            --border-strong: #46464f;
+            --text: #e3e3e8;
+            --muted: #999999;
+            --muted-dark: #b8b8b8;
+            --accent: color-mix(
+              in oklab,
+              var(--accent-src, #6965db) 60%,
+              #ffffff
+            );
+            --on-accent: #1e1e1e;
+            --accent-container: #403e6a;
+            --on-accent-container: #e0dfff;
+            --hi-bg: #4a3c1e;
+            --hi-text: #f3e6c6;
+            --sketch-filter: invert(93%) hue-rotate(180deg);
+          }
 
-    .head {
-      flex: none; display: flex; flex-direction: column; gap: 14px;
-      padding: 24px 28px 18px;
-      background: var(--surface); border-bottom: 1px solid var(--border);
-    }
-    .search { position: relative; display: flex; align-items: center; }
-    .search > svg { position: absolute; left: 14px; color: var(--muted); pointer-events: none; }
-    .search input {
-      width: 100%; height: 46px;
-      padding: 0 16px 0 44px;
-      font: inherit; font-size: 17px; font-weight: 600; color: var(--text);
-      background: var(--bg); border: 1px solid var(--border-strong); border-radius: 11px;
-    }
-    .search input:focus { outline: 2px solid var(--accent); outline-offset: -1px; border-color: transparent; background: var(--surface); }
-    .ladder { display: flex; align-items: center; gap: 7px; flex-wrap: wrap; font-size: 12.5px; color: var(--muted); }
-    .rung {
-      display: inline-flex; align-items: center; gap: 6px;
-      height: 24px; padding: 0 9px;
-      font-size: 12px; font-weight: 600;
-      border: 1px solid var(--border); border-radius: 999px;
-      background: var(--bg); color: var(--muted-dark);
-    }
-    .rung[data-on="true"] { background: var(--accent-container); border-color: var(--accent-container); color: var(--on-accent-container); }
-    .rung-n { font-variant-numeric: tabular-nums; opacity: .7; }
-    .arrow-sep { color: var(--muted); opacity: .6; }
+          .head {
+            flex: none;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            padding: 24px 28px 18px;
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+          }
+          .search {
+            position: relative;
+            display: flex;
+            align-items: center;
+          }
+          .search > svg {
+            position: absolute;
+            left: 14px;
+            color: var(--muted);
+            pointer-events: none;
+          }
+          .search input {
+            width: 100%;
+            height: 46px;
+            padding: 0 16px 0 44px;
+            font: inherit;
+            font-size: 17px;
+            font-weight: 600;
+            color: var(--text);
+            background: var(--bg);
+            border: 1px solid var(--border-strong);
+            border-radius: 11px;
+          }
+          .search input:focus {
+            outline: 2px solid var(--accent);
+            outline-offset: -1px;
+            border-color: transparent;
+            background: var(--surface);
+          }
+          .ladder {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            flex-wrap: wrap;
+            font-size: 12.5px;
+            color: var(--muted);
+          }
+          .rung {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            height: 24px;
+            padding: 0 9px;
+            font-size: 12px;
+            font-weight: 600;
+            border: 1px solid var(--border);
+            border-radius: 999px;
+            background: var(--bg);
+            color: var(--muted-dark);
+          }
+          .rung[data-on="true"] {
+            background: var(--accent-container);
+            border-color: var(--accent-container);
+            color: var(--on-accent-container);
+          }
+          .rung-n {
+            font-variant-numeric: tabular-nums;
+            opacity: 0.7;
+          }
+          .arrow-sep {
+            color: var(--muted);
+            opacity: 0.6;
+          }
 
-    .scroll { flex: 1; min-height: 0; padding: 18px 28px 0; overflow: hidden; }
-    .tier { display: flex; flex-direction: column; gap: 9px; margin-bottom: 22px; }
-    .tier-head { display: flex; align-items: baseline; gap: 9px; }
-    .tier-name { font-size: 12.5px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; color: var(--muted); }
-    .tier-why { font-size: 12.5px; color: var(--muted); opacity: .85; }
+          .scroll {
+            flex: 1;
+            min-height: 0;
+            padding: 18px 28px 0;
+            overflow: hidden;
+          }
+          .tier {
+            display: flex;
+            flex-direction: column;
+            gap: 9px;
+            margin-bottom: 22px;
+          }
+          .tier-head {
+            display: flex;
+            align-items: baseline;
+            gap: 9px;
+          }
+          .tier-name {
+            font-size: 12.5px;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            color: var(--muted);
+          }
+          .tier-why {
+            font-size: 12.5px;
+            color: var(--muted);
+            opacity: 0.85;
+          }
 
-    .res {
-      display: flex; align-items: stretch; gap: 14px;
-      width: 100%; padding: 11px 13px;
-      font: inherit; text-align: left; color: var(--text); cursor: pointer;
-      background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
-    }
-    .res:hover { border-color: var(--border-strong); box-shadow: var(--island); }
-    .res-thumb {
-      width: 92px; height: 92px; flex: none;
-      display: flex; align-items: center; justify-content: center;
-      border: 1px solid var(--border); border-radius: 8px; overflow: hidden;
-      background:
-        repeating-conic-gradient(rgba(128,128,128,0.08) 0% 25%, transparent 0% 50%) 50% / 12px 12px,
-        var(--surface);
-    }
-    .sketch { width: 100%; height: 100%; filter: var(--sketch-filter); }
-    .sketch rect.bounds { fill: none; stroke: var(--muted); stroke-width: 1.5; stroke-dasharray: 6 5; opacity: .5; }
-    .sketch rect { stroke: #1e1e1e; stroke-width: 1.8; }
-    .sketch rect.hit { stroke: var(--accent); stroke-width: 3.6; }
-    .sketch path { fill: none; stroke: #1e1e1e; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+          .res {
+            display: flex;
+            align-items: stretch;
+            gap: 14px;
+            width: 100%;
+            padding: 11px 13px;
+            font: inherit;
+            text-align: left;
+            color: var(--text);
+            cursor: pointer;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+          }
+          .res:hover {
+            border-color: var(--border-strong);
+            box-shadow: var(--island);
+          }
+          .res-thumb {
+            width: 92px;
+            height: 92px;
+            flex: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            overflow: hidden;
+            background: repeating-conic-gradient(
+                  rgba(128, 128, 128, 0.08) 0% 25%,
+                  transparent 0% 50%
+                )
+                50% / 12px 12px,
+              var(--surface);
+          }
+          .sketch {
+            width: 100%;
+            height: 100%;
+            filter: var(--sketch-filter);
+          }
+          .sketch rect.bounds {
+            fill: none;
+            stroke: var(--muted);
+            stroke-width: 1.5;
+            stroke-dasharray: 6 5;
+            opacity: 0.5;
+          }
+          .sketch rect {
+            stroke: #1e1e1e;
+            stroke-width: 1.8;
+          }
+          .sketch rect.hit {
+            stroke: var(--accent);
+            stroke-width: 3.6;
+          }
+          .sketch path {
+            fill: none;
+            stroke: #1e1e1e;
+            stroke-width: 1.8;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+          }
 
-    .res-main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 5px; }
-    .res-top { display: flex; align-items: center; gap: 8px; }
-    .res-title { font-size: 15px; font-weight: 700; letter-spacing: -0.01em; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    .why {
-      display: inline-flex; align-items: center; gap: 5px; flex: none;
-      height: 20px; padding: 0 8px;
-      font-size: 11px; font-weight: 700; letter-spacing: .02em;
-      border-radius: 999px; background: var(--accent-container); color: var(--on-accent-container);
-    }
-    .res-crumb { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--muted); }
-    .res-crumb svg { flex: none; opacity: .65; }
-    .snippet {
-      font-size: 13px; line-height: 1.45; color: var(--muted-dark);
-      overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
-    }
-    .mark { background: var(--hi-bg); color: var(--hi-text); font-weight: 700; border-radius: 3px; padding: 0 3px; }
-    .where { font-size: 11.5px; color: var(--muted); font-style: italic; }
-    .res-tags { display: flex; gap: 5px; flex-wrap: wrap; }
-    .tag {
-      display: inline-flex; align-items: center; gap: 3px;
-      height: 19px; padding: 0 6px;
-      font-size: 11px; font-weight: 600; color: var(--muted-dark);
-      background: var(--bg); border: 1px solid var(--border-strong); border-radius: 5px;
-    }
-    .tag[data-scope="part"] { border-style: dashed; }
-    .hash { opacity: .5; font-weight: 700; }
-    .res-side { width: 78px; flex: none; display: flex; flex-direction: column; align-items: flex-end; justify-content: space-between; }
-    .score { font-size: 12px; font-weight: 700; color: var(--accent); font-variant-numeric: tabular-nums; }
-    .when { font-size: 11.5px; color: var(--muted); }
+          .res-main {
+            flex: 1;
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+          }
+          .res-top {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+          }
+          .res-title {
+            font-size: 15px;
+            font-weight: 700;
+            letter-spacing: -0.01em;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+          }
+          .why {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            flex: none;
+            height: 20px;
+            padding: 0 8px;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.02em;
+            border-radius: 999px;
+            background: var(--accent-container);
+            color: var(--on-accent-container);
+          }
+          .res-crumb {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+            color: var(--muted);
+          }
+          .res-crumb svg {
+            flex: none;
+            opacity: 0.65;
+          }
+          .snippet {
+            font-size: 13px;
+            line-height: 1.45;
+            color: var(--muted-dark);
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+          }
+          .mark {
+            background: var(--hi-bg);
+            color: var(--hi-text);
+            font-weight: 700;
+            border-radius: 3px;
+            padding: 0 3px;
+          }
+          .where {
+            font-size: 11.5px;
+            color: var(--muted);
+            font-style: italic;
+          }
+          .res-tags {
+            display: flex;
+            gap: 5px;
+            flex-wrap: wrap;
+          }
+          .tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 3px;
+            height: 19px;
+            padding: 0 6px;
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--muted-dark);
+            background: var(--bg);
+            border: 1px solid var(--border-strong);
+            border-radius: 5px;
+          }
+          .tag[data-scope="part"] {
+            border-style: dashed;
+          }
+          .hash {
+            opacity: 0.5;
+            font-weight: 700;
+          }
+          .res-side {
+            width: 78px;
+            flex: none;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            justify-content: space-between;
+          }
+          .score {
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--accent);
+            font-variant-numeric: tabular-nums;
+          }
+          .when {
+            font-size: 11.5px;
+            color: var(--muted);
+          }
 
-    .none {
-      display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px;
-      padding: 46px 20px; text-align: center;
-      background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
-    }
-    .none-t { font-size: 16px; font-weight: 700; }
-    .none-s { font-size: 13.5px; color: var(--muted); max-width: 380px; line-height: 1.45; }
-  </style>
-</helmet>
+          .none {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            padding: 46px 20px;
+            text-align: center;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+          }
+          .none-t {
+            font-size: 16px;
+            font-weight: 700;
+          }
+          .none-s {
+            font-size: 13.5px;
+            color: var(--muted);
+            max-width: 380px;
+            line-height: 1.45;
+          }
+        </style>
+      </helmet>
 
-<div class="sr" data-theme="{{theme}}" style="--accent-src: {{accent}}">
-
-  <div class="head">
-    <label class="search">
-      <svg width="19" height="19" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round">
-        <circle cx="7" cy="7" r="4.4"></circle>
-        <path d="M10.3 10.3L14 14"></path>
-      </svg>
-      <input type="text" value="{{query}}" placeholder="Search everything" onChange="{{onQuery}}" />
-    </label>
-    <div class="ladder">
-      <span>{{summary}}</span>
-      <span class="arrow-sep">·</span>
-      <sc-for list="{{rungs}}" as="r" hint-placeholder-count="3">
-        <span class="rung" data-on="{{r.hasHits}}">{{r.short}}<span class="rung-n">{{r.count}}</span></span>
-      </sc-for>
-    </div>
-  </div>
-
-  <div class="scroll">
-    <sc-for list="{{tiers}}" as="t" hint-placeholder-count="3">
-      <div class="tier">
-        <div class="tier-head">
-          <span class="tier-name">{{t.name}}</span>
-          <span class="tier-why">{{t.why}}</span>
-        </div>
-        <sc-for list="{{t.hits}}" as="h" hint-placeholder-count="2">
-          <div class="res">
-            <div class="res-thumb">
-              <svg class="sketch" viewBox="{{h.viewBox}}" preserveAspectRatio="xMidYMid meet">
-                <rect class="bounds" x="{{h.bx}}" y="{{h.by}}" width="{{h.bw}}" height="{{h.bh}}" rx="4"></rect>
-                <sc-for list="{{h.shapes}}" as="r" hint-placeholder-count="3">
-                  <rect class="{{r.cls}}" x="{{r.x}}" y="{{r.y}}" width="{{r.w}}" height="{{r.h}}" fill="{{r.fill}}" rx="3"></rect>
-                </sc-for>
-                <sc-for list="{{h.arrows}}" as="a" hint-placeholder-count="2">
-                  <path d="{{a.d}}"></path>
-                </sc-for>
-              </svg>
-            </div>
-            <div class="res-main">
-              <div class="res-top">
-                <span class="res-title">{{h.name}}</span>
-                <span class="why">{{h.why}}</span>
-              </div>
-              <div class="res-crumb">
-                <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round">
-                  <path d="M2 4.4h4.2l1.2 1.6H14v6.4a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1z"></path>
-                </svg>
-                {{h.crumb}}
-              </div>
-              <div class="snippet">{{h.before}}<span class="mark">{{h.match}}</span>{{h.after}}</div>
-              <div class="res-tags">
-                <span class="where">{{h.where}}</span>
-                <sc-for list="{{h.tags}}" as="g" hint-placeholder-count="2">
-                  <span class="tag" data-scope="{{g.scope}}"><span class="hash">#</span>{{g.name}}</span>
-                </sc-for>
-              </div>
-            </div>
-            <div class="res-side">
-              <span class="score">{{h.score}}</span>
-              <span class="when">{{h.ago}}</span>
-            </div>
+      <div class="sr" data-theme="{{theme}}" style="--accent-src: {{accent}}">
+        <div class="head">
+          <label class="search">
+            <svg
+              width="19"
+              height="19"
+              viewBox="0 0 16 16"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.7"
+              stroke-linecap="round"
+            >
+              <circle cx="7" cy="7" r="4.4"></circle>
+              <path d="M10.3 10.3L14 14"></path>
+            </svg>
+            <input
+              type="text"
+              value="{{query}}"
+              placeholder="Search everything"
+              onChange="{{onQuery}}"
+            />
+          </label>
+          <div class="ladder">
+            <span>{{summary}}</span>
+            <span class="arrow-sep">·</span>
+            <sc-for list="{{rungs}}" as="r" hint-placeholder-count="3">
+              <span class="rung" data-on="{{r.hasHits}}"
+                >{{r.short}}<span class="rung-n">{{r.count}}</span></span
+              >
+            </sc-for>
           </div>
-        </sc-for>
+        </div>
+
+        <div class="scroll">
+          <sc-for list="{{tiers}}" as="t" hint-placeholder-count="3">
+            <div class="tier">
+              <div class="tier-head">
+                <span class="tier-name">{{t.name}}</span>
+                <span class="tier-why">{{t.why}}</span>
+              </div>
+              <sc-for list="{{t.hits}}" as="h" hint-placeholder-count="2">
+                <div class="res">
+                  <div class="res-thumb">
+                    <svg
+                      class="sketch"
+                      viewBox="{{h.viewBox}}"
+                      preserveAspectRatio="xMidYMid meet"
+                    >
+                      <rect
+                        class="bounds"
+                        x="{{h.bx}}"
+                        y="{{h.by}}"
+                        width="{{h.bw}}"
+                        height="{{h.bh}}"
+                        rx="4"
+                      ></rect>
+                      <sc-for
+                        list="{{h.shapes}}"
+                        as="r"
+                        hint-placeholder-count="3"
+                      >
+                        <rect
+                          class="{{r.cls}}"
+                          x="{{r.x}}"
+                          y="{{r.y}}"
+                          width="{{r.w}}"
+                          height="{{r.h}}"
+                          fill="{{r.fill}}"
+                          rx="3"
+                        ></rect>
+                      </sc-for>
+                      <sc-for
+                        list="{{h.arrows}}"
+                        as="a"
+                        hint-placeholder-count="2"
+                      >
+                        <path d="{{a.d}}"></path>
+                      </sc-for>
+                    </svg>
+                  </div>
+                  <div class="res-main">
+                    <div class="res-top">
+                      <span class="res-title">{{h.name}}</span>
+                      <span class="why">{{h.why}}</span>
+                    </div>
+                    <div class="res-crumb">
+                      <svg
+                        width="12"
+                        height="12"
+                        viewBox="0 0 16 16"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="1.5"
+                        stroke-linejoin="round"
+                      >
+                        <path
+                          d="M2 4.4h4.2l1.2 1.6H14v6.4a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1z"
+                        ></path>
+                      </svg>
+                      {{h.crumb}}
+                    </div>
+                    <div class="snippet">
+                      {{h.before}}<span class="mark">{{h.match}}</span
+                      >{{h.after}}
+                    </div>
+                    <div class="res-tags">
+                      <span class="where">{{h.where}}</span>
+                      <sc-for
+                        list="{{h.tags}}"
+                        as="g"
+                        hint-placeholder-count="2"
+                      >
+                        <span class="tag" data-scope="{{g.scope}}"
+                          ><span class="hash">#</span>{{g.name}}</span
+                        >
+                      </sc-for>
+                    </div>
+                  </div>
+                  <div class="res-side">
+                    <span class="score">{{h.score}}</span>
+                    <span class="when">{{h.ago}}</span>
+                  </div>
+                </div>
+              </sc-for>
+            </div>
+          </sc-for>
+
+          <sc-if value="{{empty}}" hint-placeholder-val="{{false}}">
+            <div class="none">
+              <div class="none-t">Nothing matched “{{query}}”</div>
+              <div class="none-s">
+                Titles, categories, tags, the text drawn inside every diagram
+                and the embeddings were all searched. Try one word instead of
+                two.
+              </div>
+            </div>
+          </sc-if>
+        </div>
       </div>
-    </sc-for>
+    </x-dc>
 
-    <sc-if value="{{empty}}" hint-placeholder-val="{{false}}">
-      <div class="none">
-        <div class="none-t">Nothing matched “{{query}}”</div>
-        <div class="none-s">Titles, categories, tags, the text drawn inside every diagram and the embeddings were all searched. Try one word instead of two.</div>
-      </div>
-    </sc-if>
-  </div>
-</div>
-</x-dc>
-
-<script data-dc-script data-props='{"theme":{"editor":"enum","options":["light","dark"],"default":"light","section":"Theme"},"accent":{"editor":"color","default":"#6965db","options":["#6965db","#1971c2","#2f9e44","#e03131"],"section":"Theme"},"$preview":{"width":1080,"height":900}}'>
-class Component extends DCLogic {
-  constructor(props) {
-    super(props);
-    this.state = { query: "broken code" };
-  }
-
-  // thumbnails are a fixed square: fit the scene into it, never crop it
-  fitBox(shapes) {
-    let x0 = 1e9, y0 = 1e9, x1 = -1e9, y1 = -1e9;
-    shapes.forEach((r) => {
-      x0 = Math.min(x0, r.x); y0 = Math.min(y0, r.y);
-      x1 = Math.max(x1, r.x + r.w); y1 = Math.max(y1, r.y + r.h);
-    });
-    if (x1 < x0) { x0 = 0; y0 = 0; x1 = 200; y1 = 150; }
-    const pad = 14;
-    const b = { x: x0 - pad, y: y0 - pad, w: (x1 - x0) + pad * 2, h: (y1 - y0) + pad * 2 };
-    const side = Math.max(b.w, b.h) * 1.06;
-    const round = (n) => Math.round(n * 10) / 10;
-    return {
-      viewBox: [b.x + b.w / 2 - side / 2, b.y + b.h / 2 - side / 2, side, side].map(round).join(" "),
-      bx: round(b.x), by: round(b.y), bw: round(b.w), bh: round(b.h)
-    };
-  }
-
-  sketch(kind) {
-    const S = {
-      pipe: {
-        shapes: [
-          { x: 10, y: 22, w: 52, h: 30, fill: "#a5d8ff" },
-          { x: 76, y: 22, w: 46, h: 30, fill: "#ffec99" },
-          { x: 136, y: 18, w: 56, h: 36, fill: "#ffc9c9" },
-          { x: 76, y: 76, w: 46, h: 28, fill: "#b2f2bb" },
-          { x: 10, y: 116, w: 56, h: 26, fill: "#e0dfff" },
-          { x: 86, y: 116, w: 58, h: 26, fill: "#a5d8ff" }
-        ],
-        arrows: [
-          { d: "M62 37 L74 37" }, { d: "M122 37 L134 37" },
-          { d: "M99 52 L99 74" }, { d: "M88 104 L40 104 L40 114" },
-          { d: "M104 104 L110 114" }
-        ]
-      },
-      triage: {
-        shapes: [
-          { x: 62, y: 14, w: 76, h: 32, fill: "#ffc9c9" },
-          { x: 14, y: 74, w: 62, h: 30, fill: "#ffec99" },
-          { x: 120, y: 74, w: 66, h: 30, fill: "#b2f2bb" },
-          { x: 66, y: 118, w: 68, h: 24, fill: "#a5d8ff" }
-        ],
-        arrows: [
-          { d: "M100 46 L100 60 L45 60 L45 72" },
-          { d: "M100 46 L100 60 L153 60 L153 72" },
-          { d: "M45 104 L45 130 L64 130" },
-          { d: "M153 104 L153 130 L136 130" }
-        ]
-      },
-      parser: {
-        shapes: [
-          { x: 18, y: 18, w: 68, h: 30, fill: "#ffec99" },
-          { x: 112, y: 18, w: 70, h: 30, fill: "#ffc9c9" },
-          { x: 18, y: 76, w: 68, h: 30, fill: "#a5d8ff" },
-          { x: 112, y: 76, w: 70, h: 30, fill: "#b2f2bb" },
-          { x: 62, y: 120, w: 76, h: 22, fill: "#e0dfff" }
-        ],
-        arrows: [{ d: "M86 33 L110 33" }, { d: "M52 48 L52 74" }, { d: "M147 48 L147 74" }]
-      },
-      restore: {
-        shapes: [
-          { x: 20, y: 20, w: 160, h: 24, fill: "#a5d8ff" },
-          { x: 20, y: 58, w: 160, h: 24, fill: "#ffec99" },
-          { x: 20, y: 96, w: 160, h: 24, fill: "#b2f2bb" }
-        ],
-        arrows: [{ d: "M100 44 L100 56" }, { d: "M100 82 L100 94" }, { d: "M20 132 L180 132" }]
-      },
-      notes: {
-        shapes: [{ x: 18, y: 14, w: 58, h: 18, fill: "#ffec99" }],
-        arrows: [
-          { d: "M18 48 L178 48" }, { d: "M18 64 L146 64" }, { d: "M18 80 L170 80" },
-          { d: "M18 96 L118 96" }, { d: "M18 112 L160 112" }, { d: "M18 128 L92 128" }
-        ]
-      }
-    };
-    return S[kind] || S.notes;
-  }
-
-  corpus() {
-    return [
-      {
-        name: "Broken code triage", cat: "Architecture / MCP", path: "work / local-first",
-        ago: "3 days ago", kind: "triage", hitIndex: 0,
-        texts: ["parse failure", "retry once", "quarantine", "notify agent"],
-        related: ["failure", "error", "recovery"],
-        tags: [["mcp", "scene"], ["decision", "scene"]]
-      },
-      {
-        name: "Ingest pipeline", cat: "Architecture / Storage", path: "work / local-first",
-        ago: "2 hours ago", kind: "pipe", hitIndex: 2,
-        texts: ["File watcher", "Parser", "Broken code path", "Index writer", "Graph store", "FTS5 + vectors"],
-        related: ["ingest", "failure"],
-        tags: [["local-first", "scene"], ["broken-code", "part"]]
-      },
-      {
-        name: "Parser failure modes", cat: "Architecture / Storage", path: "work / local-first / spikes",
-        ago: "1 week ago", kind: "parser", hitIndex: 1,
-        texts: ["malformed JSON", "broken code block", "half-written file", "recover on next scan"],
-        related: ["error", "failure"],
-        tags: [["storage", "scene"], ["error-path", "part"]]
-      },
-      {
-        name: "Restore flow", cat: "Product / UX flows", path: "work / product",
-        ago: "3 days ago", kind: "restore", hitIndex: 1,
-        texts: ["pick a version", "preview", "restore as new"],
-        related: ["broken", "corrupt", "failure", "recovery"],
-        tags: [["ui", "scene"], ["decision", "part"]]
-      },
-      {
-        name: "Search ranking notes", cat: "Architecture / Storage", path: "work / local-first",
-        ago: "4 days ago", kind: "notes", hitIndex: 0,
-        texts: ["category first", "then title", "then text inside the diagram", "ties break on recency"],
-        related: ["ranking", "relevance"],
-        tags: [["search", "scene"], ["storage", "part"]]
-      },
-      {
-        name: "Onboarding flow", cat: "Product / UX flows", path: "work / product",
-        ago: "1 week ago", kind: "restore", hitIndex: 0,
-        texts: ["pick a folder", "import existing files", "build the index"],
-        related: ["setup", "first run"],
-        tags: [["ui", "scene"]]
-      }
-    ];
-  }
-
-  renderVals() {
-    const st = this.state;
-    const raw = st.query.trim().toLowerCase();
-    const tokens = raw.split(/\s+/).filter((t) => t.length > 1);
-    const all = this.corpus();
-
-    const findIn = (hay) => {
-      let best = null;
-      tokens.forEach((tok) => {
-        const i = hay.toLowerCase().indexOf(tok);
-        if (i !== -1 && (best === null || tok.length > best.tok.length)) {
-          best = { i: i, tok: tok };
+    <script
+      data-dc-script
+      data-props='{"theme":{"editor":"enum","options":["light","dark"],"default":"light","section":"Theme"},"accent":{"editor":"color","default":"#6965db","options":["#6965db","#1971c2","#2f9e44","#e03131"],"section":"Theme"},"$preview":{"width":1080,"height":900}}'
+    >
+      class Component extends DCLogic {
+        constructor(props) {
+          super(props);
+          this.state = { query: "broken code" };
         }
-      });
-      return best;
-    };
 
-    const buckets = [[], [], []];
-
-    all.forEach((s) => {
-      if (tokens.length === 0) { return; }
-      const head = s.cat + " " + s.name;
-      const headHit = findIn(head);
-      const shape = this.sketch(s.kind);
-
-      const mk = (tier, why, before, match, after, where, score, hit) => {
-        const shapes = shape.shapes.map((r, i) => ({
-          x: r.x, y: r.y, w: r.w, h: r.h, fill: r.fill,
-          cls: hit && i === s.hitIndex ? "hit" : ""
-        }));
-        const fit = this.fitBox(shape.shapes);
-        buckets[tier].push({
-          viewBox: fit.viewBox, bx: fit.bx, by: fit.by, bw: fit.bw, bh: fit.bh,
-          name: s.name, crumb: s.path + "  ·  " + s.cat, ago: s.ago,
-          why: why, before: before, match: match, after: after, where: where,
-          score: score, shapes: shapes, arrows: shape.arrows,
-          tags: s.tags.map((t) => ({ name: t[0], scope: t[1] }))
-        });
-      };
-
-      if (headHit) {
-        const h = head;
-        mk(0, "title match",
-          "…" + h.slice(Math.max(0, headHit.i - 26), headHit.i),
-          h.substr(headHit.i, headHit.tok.length),
-          h.slice(headHit.i + headHit.tok.length, headHit.i + headHit.tok.length + 40) + "…",
-          "in the title or the category path",
-          "0." + (94 + Math.min(5, tokens.length)), false);
-        return;
-      }
-
-      let textHit = null;
-      let textIdx = -1;
-      s.texts.forEach((t, i) => {
-        if (textHit === null) {
-          const f = findIn(t);
-          if (f) { textHit = { f: f, t: t }; textIdx = i; }
+        // thumbnails are a fixed square: fit the scene into it, never crop it
+        fitBox(shapes) {
+          let x0 = 1e9,
+            y0 = 1e9,
+            x1 = -1e9,
+            y1 = -1e9;
+          shapes.forEach((r) => {
+            x0 = Math.min(x0, r.x);
+            y0 = Math.min(y0, r.y);
+            x1 = Math.max(x1, r.x + r.w);
+            y1 = Math.max(y1, r.y + r.h);
+          });
+          if (x1 < x0) {
+            x0 = 0;
+            y0 = 0;
+            x1 = 200;
+            y1 = 150;
+          }
+          const pad = 14;
+          const b = {
+            x: x0 - pad,
+            y: y0 - pad,
+            w: x1 - x0 + pad * 2,
+            h: y1 - y0 + pad * 2,
+          };
+          const side = Math.max(b.w, b.h) * 1.06;
+          const round = (n) => Math.round(n * 10) / 10;
+          return {
+            viewBox: [
+              b.x + b.w / 2 - side / 2,
+              b.y + b.h / 2 - side / 2,
+              side,
+              side,
+            ]
+              .map(round)
+              .join(" "),
+            bx: round(b.x),
+            by: round(b.y),
+            bw: round(b.w),
+            bh: round(b.h),
+          };
         }
-      });
-      if (textHit) {
-        const t = textHit.t;
-        const f = textHit.f;
-        mk(1, "text in diagram",
-          "…" + t.slice(0, f.i),
-          t.substr(f.i, f.tok.length),
-          t.slice(f.i + f.tok.length) + "…",
-          "box " + (textIdx + 1) + " of " + s.texts.length + ", highlighted",
-          "0." + (72 + textIdx), true);
-        return;
+
+        sketch(kind) {
+          const S = {
+            pipe: {
+              shapes: [
+                { x: 10, y: 22, w: 52, h: 30, fill: "#a5d8ff" },
+                { x: 76, y: 22, w: 46, h: 30, fill: "#ffec99" },
+                { x: 136, y: 18, w: 56, h: 36, fill: "#ffc9c9" },
+                { x: 76, y: 76, w: 46, h: 28, fill: "#b2f2bb" },
+                { x: 10, y: 116, w: 56, h: 26, fill: "#e0dfff" },
+                { x: 86, y: 116, w: 58, h: 26, fill: "#a5d8ff" },
+              ],
+              arrows: [
+                { d: "M62 37 L74 37" },
+                { d: "M122 37 L134 37" },
+                { d: "M99 52 L99 74" },
+                { d: "M88 104 L40 104 L40 114" },
+                { d: "M104 104 L110 114" },
+              ],
+            },
+            triage: {
+              shapes: [
+                { x: 62, y: 14, w: 76, h: 32, fill: "#ffc9c9" },
+                { x: 14, y: 74, w: 62, h: 30, fill: "#ffec99" },
+                { x: 120, y: 74, w: 66, h: 30, fill: "#b2f2bb" },
+                { x: 66, y: 118, w: 68, h: 24, fill: "#a5d8ff" },
+              ],
+              arrows: [
+                { d: "M100 46 L100 60 L45 60 L45 72" },
+                { d: "M100 46 L100 60 L153 60 L153 72" },
+                { d: "M45 104 L45 130 L64 130" },
+                { d: "M153 104 L153 130 L136 130" },
+              ],
+            },
+            parser: {
+              shapes: [
+                { x: 18, y: 18, w: 68, h: 30, fill: "#ffec99" },
+                { x: 112, y: 18, w: 70, h: 30, fill: "#ffc9c9" },
+                { x: 18, y: 76, w: 68, h: 30, fill: "#a5d8ff" },
+                { x: 112, y: 76, w: 70, h: 30, fill: "#b2f2bb" },
+                { x: 62, y: 120, w: 76, h: 22, fill: "#e0dfff" },
+              ],
+              arrows: [
+                { d: "M86 33 L110 33" },
+                { d: "M52 48 L52 74" },
+                { d: "M147 48 L147 74" },
+              ],
+            },
+            restore: {
+              shapes: [
+                { x: 20, y: 20, w: 160, h: 24, fill: "#a5d8ff" },
+                { x: 20, y: 58, w: 160, h: 24, fill: "#ffec99" },
+                { x: 20, y: 96, w: 160, h: 24, fill: "#b2f2bb" },
+              ],
+              arrows: [
+                { d: "M100 44 L100 56" },
+                { d: "M100 82 L100 94" },
+                { d: "M20 132 L180 132" },
+              ],
+            },
+            notes: {
+              shapes: [{ x: 18, y: 14, w: 58, h: 18, fill: "#ffec99" }],
+              arrows: [
+                { d: "M18 48 L178 48" },
+                { d: "M18 64 L146 64" },
+                { d: "M18 80 L170 80" },
+                { d: "M18 96 L118 96" },
+                { d: "M18 112 L160 112" },
+                { d: "M18 128 L92 128" },
+              ],
+            },
+          };
+          return S[kind] || S.notes;
+        }
+
+        corpus() {
+          return [
+            {
+              name: "Broken code triage",
+              cat: "Architecture / MCP",
+              path: "work / local-first",
+              ago: "3 days ago",
+              kind: "triage",
+              hitIndex: 0,
+              texts: [
+                "parse failure",
+                "retry once",
+                "quarantine",
+                "notify agent",
+              ],
+              related: ["failure", "error", "recovery"],
+              tags: [
+                ["mcp", "scene"],
+                ["decision", "scene"],
+              ],
+            },
+            {
+              name: "Ingest pipeline",
+              cat: "Architecture / Storage",
+              path: "work / local-first",
+              ago: "2 hours ago",
+              kind: "pipe",
+              hitIndex: 2,
+              texts: [
+                "File watcher",
+                "Parser",
+                "Broken code path",
+                "Index writer",
+                "Graph store",
+                "FTS5 + vectors",
+              ],
+              related: ["ingest", "failure"],
+              tags: [
+                ["local-first", "scene"],
+                ["broken-code", "part"],
+              ],
+            },
+            {
+              name: "Parser failure modes",
+              cat: "Architecture / Storage",
+              path: "work / local-first / spikes",
+              ago: "1 week ago",
+              kind: "parser",
+              hitIndex: 1,
+              texts: [
+                "malformed JSON",
+                "broken code block",
+                "half-written file",
+                "recover on next scan",
+              ],
+              related: ["error", "failure"],
+              tags: [
+                ["storage", "scene"],
+                ["error-path", "part"],
+              ],
+            },
+            {
+              name: "Restore flow",
+              cat: "Product / UX flows",
+              path: "work / product",
+              ago: "3 days ago",
+              kind: "restore",
+              hitIndex: 1,
+              texts: ["pick a version", "preview", "restore as new"],
+              related: ["broken", "corrupt", "failure", "recovery"],
+              tags: [
+                ["ui", "scene"],
+                ["decision", "part"],
+              ],
+            },
+            {
+              name: "Search ranking notes",
+              cat: "Architecture / Storage",
+              path: "work / local-first",
+              ago: "4 days ago",
+              kind: "notes",
+              hitIndex: 0,
+              texts: [
+                "category first",
+                "then title",
+                "then text inside the diagram",
+                "ties break on recency",
+              ],
+              related: ["ranking", "relevance"],
+              tags: [
+                ["search", "scene"],
+                ["storage", "part"],
+              ],
+            },
+            {
+              name: "Onboarding flow",
+              cat: "Product / UX flows",
+              path: "work / product",
+              ago: "1 week ago",
+              kind: "restore",
+              hitIndex: 0,
+              texts: [
+                "pick a folder",
+                "import existing files",
+                "build the index",
+              ],
+              related: ["setup", "first run"],
+              tags: [["ui", "scene"]],
+            },
+          ];
+        }
+
+        renderVals() {
+          const st = this.state;
+          const raw = st.query.trim().toLowerCase();
+          const tokens = raw.split(/\s+/).filter((t) => t.length > 1);
+          const all = this.corpus();
+
+          const findIn = (hay) => {
+            let best = null;
+            tokens.forEach((tok) => {
+              const i = hay.toLowerCase().indexOf(tok);
+              if (i !== -1 && (best === null || tok.length > best.tok.length)) {
+                best = { i: i, tok: tok };
+              }
+            });
+            return best;
+          };
+
+          const buckets = [[], [], []];
+
+          all.forEach((s) => {
+            if (tokens.length === 0) {
+              return;
+            }
+            const head = s.cat + " " + s.name;
+            const headHit = findIn(head);
+            const shape = this.sketch(s.kind);
+
+            const mk = (tier, why, before, match, after, where, score, hit) => {
+              const shapes = shape.shapes.map((r, i) => ({
+                x: r.x,
+                y: r.y,
+                w: r.w,
+                h: r.h,
+                fill: r.fill,
+                cls: hit && i === s.hitIndex ? "hit" : "",
+              }));
+              const fit = this.fitBox(shape.shapes);
+              buckets[tier].push({
+                viewBox: fit.viewBox,
+                bx: fit.bx,
+                by: fit.by,
+                bw: fit.bw,
+                bh: fit.bh,
+                name: s.name,
+                crumb: s.path + "  ·  " + s.cat,
+                ago: s.ago,
+                why: why,
+                before: before,
+                match: match,
+                after: after,
+                where: where,
+                score: score,
+                shapes: shapes,
+                arrows: shape.arrows,
+                tags: s.tags.map((t) => ({ name: t[0], scope: t[1] })),
+              });
+            };
+
+            if (headHit) {
+              const h = head;
+              mk(
+                0,
+                "title match",
+                "…" + h.slice(Math.max(0, headHit.i - 26), headHit.i),
+                h.substr(headHit.i, headHit.tok.length),
+                h.slice(
+                  headHit.i + headHit.tok.length,
+                  headHit.i + headHit.tok.length + 40,
+                ) + "…",
+                "in the title or the category path",
+                "0." + (94 + Math.min(5, tokens.length)),
+                false,
+              );
+              return;
+            }
+
+            let textHit = null;
+            let textIdx = -1;
+            s.texts.forEach((t, i) => {
+              if (textHit === null) {
+                const f = findIn(t);
+                if (f) {
+                  textHit = { f: f, t: t };
+                  textIdx = i;
+                }
+              }
+            });
+            if (textHit) {
+              const t = textHit.t;
+              const f = textHit.f;
+              mk(
+                1,
+                "text in diagram",
+                "…" + t.slice(0, f.i),
+                t.substr(f.i, f.tok.length),
+                t.slice(f.i + f.tok.length) + "…",
+                "box " +
+                  (textIdx + 1) +
+                  " of " +
+                  s.texts.length +
+                  ", highlighted",
+                "0." + (72 + textIdx),
+                true,
+              );
+              return;
+            }
+
+            const rel = s.related.filter((r) =>
+              tokens.some(
+                (tok) => r.indexOf(tok) !== -1 || tok.indexOf(r) !== -1,
+              ),
+            );
+            if (rel.length) {
+              mk(
+                2,
+                "close in meaning",
+                "nearest concepts: ",
+                rel.join(", "),
+                "",
+                "matched by embedding, not by letters",
+                "0.5" + rel.length,
+                false,
+              );
+            }
+          });
+
+          const tierDefs = [
+            {
+              name: "Category and title",
+              short: "title",
+              why: "what the drawing is called, and where it is filed",
+            },
+            {
+              name: "Text inside the diagram",
+              short: "in-diagram text",
+              why: "every label, sticky and arrow caption is indexed with the scene",
+            },
+            {
+              name: "Close in meaning",
+              short: "meaning",
+              why: "embeddings over the same text, for when you remember the idea and not the words",
+            },
+          ];
+
+          const tiers = tierDefs
+            .map((d, i) => ({ name: d.name, why: d.why, hits: buckets[i] }))
+            .filter((t) => t.hits.length > 0);
+
+          const total =
+            buckets[0].length + buckets[1].length + buckets[2].length;
+
+          return {
+            theme: this.props.theme || "light",
+            accent: this.props.accent || "#6965db",
+            query: st.query,
+            onQuery: (e) => this.setState({ query: e.target.value }),
+            summary:
+              all.length +
+              " drawings searched · " +
+              total +
+              (total === 1 ? " match" : " matches"),
+            rungs: tierDefs.map((d, i) => ({
+              short: d.short,
+              count: buckets[i].length,
+              hasHits: buckets[i].length > 0,
+            })),
+            tiers: tiers,
+            empty: total === 0,
+          };
+        }
       }
-
-      const rel = s.related.filter((r) => tokens.some((tok) => r.indexOf(tok) !== -1 || tok.indexOf(r) !== -1));
-      if (rel.length) {
-        mk(2, "close in meaning", "nearest concepts: ", rel.join(", "), "", "matched by embedding, not by letters", "0.5" + rel.length, false);
-      }
-    });
-
-    const tierDefs = [
-      { name: "Category and title", short: "title", why: "what the drawing is called, and where it is filed" },
-      { name: "Text inside the diagram", short: "in-diagram text", why: "every label, sticky and arrow caption is indexed with the scene" },
-      { name: "Close in meaning", short: "meaning", why: "embeddings over the same text, for when you remember the idea and not the words" }
-    ];
-
-    const tiers = tierDefs
-      .map((d, i) => ({ name: d.name, why: d.why, hits: buckets[i] }))
-      .filter((t) => t.hits.length > 0);
-
-    const total = buckets[0].length + buckets[1].length + buckets[2].length;
-
-    return {
-      theme: this.props.theme || "light",
-      accent: this.props.accent || "#6965db",
-      query: st.query,
-      onQuery: (e) => this.setState({ query: e.target.value }),
-      summary: all.length + " drawings searched · " + total + (total === 1 ? " match" : " matches"),
-      rungs: tierDefs.map((d, i) => ({
-        short: d.short,
-        count: buckets[i].length,
-        hasHits: buckets[i].length > 0
-      })),
-      tiers: tiers,
-      empty: total === 0
-    };
-  }
-}
-</script>
-</body>
+    </script>
+  </body>
 </html>

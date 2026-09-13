@@ -76,8 +76,7 @@
     border: 1px solid var(--dash-border-strong);
     border-radius: 8px;
     white-space: nowrap;
-    transition: background 0.12s ease, border-color 0.12s ease,
-      color 0.12s ease;
+    transition: background 0.12s ease, border-color 0.12s ease, color 0.12s ease;
 
     &:hover {
       background: var(--dash-surface-high);
@@ -446,11 +445,7 @@
   gap: 0.3rem;
   flex-wrap: wrap;
   padding: 0.55rem;
-  background: linear-gradient(
-    to bottom,
-    transparent,
-    rgba(0, 0, 0, 0.55) 45%
-  );
+  background: linear-gradient(to bottom, transparent, rgba(0, 0, 0, 0.55) 45%);
   opacity: 0;
   transform: translateY(0.3rem);
   transition: opacity 0.14s ease, transform 0.14s ease;

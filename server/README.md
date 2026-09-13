@@ -48,10 +48,22 @@ claude mcp add excalidraw-local -- node <repo>/server/src/mcp/stdio.ts
 claude mcp add --transport http excalidraw-local http://localhost:3057/mcp
 ```
 
-Tools: `list_scenes`, `search_scenes`, `get_active_scene`, `get_scene`,
-`create_scene`, `update_scene`, `append_to_scene`, `set_scene_meta`,
-`delete_scene`, `get_scene_image`, `set_anchor`, `list_anchors`,
-`generate_diagram`.
+Tools (29), by what they are for:
+
+- **find** — `list_scenes`, `search_scenes`, `get_active_scene`, `list_tags`,
+  `get_tag`, `neighbours`, `graph_stats`
+- **read** — `describe_scene`, `get_scene_outline` (cheap, lossy, `bbox` for one
+  region), `get_scene_image`, `get_scene`, `links`, `list_anchors`
+- **add meaning** — `annotate_scene`, `tag_element`, `link_drawings`, `set_anchor`
+- **draw** — `list_templates`, `apply_template` (23 layouts)
+- **write** — `create_scene`, `update_scene`, `append_to_scene`, `set_scene_meta`,
+  `delete_scene`, `generate_diagram`
+- **review** — `list_comments`, `reply_to_comment`, `resolve_comment`
+- **status** — `index_status`
+
+Every client receives `AGENTS.md` as the MCP `instructions` on `initialize`, so
+the guide and what an agent is told are the same bytes. See `SEMANTIC.md` for
+which view to read and why.
 
 ## Requirements
 

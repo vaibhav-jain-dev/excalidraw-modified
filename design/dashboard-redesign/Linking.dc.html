@@ -1,740 +1,1653 @@
-<!doctype html>
+<!DOCTYPE html>
 <html>
-<head>
-  <meta charset="utf-8">
-  <script src="./support.js"></script>
-</head>
-<body>
-<x-dc>
-<helmet>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Assistant:wght@400;500;600;700&display=swap">
-  <style>
-    body { margin: 0; }
-    a { color: #6965db; text-decoration: none; }
-    a:hover { color: #5753d0; }
-    @media (prefers-color-scheme: dark) { a { color: #a8a5ff; } a:hover { color: #bbb8ff; } }
+  <head>
+    <meta charset="utf-8" />
+    <script src="./support.js"></script>
+  </head>
+  <body>
+    <x-dc>
+      <helmet>
+        <link
+          rel="stylesheet"
+          href="https://fonts.googleapis.com/css2?family=Assistant:wght@400;500;600;700&display=swap"
+        />
+        <style>
+          body {
+            margin: 0;
+          }
+          a {
+            color: #6965db;
+            text-decoration: none;
+          }
+          a:hover {
+            color: #5753d0;
+          }
+          @media (prefers-color-scheme: dark) {
+            a {
+              color: #a8a5ff;
+            }
+            a:hover {
+              color: #bbb8ff;
+            }
+          }
 
-    .ln {
-      --bg: #f6f6f9; --surface: #ffffff; --surface-high: #f1f0ff;
-      --border: #ebebeb; --border-strong: #c5c5d0;
-      --text: #1b1b1f; --muted: #7a7a7a; --muted-dark: #5c5c5c;
-      --accent: var(--accent-src, #6965db); --on-accent: #ffffff;
-      --accent-container: #e0dfff; --on-accent-container: #030064;
-      --danger: #d1413c; --danger-bg: #fff0f0;
-      --warn-bg: #fceeca; --warn-text: #3d3d3d;
-      --canvas: #ffffff; --dot: #d6d6d6; --ink: #1e1e1e;
-      --sketch-filter: none;
-      --island: 0px 0px 1px 0px rgba(0,0,0,0.17), 0px 0px 3px 0px rgba(0,0,0,0.08), 0px 7px 14px 0px rgba(0,0,0,0.05);
-      --island-strong: 0px 0px 1px 0px rgba(0,0,0,0.17), 0px 0px 3px 0px rgba(0,0,0,0.08), 0px 7px 14px 0px rgb(0 0 0 / 18%);
+          .ln {
+            --bg: #f6f6f9;
+            --surface: #ffffff;
+            --surface-high: #f1f0ff;
+            --border: #ebebeb;
+            --border-strong: #c5c5d0;
+            --text: #1b1b1f;
+            --muted: #7a7a7a;
+            --muted-dark: #5c5c5c;
+            --accent: var(--accent-src, #6965db);
+            --on-accent: #ffffff;
+            --accent-container: #e0dfff;
+            --on-accent-container: #030064;
+            --danger: #d1413c;
+            --danger-bg: #fff0f0;
+            --warn-bg: #fceeca;
+            --warn-text: #3d3d3d;
+            --canvas: #ffffff;
+            --dot: #d6d6d6;
+            --ink: #1e1e1e;
+            --sketch-filter: none;
+            --island: 0px 0px 1px 0px rgba(0, 0, 0, 0.17),
+              0px 0px 3px 0px rgba(0, 0, 0, 0.08),
+              0px 7px 14px 0px rgba(0, 0, 0, 0.05);
+            --island-strong: 0px 0px 1px 0px rgba(0, 0, 0, 0.17),
+              0px 0px 3px 0px rgba(0, 0, 0, 0.08),
+              0px 7px 14px 0px rgb(0 0 0 / 18%);
 
-      position: relative;
-      width: 1240px; height: 900px; overflow: hidden;
-      display: flex; flex-direction: column;
-      background: var(--bg); color: var(--text);
-      font-family: Assistant, system-ui, BlinkMacSystemFont, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-      font-size: 14px; -webkit-font-smoothing: antialiased;
-    }
-    .ln * { box-sizing: border-box; }
-    .ln[data-theme="dark"] {
-      --bg: #18181b; --surface: #232329; --surface-high: #2e2d39;
-      --border: #2e2e2e; --border-strong: #46464f;
-      --text: #e3e3e8; --muted: #999999; --muted-dark: #b8b8b8;
-      --accent: color-mix(in oklab, var(--accent-src, #6965db) 60%, #ffffff); --on-accent: #1e1e1e;
-      --accent-container: #403e6a; --on-accent-container: #e0dfff;
-      --danger: #ffa8a5; --danger-bg: #2a1a1a;
-      --warn-bg: #3a3020; --warn-text: #ebebeb;
-      --canvas: #121212; --dot: #3d3d3d;
-      --sketch-filter: invert(93%) hue-rotate(180deg);
-    }
+            position: relative;
+            width: 1240px;
+            height: 900px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            background: var(--bg);
+            color: var(--text);
+            font-family: Assistant, system-ui, BlinkMacSystemFont, -apple-system,
+              "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            font-size: 14px;
+            -webkit-font-smoothing: antialiased;
+          }
+          .ln * {
+            box-sizing: border-box;
+          }
+          .ln[data-theme="dark"] {
+            --bg: #18181b;
+            --surface: #232329;
+            --surface-high: #2e2d39;
+            --border: #2e2e2e;
+            --border-strong: #46464f;
+            --text: #e3e3e8;
+            --muted: #999999;
+            --muted-dark: #b8b8b8;
+            --accent: color-mix(
+              in oklab,
+              var(--accent-src, #6965db) 60%,
+              #ffffff
+            );
+            --on-accent: #1e1e1e;
+            --accent-container: #403e6a;
+            --on-accent-container: #e0dfff;
+            --danger: #ffa8a5;
+            --danger-bg: #2a1a1a;
+            --warn-bg: #3a3020;
+            --warn-text: #ebebeb;
+            --canvas: #121212;
+            --dot: #3d3d3d;
+            --sketch-filter: invert(93%) hue-rotate(180deg);
+          }
 
-    .top {
-      flex: none; display: flex; align-items: center; gap: 10px;
-      height: 56px; padding: 0 20px;
-      background: var(--surface); border-bottom: 1px solid var(--border);
-    }
-    .crumb { display: flex; align-items: center; gap: 6px; font-size: 12.5px; color: var(--muted); }
-    .doc-name { font-size: 15px; font-weight: 700; letter-spacing: -0.01em; color: var(--text); }
-    .spacer { flex: 1; }
-    .hint {
-      display: inline-flex; align-items: center; gap: 7px;
-      height: 28px; padding: 0 11px;
-      font-size: 12.5px; font-weight: 600;
-      background: var(--accent-container); color: var(--on-accent-container);
-      border-radius: 999px;
-    }
+          .top {
+            flex: none;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            height: 56px;
+            padding: 0 20px;
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+          }
+          .crumb {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12.5px;
+            color: var(--muted);
+          }
+          .doc-name {
+            font-size: 15px;
+            font-weight: 700;
+            letter-spacing: -0.01em;
+            color: var(--text);
+          }
+          .spacer {
+            flex: 1;
+          }
+          .hint {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            height: 28px;
+            padding: 0 11px;
+            font-size: 12.5px;
+            font-weight: 600;
+            background: var(--accent-container);
+            color: var(--on-accent-container);
+            border-radius: 999px;
+          }
 
-    .btn {
-      display: inline-flex; align-items: center; justify-content: center; gap: 7px;
-      height: 32px; padding: 0 12px;
-      font: inherit; font-size: 13.5px; font-weight: 600;
-      color: var(--text); background: var(--surface);
-      border: 1px solid var(--border-strong); border-radius: 8px; cursor: pointer;
-    }
-    .btn:hover { background: var(--surface-high); border-color: var(--accent); }
-    .btn-primary { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
-    .btn-ghost { border-color: transparent; background: transparent; }
-    .btn-ghost:hover { background: var(--surface-high); border-color: transparent; }
-    .btn-sm { height: 27px; padding: 0 9px; font-size: 12.5px; }
-    .btn-danger { color: var(--danger); }
-    .btn-danger:hover { background: var(--danger-bg); border-color: var(--danger); }
+          .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 7px;
+            height: 32px;
+            padding: 0 12px;
+            font: inherit;
+            font-size: 13.5px;
+            font-weight: 600;
+            color: var(--text);
+            background: var(--surface);
+            border: 1px solid var(--border-strong);
+            border-radius: 8px;
+            cursor: pointer;
+          }
+          .btn:hover {
+            background: var(--surface-high);
+            border-color: var(--accent);
+          }
+          .btn-primary {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: var(--on-accent);
+          }
+          .btn-ghost {
+            border-color: transparent;
+            background: transparent;
+          }
+          .btn-ghost:hover {
+            background: var(--surface-high);
+            border-color: transparent;
+          }
+          .btn-sm {
+            height: 27px;
+            padding: 0 9px;
+            font-size: 12.5px;
+          }
+          .btn-danger {
+            color: var(--danger);
+          }
+          .btn-danger:hover {
+            background: var(--danger-bg);
+            border-color: var(--danger);
+          }
 
-    .body { flex: 1; min-height: 0; display: flex; gap: 20px; padding: 20px; }
+          .body {
+            flex: 1;
+            min-height: 0;
+            display: flex;
+            gap: 20px;
+            padding: 20px;
+          }
 
-    .canvas {
-      position: relative; width: 860px; height: 784px; flex: none;
-      border: 1px solid var(--border); border-radius: 12px; overflow: hidden;
-      background:
-        radial-gradient(circle at 1px 1px, var(--dot) 1px, transparent 0) 0 0 / 24px 24px,
-        var(--canvas);
-    }
-    .wires { position: absolute; left: 0; top: 0; width: 860px; height: 784px; }
-    .wires path { fill: none; stroke: var(--ink); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
-    .ln[data-theme="dark"] .wires path { stroke: #e3e3e8; }
+          .canvas {
+            position: relative;
+            width: 860px;
+            height: 784px;
+            flex: none;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            overflow: hidden;
+            background: radial-gradient(
+                  circle at 1px 1px,
+                  var(--dot) 1px,
+                  transparent 0
+                )
+                0 0 / 24px 24px,
+              var(--canvas);
+          }
+          .wires {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 860px;
+            height: 784px;
+          }
+          .wires path {
+            fill: none;
+            stroke: var(--ink);
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+          }
+          .ln[data-theme="dark"] .wires path {
+            stroke: #e3e3e8;
+          }
 
-    .box {
-      position: absolute; display: flex; align-items: center; justify-content: center;
-      padding: 0 12px;
-      font-size: 14.5px; font-weight: 600; color: #1b1b1f;
-      border: 2px solid var(--ink); border-radius: 5px; text-align: center; line-height: 1.2;
-    }
+          .box {
+            position: absolute;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0 12px;
+            font-size: 14.5px;
+            font-weight: 600;
+            color: #1b1b1f;
+            border: 2px solid var(--ink);
+            border-radius: 5px;
+            text-align: center;
+            line-height: 1.2;
+          }
 
-    /* a linked drawing shown as its title only */
-    .chip-link {
-      position: absolute; display: inline-flex; align-items: center; gap: 8px;
-      height: 38px; padding: 0 12px;
-      font: inherit; font-size: 14px; font-weight: 600; color: var(--on-accent-container);
-      background: var(--accent-container); border: 1.5px solid var(--accent);
-      border-radius: 9px; cursor: pointer; white-space: nowrap;
-    }
-    .chip-link:hover { filter: brightness(0.97); }
-    .chip-link .ext { opacity: .55; }
+          /* a linked drawing shown as its title only */
+          .chip-link {
+            position: absolute;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            height: 38px;
+            padding: 0 12px;
+            font: inherit;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--on-accent-container);
+            background: var(--accent-container);
+            border: 1.5px solid var(--accent);
+            border-radius: 9px;
+            cursor: pointer;
+            white-space: nowrap;
+          }
+          .chip-link:hover {
+            filter: brightness(0.97);
+          }
+          .chip-link .ext {
+            opacity: 0.55;
+          }
 
-    /* a linked drawing shown as an embedded, read-only block */
-    .embed {
-      position: absolute; width: 276px;
-      display: flex; flex-direction: column;
-      background: var(--surface); border: 1.5px solid var(--accent);
-      border-radius: 11px; overflow: hidden; box-shadow: var(--island);
-    }
-    .embed-head {
-      display: flex; align-items: center; gap: 7px;
-      padding: 7px 9px;
-      background: var(--accent-container); color: var(--on-accent-container);
-      border-bottom: 1px solid var(--accent);
-    }
-    .embed-title { flex: 1; min-width: 0; font-size: 12.5px; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    .embed-ro {
-      font-size: 9.5px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase;
-      padding: 1px 5px; border-radius: 999px; background: var(--surface); color: var(--muted);
-    }
-    .embed-btn {
-      width: 20px; height: 20px; flex: none;
-      display: flex; align-items: center; justify-content: center;
-      padding: 0; border: 0; border-radius: 4px; cursor: pointer;
-      background: transparent; color: inherit; opacity: .7;
-    }
-    .embed-btn:hover { opacity: 1; background: var(--surface); }
-    .embed-body {
-      height: 168px; display: flex; align-items: center; justify-content: center;
-      background:
-        repeating-conic-gradient(rgba(128,128,128,0.08) 0% 25%, transparent 0% 50%) 50% / 14px 14px,
-        var(--surface);
-    }
-    .sketch { width: 90%; height: 90%; filter: var(--sketch-filter); }
-    .sketch rect { stroke: #1e1e1e; stroke-width: 2; }
-    .sketch path { fill: none; stroke: #1e1e1e; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
-    .embed-foot { padding: 6px 9px; font-size: 11.5px; color: var(--muted); border-top: 1px solid var(--border); }
+          /* a linked drawing shown as an embedded, read-only block */
+          .embed {
+            position: absolute;
+            width: 276px;
+            display: flex;
+            flex-direction: column;
+            background: var(--surface);
+            border: 1.5px solid var(--accent);
+            border-radius: 11px;
+            overflow: hidden;
+            box-shadow: var(--island);
+          }
+          .embed-head {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            padding: 7px 9px;
+            background: var(--accent-container);
+            color: var(--on-accent-container);
+            border-bottom: 1px solid var(--accent);
+          }
+          .embed-title {
+            flex: 1;
+            min-width: 0;
+            font-size: 12.5px;
+            font-weight: 700;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+          }
+          .embed-ro {
+            font-size: 9.5px;
+            font-weight: 700;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            padding: 1px 5px;
+            border-radius: 999px;
+            background: var(--surface);
+            color: var(--muted);
+          }
+          .embed-btn {
+            width: 20px;
+            height: 20px;
+            flex: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+            border: 0;
+            border-radius: 4px;
+            cursor: pointer;
+            background: transparent;
+            color: inherit;
+            opacity: 0.7;
+          }
+          .embed-btn:hover {
+            opacity: 1;
+            background: var(--surface);
+          }
+          .embed-body {
+            height: 168px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: repeating-conic-gradient(
+                  rgba(128, 128, 128, 0.08) 0% 25%,
+                  transparent 0% 50%
+                )
+                50% / 14px 14px,
+              var(--surface);
+          }
+          .sketch {
+            width: 90%;
+            height: 90%;
+            filter: var(--sketch-filter);
+          }
+          .sketch rect {
+            stroke: #1e1e1e;
+            stroke-width: 2;
+          }
+          .sketch path {
+            fill: none;
+            stroke: #1e1e1e;
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+          }
+          .embed-foot {
+            padding: 6px 9px;
+            font-size: 11.5px;
+            color: var(--muted);
+            border-top: 1px solid var(--border);
+          }
 
-    /* right-click menu */
-    .menu {
-      position: absolute; z-index: 30; width: 214px; padding: 5px;
-      background: var(--surface); border: 1px solid var(--border-strong); border-radius: 10px;
-      box-shadow: var(--island-strong);
-      display: flex; flex-direction: column; gap: 1px;
-    }
-    .mi {
-      display: flex; align-items: center; gap: 9px;
-      height: 31px; padding: 0 9px; width: 100%;
-      font: inherit; font-size: 13px; text-align: left;
-      color: var(--text); background: transparent; border: 0; border-radius: 6px; cursor: pointer;
-    }
-    .mi:hover { background: var(--surface-high); }
-    .mi-key { margin-left: auto; font-size: 11px; color: var(--muted); }
-    .mi[disabled] { color: var(--muted); opacity: .55; cursor: default; }
-    .mi[disabled]:hover { background: transparent; }
-    .msep { height: 1px; background: var(--border); margin: 4px 2px; }
-    .shade { position: absolute; inset: 0; z-index: 25; }
+          /* right-click menu */
+          .menu {
+            position: absolute;
+            z-index: 30;
+            width: 214px;
+            padding: 5px;
+            background: var(--surface);
+            border: 1px solid var(--border-strong);
+            border-radius: 10px;
+            box-shadow: var(--island-strong);
+            display: flex;
+            flex-direction: column;
+            gap: 1px;
+          }
+          .mi {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            height: 31px;
+            padding: 0 9px;
+            width: 100%;
+            font: inherit;
+            font-size: 13px;
+            text-align: left;
+            color: var(--text);
+            background: transparent;
+            border: 0;
+            border-radius: 6px;
+            cursor: pointer;
+          }
+          .mi:hover {
+            background: var(--surface-high);
+          }
+          .mi-key {
+            margin-left: auto;
+            font-size: 11px;
+            color: var(--muted);
+          }
+          .mi[disabled] {
+            color: var(--muted);
+            opacity: 0.55;
+            cursor: default;
+          }
+          .mi[disabled]:hover {
+            background: transparent;
+          }
+          .msep {
+            height: 1px;
+            background: var(--border);
+            margin: 4px 2px;
+          }
+          .shade {
+            position: absolute;
+            inset: 0;
+            z-index: 25;
+          }
 
-    /* picker + preview */
-    .backdrop {
-      position: absolute; inset: 0; z-index: 60;
-      display: flex; align-items: center; justify-content: center;
-      background: rgba(0,0,0,.42);
-    }
-    .modal {
-      width: 560px; max-height: 700px; display: flex; flex-direction: column;
-      background: var(--surface); border-radius: 14px; box-shadow: var(--island-strong); overflow: hidden;
-    }
-    .m-head { display: flex; align-items: center; gap: 10px; padding: 16px 18px 12px; }
-    .m-title { flex: 1; font-size: 16px; font-weight: 700; letter-spacing: -0.01em; }
-    .m-sub { font-size: 12.5px; color: var(--muted); font-weight: 400; }
-    .m-search { position: relative; display: flex; align-items: center; margin: 0 18px 12px; }
-    .m-search svg { position: absolute; left: 11px; color: var(--muted); pointer-events: none; }
-    .m-search input {
-      width: 100%; height: 38px; padding: 0 12px 0 34px;
-      font: inherit; font-size: 14px; color: var(--text);
-      background: var(--bg); border: 1px solid var(--border-strong); border-radius: 9px;
-    }
-    .m-search input:focus { outline: 2px solid var(--accent); outline-offset: -1px; border-color: transparent; }
-    .m-list { flex: 1; min-height: 0; overflow-y: auto; padding: 0 12px; display: flex; flex-direction: column; gap: 2px; }
-    .m-row {
-      display: flex; align-items: center; gap: 12px;
-      width: 100%; padding: 8px 8px;
-      font: inherit; text-align: left; color: var(--text);
-      background: transparent; border: 1px solid transparent; border-radius: 9px; cursor: pointer;
-    }
-    .m-row:hover { background: var(--surface-high); }
-    .m-row[data-on="true"] { background: var(--accent-container); border-color: var(--accent); color: var(--on-accent-container); }
-    .m-thumb {
-      width: 58px; height: 44px; flex: none;
-      display: flex; align-items: center; justify-content: center;
-      border: 1px solid var(--border); border-radius: 6px; overflow: hidden;
-      background: repeating-conic-gradient(rgba(128,128,128,0.08) 0% 25%, transparent 0% 50%) 50% / 10px 10px, var(--surface);
-    }
-    .m-main { flex: 1; min-width: 0; }
-    .m-name { font-size: 13.5px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    .m-path { font-size: 12px; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    .m-row[data-on="true"] .m-path { color: var(--on-accent-container); opacity: .78; }
-    .m-when { font-size: 12px; color: var(--muted); flex: none; }
-    .m-empty { padding: 28px 10px; text-align: center; font-size: 13.5px; color: var(--muted); }
+          /* picker + preview */
+          .backdrop {
+            position: absolute;
+            inset: 0;
+            z-index: 60;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(0, 0, 0, 0.42);
+          }
+          .modal {
+            width: 560px;
+            max-height: 700px;
+            display: flex;
+            flex-direction: column;
+            background: var(--surface);
+            border-radius: 14px;
+            box-shadow: var(--island-strong);
+            overflow: hidden;
+          }
+          .m-head {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 16px 18px 12px;
+          }
+          .m-title {
+            flex: 1;
+            font-size: 16px;
+            font-weight: 700;
+            letter-spacing: -0.01em;
+          }
+          .m-sub {
+            font-size: 12.5px;
+            color: var(--muted);
+            font-weight: 400;
+          }
+          .m-search {
+            position: relative;
+            display: flex;
+            align-items: center;
+            margin: 0 18px 12px;
+          }
+          .m-search svg {
+            position: absolute;
+            left: 11px;
+            color: var(--muted);
+            pointer-events: none;
+          }
+          .m-search input {
+            width: 100%;
+            height: 38px;
+            padding: 0 12px 0 34px;
+            font: inherit;
+            font-size: 14px;
+            color: var(--text);
+            background: var(--bg);
+            border: 1px solid var(--border-strong);
+            border-radius: 9px;
+          }
+          .m-search input:focus {
+            outline: 2px solid var(--accent);
+            outline-offset: -1px;
+            border-color: transparent;
+          }
+          .m-list {
+            flex: 1;
+            min-height: 0;
+            overflow-y: auto;
+            padding: 0 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+          }
+          .m-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            width: 100%;
+            padding: 8px 8px;
+            font: inherit;
+            text-align: left;
+            color: var(--text);
+            background: transparent;
+            border: 1px solid transparent;
+            border-radius: 9px;
+            cursor: pointer;
+          }
+          .m-row:hover {
+            background: var(--surface-high);
+          }
+          .m-row[data-on="true"] {
+            background: var(--accent-container);
+            border-color: var(--accent);
+            color: var(--on-accent-container);
+          }
+          .m-thumb {
+            width: 58px;
+            height: 44px;
+            flex: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            overflow: hidden;
+            background: repeating-conic-gradient(
+                  rgba(128, 128, 128, 0.08) 0% 25%,
+                  transparent 0% 50%
+                )
+                50% / 10px 10px,
+              var(--surface);
+          }
+          .m-main {
+            flex: 1;
+            min-width: 0;
+          }
+          .m-name {
+            font-size: 13.5px;
+            font-weight: 600;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+          }
+          .m-path {
+            font-size: 12px;
+            color: var(--muted);
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+          }
+          .m-row[data-on="true"] .m-path {
+            color: var(--on-accent-container);
+            opacity: 0.78;
+          }
+          .m-when {
+            font-size: 12px;
+            color: var(--muted);
+            flex: none;
+          }
+          .m-empty {
+            padding: 28px 10px;
+            text-align: center;
+            font-size: 13.5px;
+            color: var(--muted);
+          }
 
-    .m-foot { display: flex; align-items: center; gap: 10px; padding: 14px 18px 16px; border-top: 1px solid var(--border); }
-    .modes { display: flex; gap: 3px; padding: 3px; background: var(--bg); border: 1px solid var(--border); border-radius: 9px; }
-    .mode {
-      display: inline-flex; align-items: center; gap: 6px;
-      height: 28px; padding: 0 11px;
-      font: inherit; font-size: 12.5px; font-weight: 600;
-      color: var(--muted-dark); background: transparent;
-      border: 0; border-radius: 6px; cursor: pointer;
-    }
-    .mode[data-on="true"] { background: var(--surface); color: var(--accent); box-shadow: 0 1px 2px rgba(0,0,0,.08); }
+          .m-foot {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 14px 18px 16px;
+            border-top: 1px solid var(--border);
+          }
+          .modes {
+            display: flex;
+            gap: 3px;
+            padding: 3px;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 9px;
+          }
+          .mode {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            height: 28px;
+            padding: 0 11px;
+            font: inherit;
+            font-size: 12.5px;
+            font-weight: 600;
+            color: var(--muted-dark);
+            background: transparent;
+            border: 0;
+            border-radius: 6px;
+            cursor: pointer;
+          }
+          .mode[data-on="true"] {
+            background: var(--surface);
+            color: var(--accent);
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+          }
 
-    .prev { width: 420px; }
-    .prev-art {
-      height: 210px; display: flex; align-items: center; justify-content: center;
-      background: repeating-conic-gradient(rgba(128,128,128,0.08) 0% 25%, transparent 0% 50%) 50% / 14px 14px, var(--surface);
-      border-bottom: 1px solid var(--border);
-    }
-    .prev-body { padding: 14px 18px; display: flex; flex-direction: column; gap: 8px; }
-    .prev-meta { display: flex; align-items: center; gap: 7px; font-size: 12.5px; color: var(--muted); flex-wrap: wrap; }
-    .pill { display: inline-flex; align-items: center; gap: 5px; height: 19px; padding: 0 7px; font-size: 11.5px; font-weight: 600; border-radius: 999px; background: var(--accent-container); color: var(--on-accent-container); }
-    .slug {
-      display: flex; align-items: center; gap: 8px;
-      padding: 8px 10px; border-radius: 8px;
-      background: var(--bg); border: 1px solid var(--border);
-      font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12px; color: var(--muted-dark);
-    }
-    .slug span { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+          .prev {
+            width: 420px;
+          }
+          .prev-art {
+            height: 210px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: repeating-conic-gradient(
+                  rgba(128, 128, 128, 0.08) 0% 25%,
+                  transparent 0% 50%
+                )
+                50% / 14px 14px,
+              var(--surface);
+            border-bottom: 1px solid var(--border);
+          }
+          .prev-body {
+            padding: 14px 18px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+          }
+          .prev-meta {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            font-size: 12.5px;
+            color: var(--muted);
+            flex-wrap: wrap;
+          }
+          .pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            height: 19px;
+            padding: 0 7px;
+            font-size: 11.5px;
+            font-weight: 600;
+            border-radius: 999px;
+            background: var(--accent-container);
+            color: var(--on-accent-container);
+          }
+          .slug {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 10px;
+            border-radius: 8px;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+            font-size: 12px;
+            color: var(--muted-dark);
+          }
+          .slug span {
+            flex: 1;
+            min-width: 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+          }
 
-    /* side panel */
-    .panel {
-      flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 14px;
-      padding: 16px; overflow: hidden;
-      background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
-    }
-    .p-label { font-size: 11px; font-weight: 700; letter-spacing: .09em; text-transform: uppercase; color: var(--muted); }
-    .p-sub { font-size: 12.5px; color: var(--muted); line-height: 1.45; }
-    .p-list { display: flex; flex-direction: column; gap: 8px; }
-    .p-card { display: flex; flex-direction: column; gap: 8px; padding: 10px 11px; border: 1px solid var(--border); border-radius: 10px; }
-    .p-top { display: flex; align-items: center; gap: 8px; }
-    .p-name { flex: 1; min-width: 0; font-size: 13.5px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    .p-mode { font-size: 10px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; padding: 2px 6px; border-radius: 999px; background: var(--accent-container); color: var(--on-accent-container); }
-    .p-slug { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 11px; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    .p-acts { display: flex; gap: 5px; }
-    .p-foot { margin-top: auto; display: flex; flex-direction: column; gap: 8px; padding-top: 14px; border-top: 1px solid var(--border); }
-    .p-code {
-      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-      font-size: 11.5px; line-height: 1.55; color: var(--muted-dark);
-      background: var(--bg); border: 1px solid var(--border); border-radius: 8px;
-      padding: 9px 10px; white-space: pre-wrap;
-    }
-  </style>
-</helmet>
+          /* side panel */
+          .panel {
+            flex: 1;
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            padding: 16px;
+            overflow: hidden;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+          }
+          .p-label {
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.09em;
+            text-transform: uppercase;
+            color: var(--muted);
+          }
+          .p-sub {
+            font-size: 12.5px;
+            color: var(--muted);
+            line-height: 1.45;
+          }
+          .p-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+          }
+          .p-card {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            padding: 10px 11px;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+          }
+          .p-top {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+          }
+          .p-name {
+            flex: 1;
+            min-width: 0;
+            font-size: 13.5px;
+            font-weight: 600;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+          }
+          .p-mode {
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            padding: 2px 6px;
+            border-radius: 999px;
+            background: var(--accent-container);
+            color: var(--on-accent-container);
+          }
+          .p-slug {
+            font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+            font-size: 11px;
+            color: var(--muted);
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+          }
+          .p-acts {
+            display: flex;
+            gap: 5px;
+          }
+          .p-foot {
+            margin-top: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            padding-top: 14px;
+            border-top: 1px solid var(--border);
+          }
+          .p-code {
+            font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+            font-size: 11.5px;
+            line-height: 1.55;
+            color: var(--muted-dark);
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 9px 10px;
+            white-space: pre-wrap;
+          }
+        </style>
+      </helmet>
 
-<div class="ln" data-theme="{{theme}}" style="--accent-src: {{accent}}">
-
-  <div class="top">
-    <div>
-      <div class="crumb">
-        <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round">
-          <path d="M2 4.4h4.2l1.2 1.6H14v6.4a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1z"></path>
-        </svg>
-        work / local-first
-      </div>
-      <div class="doc-name">Retry queue</div>
-    </div>
-    <span class="spacer"></span>
-    <span class="hint">
-      <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M3 2.6l7.6 5.1-3.2 1-1 3.2z"></path>
-      </svg>
-      Right-click the canvas
-    </span>
-    <button type="button" class="btn" onClick="{{openMenuDefault}}">Or open the menu here</button>
-  </div>
-
-  <div class="body">
-    <div class="canvas" onContextMenu="{{onContext}}">
-      <svg class="wires" viewBox="0 0 860 784">
-        <sc-for list="{{wires}}" as="w" hint-placeholder-count="4">
-          <path d="{{w.d}}"></path>
-        </sc-for>
-      </svg>
-
-      <sc-for list="{{boxes}}" as="b" hint-placeholder-count="4">
-        <div class="box" style="{{b.pos}}">{{b.label}}</div>
-      </sc-for>
-
-      <sc-for list="{{chips}}" as="c" hint-placeholder-count="1">
-        <button type="button" class="chip-link" style="{{c.pos}}" onClick="{{c.preview}}">
-          <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round">
-            <path d="M9.2 1.8H4.2a.8.8 0 0 0-.8.8v10.8a.8.8 0 0 0 .8.8h7.6a.8.8 0 0 0 .8-.8V5z"></path>
-            <path d="M9.2 1.8V5h3.4"></path>
-          </svg>
-          {{c.label}}
-          <svg class="ext" width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M6.2 9.8L13 3"></path><path d="M9 2.8h4.2V7"></path>
-            <path d="M12 9.4v3.4H3.2V4h3.4"></path>
-          </svg>
-        </button>
-      </sc-for>
-
-      <sc-for list="{{embeds}}" as="m" hint-placeholder-count="1">
-        <div class="embed" style="{{m.pos}}">
-          <div class="embed-head">
-            <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round">
-              <path d="M9.2 1.8H4.2a.8.8 0 0 0-.8.8v10.8a.8.8 0 0 0 .8.8h7.6a.8.8 0 0 0 .8-.8V5z"></path>
-              <path d="M9.2 1.8V5h3.4"></path>
-            </svg>
-            <span class="embed-title">{{m.label}}</span>
-            <span class="embed-ro">read-only</span>
-            <button type="button" class="embed-btn" onClick="{{m.preview}}" aria-label="Open">
-              <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M6.2 9.8L13 3"></path><path d="M9 2.8h4.2V7"></path>
-                <path d="M12 9.4v3.4H3.2V4h3.4"></path>
-              </svg>
-            </button>
-          </div>
-          <div class="embed-body">
-            <svg class="sketch" viewBox="0 0 200 150" preserveAspectRatio="xMidYMid meet">
-              <sc-for list="{{m.shapes}}" as="r" hint-placeholder-count="3">
-                <rect x="{{r.x}}" y="{{r.y}}" width="{{r.w}}" height="{{r.h}}" fill="{{r.fill}}" rx="3"></rect>
-              </sc-for>
-              <sc-for list="{{m.arrows}}" as="a" hint-placeholder-count="2">
-                <path d="{{a.d}}"></path>
-              </sc-for>
-            </svg>
-          </div>
-          <div class="embed-foot">{{m.foot}}</div>
-        </div>
-      </sc-for>
-
-      <sc-if value="{{menuOpen}}" hint-placeholder-val="{{true}}">
-        <div>
-          <div class="shade" onClick="{{closeMenu}}"></div>
-          <div class="menu" style="{{menuPos}}">
-            <button type="button" class="mi" onClick="{{closeMenu}}">
-              <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round">
-                <path d="M7.4 1.8H2.4a.6.6 0 0 0-.6.6v5l6.6 6.6a.9.9 0 0 0 1.3 0l4.3-4.3a.9.9 0 0 0 0-1.3z"></path>
-                <circle cx="5" cy="5" r="1"></circle>
-              </svg>
-              Add tag
-            </button>
-            <button type="button" class="mi" onClick="{{openPicker}}">
-              <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M6.6 9.4a2.6 2.6 0 0 0 3.9.3l2-2a2.6 2.6 0 0 0-3.7-3.7l-1.1 1.1"></path>
-                <path d="M9.4 6.6a2.6 2.6 0 0 0-3.9-.3l-2 2a2.6 2.6 0 0 0 3.7 3.7l1.1-1.1"></path>
-              </svg>
-              Link drawing…
-            </button>
-            <div class="msep"></div>
-            <button type="button" class="mi" onClick="{{closeMenu}}">Copy element id<span class="mi-key">⌘C</span></button>
-            <button type="button" class="mi" onClick="{{closeMenu}}">Duplicate<span class="mi-key">⌘D</span></button>
-            <div class="msep"></div>
-            <button type="button" class="mi" disabled>Delete</button>
-          </div>
-        </div>
-      </sc-if>
-    </div>
-
-    <div class="panel">
-      <div>
-        <div class="p-label">Linked drawings</div>
-        <div class="p-sub" style="margin-top: 5px;">{{linkSummary}}</div>
-      </div>
-      <div class="p-list">
-        <sc-for list="{{linked}}" as="l" hint-placeholder-count="2">
-          <div class="p-card">
-            <div class="p-top">
-              <span class="p-name">{{l.label}}</span>
-              <span class="p-mode">{{l.modeLabel}}</span>
-            </div>
-            <div class="p-slug">{{l.slug}}</div>
-            <div class="p-acts">
-              <button type="button" class="btn btn-sm" onClick="{{l.swap}}">{{l.swapLabel}}</button>
-              <button type="button" class="btn btn-sm btn-ghost" onClick="{{l.preview}}">Preview</button>
-              <button type="button" class="btn btn-sm btn-ghost btn-danger" onClick="{{l.unlink}}">Unlink</button>
-            </div>
-          </div>
-        </sc-for>
-        <sc-if value="{{noLinks}}" hint-placeholder-val="{{false}}">
-          <div class="p-sub">Nothing linked yet. Right-click the canvas and choose “Link drawing…”.</div>
-        </sc-if>
-      </div>
-      <div class="p-foot">
-        <div class="p-label">What this writes</div>
-        <div class="p-code">{{graphJson}}</div>
-      </div>
-    </div>
-  </div>
-
-  <sc-if value="{{pickerOpen}}" hint-placeholder-val="{{false}}">
-    <div class="backdrop" onClick="{{closePicker}}">
-      <div class="modal" onClick="{{stop}}">
-        <div class="m-head">
+      <div class="ln" data-theme="{{theme}}" style="--accent-src: {{accent}}">
+        <div class="top">
           <div>
-            <div class="m-title">Link a drawing</div>
-            <div class="m-sub">It becomes an edge in the graph either way.</div>
+            <div class="crumb">
+              <svg
+                width="12"
+                height="12"
+                viewBox="0 0 16 16"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.5"
+                stroke-linejoin="round"
+              >
+                <path
+                  d="M2 4.4h4.2l1.2 1.6H14v6.4a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1z"
+                ></path>
+              </svg>
+              work / local-first
+            </div>
+            <div class="doc-name">Retry queue</div>
+          </div>
+          <span class="spacer"></span>
+          <span class="hint">
+            <svg
+              width="14"
+              height="14"
+              viewBox="0 0 16 16"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.7"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="M3 2.6l7.6 5.1-3.2 1-1 3.2z"></path>
+            </svg>
+            Right-click the canvas
+          </span>
+          <button type="button" class="btn" onClick="{{openMenuDefault}}">
+            Or open the menu here
+          </button>
+        </div>
+
+        <div class="body">
+          <div class="canvas" onContextMenu="{{onContext}}">
+            <svg class="wires" viewBox="0 0 860 784">
+              <sc-for list="{{wires}}" as="w" hint-placeholder-count="4">
+                <path d="{{w.d}}"></path>
+              </sc-for>
+            </svg>
+
+            <sc-for list="{{boxes}}" as="b" hint-placeholder-count="4">
+              <div class="box" style="{{b.pos}}">{{b.label}}</div>
+            </sc-for>
+
+            <sc-for list="{{chips}}" as="c" hint-placeholder-count="1">
+              <button
+                type="button"
+                class="chip-link"
+                style="{{c.pos}}"
+                onClick="{{c.preview}}"
+              >
+                <svg
+                  width="15"
+                  height="15"
+                  viewBox="0 0 16 16"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.6"
+                  stroke-linejoin="round"
+                >
+                  <path
+                    d="M9.2 1.8H4.2a.8.8 0 0 0-.8.8v10.8a.8.8 0 0 0 .8.8h7.6a.8.8 0 0 0 .8-.8V5z"
+                  ></path>
+                  <path d="M9.2 1.8V5h3.4"></path>
+                </svg>
+                {{c.label}}
+                <svg
+                  class="ext"
+                  width="12"
+                  height="12"
+                  viewBox="0 0 16 16"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.9"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path d="M6.2 9.8L13 3"></path>
+                  <path d="M9 2.8h4.2V7"></path>
+                  <path d="M12 9.4v3.4H3.2V4h3.4"></path>
+                </svg>
+              </button>
+            </sc-for>
+
+            <sc-for list="{{embeds}}" as="m" hint-placeholder-count="1">
+              <div class="embed" style="{{m.pos}}">
+                <div class="embed-head">
+                  <svg
+                    width="14"
+                    height="14"
+                    viewBox="0 0 16 16"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.6"
+                    stroke-linejoin="round"
+                  >
+                    <path
+                      d="M9.2 1.8H4.2a.8.8 0 0 0-.8.8v10.8a.8.8 0 0 0 .8.8h7.6a.8.8 0 0 0 .8-.8V5z"
+                    ></path>
+                    <path d="M9.2 1.8V5h3.4"></path>
+                  </svg>
+                  <span class="embed-title">{{m.label}}</span>
+                  <span class="embed-ro">read-only</span>
+                  <button
+                    type="button"
+                    class="embed-btn"
+                    onClick="{{m.preview}}"
+                    aria-label="Open"
+                  >
+                    <svg
+                      width="13"
+                      height="13"
+                      viewBox="0 0 16 16"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="1.9"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    >
+                      <path d="M6.2 9.8L13 3"></path>
+                      <path d="M9 2.8h4.2V7"></path>
+                      <path d="M12 9.4v3.4H3.2V4h3.4"></path>
+                    </svg>
+                  </button>
+                </div>
+                <div class="embed-body">
+                  <svg
+                    class="sketch"
+                    viewBox="0 0 200 150"
+                    preserveAspectRatio="xMidYMid meet"
+                  >
+                    <sc-for
+                      list="{{m.shapes}}"
+                      as="r"
+                      hint-placeholder-count="3"
+                    >
+                      <rect
+                        x="{{r.x}}"
+                        y="{{r.y}}"
+                        width="{{r.w}}"
+                        height="{{r.h}}"
+                        fill="{{r.fill}}"
+                        rx="3"
+                      ></rect>
+                    </sc-for>
+                    <sc-for
+                      list="{{m.arrows}}"
+                      as="a"
+                      hint-placeholder-count="2"
+                    >
+                      <path d="{{a.d}}"></path>
+                    </sc-for>
+                  </svg>
+                </div>
+                <div class="embed-foot">{{m.foot}}</div>
+              </div>
+            </sc-for>
+
+            <sc-if value="{{menuOpen}}" hint-placeholder-val="{{true}}">
+              <div>
+                <div class="shade" onClick="{{closeMenu}}"></div>
+                <div class="menu" style="{{menuPos}}">
+                  <button type="button" class="mi" onClick="{{closeMenu}}">
+                    <svg
+                      width="15"
+                      height="15"
+                      viewBox="0 0 16 16"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="1.6"
+                      stroke-linejoin="round"
+                    >
+                      <path
+                        d="M7.4 1.8H2.4a.6.6 0 0 0-.6.6v5l6.6 6.6a.9.9 0 0 0 1.3 0l4.3-4.3a.9.9 0 0 0 0-1.3z"
+                      ></path>
+                      <circle cx="5" cy="5" r="1"></circle>
+                    </svg>
+                    Add tag
+                  </button>
+                  <button type="button" class="mi" onClick="{{openPicker}}">
+                    <svg
+                      width="15"
+                      height="15"
+                      viewBox="0 0 16 16"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="1.6"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    >
+                      <path
+                        d="M6.6 9.4a2.6 2.6 0 0 0 3.9.3l2-2a2.6 2.6 0 0 0-3.7-3.7l-1.1 1.1"
+                      ></path>
+                      <path
+                        d="M9.4 6.6a2.6 2.6 0 0 0-3.9-.3l-2 2a2.6 2.6 0 0 0 3.7 3.7l1.1-1.1"
+                      ></path>
+                    </svg>
+                    Link drawing…
+                  </button>
+                  <div class="msep"></div>
+                  <button type="button" class="mi" onClick="{{closeMenu}}">
+                    Copy element id<span class="mi-key">⌘C</span>
+                  </button>
+                  <button type="button" class="mi" onClick="{{closeMenu}}">
+                    Duplicate<span class="mi-key">⌘D</span>
+                  </button>
+                  <div class="msep"></div>
+                  <button type="button" class="mi" disabled>Delete</button>
+                </div>
+              </div>
+            </sc-if>
+          </div>
+
+          <div class="panel">
+            <div>
+              <div class="p-label">Linked drawings</div>
+              <div class="p-sub" style="margin-top: 5px">{{linkSummary}}</div>
+            </div>
+            <div class="p-list">
+              <sc-for list="{{linked}}" as="l" hint-placeholder-count="2">
+                <div class="p-card">
+                  <div class="p-top">
+                    <span class="p-name">{{l.label}}</span>
+                    <span class="p-mode">{{l.modeLabel}}</span>
+                  </div>
+                  <div class="p-slug">{{l.slug}}</div>
+                  <div class="p-acts">
+                    <button
+                      type="button"
+                      class="btn btn-sm"
+                      onClick="{{l.swap}}"
+                    >
+                      {{l.swapLabel}}
+                    </button>
+                    <button
+                      type="button"
+                      class="btn btn-sm btn-ghost"
+                      onClick="{{l.preview}}"
+                    >
+                      Preview
+                    </button>
+                    <button
+                      type="button"
+                      class="btn btn-sm btn-ghost btn-danger"
+                      onClick="{{l.unlink}}"
+                    >
+                      Unlink
+                    </button>
+                  </div>
+                </div>
+              </sc-for>
+              <sc-if value="{{noLinks}}" hint-placeholder-val="{{false}}">
+                <div class="p-sub">
+                  Nothing linked yet. Right-click the canvas and choose “Link
+                  drawing…”.
+                </div>
+              </sc-if>
+            </div>
+            <div class="p-foot">
+              <div class="p-label">What this writes</div>
+              <div class="p-code">{{graphJson}}</div>
+            </div>
           </div>
         </div>
-        <label class="m-search">
-          <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round">
-            <circle cx="7" cy="7" r="4.4"></circle><path d="M10.3 10.3L14 14"></path>
-          </svg>
-          <input type="text" value="{{pickQuery}}" placeholder="Search your drawings" onChange="{{onPickQuery}}" />
-        </label>
-        <div class="m-list">
-          <sc-for list="{{candidates}}" as="c" hint-placeholder-count="5">
-            <button type="button" class="m-row" data-on="{{c.chosen}}" onClick="{{c.choose}}">
-              <span class="m-thumb">
-                <svg class="sketch" viewBox="0 0 200 150" preserveAspectRatio="xMidYMid meet">
-                  <sc-for list="{{c.shapes}}" as="r" hint-placeholder-count="3">
-                    <rect x="{{r.x}}" y="{{r.y}}" width="{{r.w}}" height="{{r.h}}" fill="{{r.fill}}" rx="3"></rect>
+
+        <sc-if value="{{pickerOpen}}" hint-placeholder-val="{{false}}">
+          <div class="backdrop" onClick="{{closePicker}}">
+            <div class="modal" onClick="{{stop}}">
+              <div class="m-head">
+                <div>
+                  <div class="m-title">Link a drawing</div>
+                  <div class="m-sub">
+                    It becomes an edge in the graph either way.
+                  </div>
+                </div>
+              </div>
+              <label class="m-search">
+                <svg
+                  width="15"
+                  height="15"
+                  viewBox="0 0 16 16"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.7"
+                  stroke-linecap="round"
+                >
+                  <circle cx="7" cy="7" r="4.4"></circle>
+                  <path d="M10.3 10.3L14 14"></path>
+                </svg>
+                <input
+                  type="text"
+                  value="{{pickQuery}}"
+                  placeholder="Search your drawings"
+                  onChange="{{onPickQuery}}"
+                />
+              </label>
+              <div class="m-list">
+                <sc-for list="{{candidates}}" as="c" hint-placeholder-count="5">
+                  <button
+                    type="button"
+                    class="m-row"
+                    data-on="{{c.chosen}}"
+                    onClick="{{c.choose}}"
+                  >
+                    <span class="m-thumb">
+                      <svg
+                        class="sketch"
+                        viewBox="0 0 200 150"
+                        preserveAspectRatio="xMidYMid meet"
+                      >
+                        <sc-for
+                          list="{{c.shapes}}"
+                          as="r"
+                          hint-placeholder-count="3"
+                        >
+                          <rect
+                            x="{{r.x}}"
+                            y="{{r.y}}"
+                            width="{{r.w}}"
+                            height="{{r.h}}"
+                            fill="{{r.fill}}"
+                            rx="3"
+                          ></rect>
+                        </sc-for>
+                        <sc-for
+                          list="{{c.arrows}}"
+                          as="a"
+                          hint-placeholder-count="2"
+                        >
+                          <path d="{{a.d}}"></path>
+                        </sc-for>
+                      </svg>
+                    </span>
+                    <span class="m-main">
+                      <span class="m-name">{{c.label}}</span>
+                      <span class="m-path">{{c.meta}}</span>
+                    </span>
+                    <span class="m-when">{{c.ago}}</span>
+                  </button>
+                </sc-for>
+                <sc-if
+                  value="{{noCandidates}}"
+                  hint-placeholder-val="{{false}}"
+                >
+                  <div class="m-empty">Nothing matches “{{pickQuery}}”.</div>
+                </sc-if>
+              </div>
+              <div class="m-foot">
+                <div class="modes">
+                  <button
+                    type="button"
+                    class="mode"
+                    data-on="{{modeEmbed}}"
+                    onClick="{{setEmbed}}"
+                  >
+                    <svg
+                      width="14"
+                      height="14"
+                      viewBox="0 0 16 16"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="1.6"
+                      stroke-linejoin="round"
+                    >
+                      <path d="M2.2 3.4h11.6v9.2H2.2z"></path>
+                      <path d="M2.2 6.4h11.6"></path>
+                    </svg>
+                    Embed as block
+                  </button>
+                  <button
+                    type="button"
+                    class="mode"
+                    data-on="{{modeTitle}}"
+                    onClick="{{setTitle}}"
+                  >
+                    <svg
+                      width="14"
+                      height="14"
+                      viewBox="0 0 16 16"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="1.7"
+                      stroke-linecap="round"
+                    >
+                      <path d="M3 5.6h10M3 9.2h6.4"></path>
+                    </svg>
+                    Title only
+                  </button>
+                </div>
+                <span class="spacer"></span>
+                <button type="button" class="btn" onClick="{{closePicker}}">
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  class="btn btn-primary"
+                  onClick="{{confirmLink}}"
+                >
+                  {{linkLabel}}
+                </button>
+              </div>
+            </div>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{previewOpen}}" hint-placeholder-val="{{false}}">
+          <div class="backdrop" onClick="{{closePreview}}">
+            <div class="modal prev" onClick="{{stop}}">
+              <div class="prev-art">
+                <svg
+                  class="sketch"
+                  viewBox="0 0 200 150"
+                  preserveAspectRatio="xMidYMid meet"
+                >
+                  <sc-for
+                    list="{{prev.shapes}}"
+                    as="r"
+                    hint-placeholder-count="3"
+                  >
+                    <rect
+                      x="{{r.x}}"
+                      y="{{r.y}}"
+                      width="{{r.w}}"
+                      height="{{r.h}}"
+                      fill="{{r.fill}}"
+                      rx="3"
+                    ></rect>
                   </sc-for>
-                  <sc-for list="{{c.arrows}}" as="a" hint-placeholder-count="2">
+                  <sc-for
+                    list="{{prev.arrows}}"
+                    as="a"
+                    hint-placeholder-count="2"
+                  >
                     <path d="{{a.d}}"></path>
                   </sc-for>
                 </svg>
-              </span>
-              <span class="m-main">
-                <span class="m-name">{{c.label}}</span>
-                <span class="m-path">{{c.meta}}</span>
-              </span>
-              <span class="m-when">{{c.ago}}</span>
-            </button>
-          </sc-for>
-          <sc-if value="{{noCandidates}}" hint-placeholder-val="{{false}}">
-            <div class="m-empty">Nothing matches “{{pickQuery}}”.</div>
-          </sc-if>
-        </div>
-        <div class="m-foot">
-          <div class="modes">
-            <button type="button" class="mode" data-on="{{modeEmbed}}" onClick="{{setEmbed}}">
-              <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round">
-                <path d="M2.2 3.4h11.6v9.2H2.2z"></path><path d="M2.2 6.4h11.6"></path>
-              </svg>
-              Embed as block
-            </button>
-            <button type="button" class="mode" data-on="{{modeTitle}}" onClick="{{setTitle}}">
-              <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round">
-                <path d="M3 5.6h10M3 9.2h6.4"></path>
-              </svg>
-              Title only
-            </button>
+              </div>
+              <div class="prev-body">
+                <div class="m-title">{{prev.label}}</div>
+                <div class="prev-meta">
+                  <span class="pill">{{prev.cat}}</span>
+                  <span>{{prev.meta}}</span>
+                </div>
+                <div class="slug">
+                  <svg
+                    width="13"
+                    height="13"
+                    viewBox="0 0 16 16"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.6"
+                    stroke-linejoin="round"
+                  >
+                    <path
+                      d="M6.6 9.4a2.6 2.6 0 0 0 3.9.3l2-2a2.6 2.6 0 0 0-3.7-3.7l-1.1 1.1"
+                    ></path>
+                    <path
+                      d="M9.4 6.6a2.6 2.6 0 0 0-3.9-.3l-2 2a2.6 2.6 0 0 0 3.7 3.7l1.1-1.1"
+                    ></path>
+                  </svg>
+                  <span>{{prev.slug}}</span>
+                </div>
+              </div>
+              <div class="m-foot">
+                <span class="p-sub"
+                  >Opens in a new tab — the host drawing never edits it.</span
+                >
+                <span class="spacer"></span>
+                <button type="button" class="btn" onClick="{{closePreview}}">
+                  Close
+                </button>
+                <button
+                  type="button"
+                  class="btn btn-primary"
+                  onClick="{{closePreview}}"
+                >
+                  Open in new tab
+                  <svg
+                    width="13"
+                    height="13"
+                    viewBox="0 0 16 16"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.9"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <path d="M6.2 9.8L13 3"></path>
+                    <path d="M9 2.8h4.2V7"></path>
+                    <path d="M12 9.4v3.4H3.2V4h3.4"></path>
+                  </svg>
+                </button>
+              </div>
+            </div>
           </div>
-          <span class="spacer"></span>
-          <button type="button" class="btn" onClick="{{closePicker}}">Cancel</button>
-          <button type="button" class="btn btn-primary" onClick="{{confirmLink}}">{{linkLabel}}</button>
-        </div>
+        </sc-if>
       </div>
-    </div>
-  </sc-if>
+    </x-dc>
 
-  <sc-if value="{{previewOpen}}" hint-placeholder-val="{{false}}">
-    <div class="backdrop" onClick="{{closePreview}}">
-      <div class="modal prev" onClick="{{stop}}">
-        <div class="prev-art">
-          <svg class="sketch" viewBox="0 0 200 150" preserveAspectRatio="xMidYMid meet">
-            <sc-for list="{{prev.shapes}}" as="r" hint-placeholder-count="3">
-              <rect x="{{r.x}}" y="{{r.y}}" width="{{r.w}}" height="{{r.h}}" fill="{{r.fill}}" rx="3"></rect>
-            </sc-for>
-            <sc-for list="{{prev.arrows}}" as="a" hint-placeholder-count="2">
-              <path d="{{a.d}}"></path>
-            </sc-for>
-          </svg>
-        </div>
-        <div class="prev-body">
-          <div class="m-title">{{prev.label}}</div>
-          <div class="prev-meta">
-            <span class="pill">{{prev.cat}}</span>
-            <span>{{prev.meta}}</span>
-          </div>
-          <div class="slug">
-            <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round">
-              <path d="M6.6 9.4a2.6 2.6 0 0 0 3.9.3l2-2a2.6 2.6 0 0 0-3.7-3.7l-1.1 1.1"></path>
-              <path d="M9.4 6.6a2.6 2.6 0 0 0-3.9-.3l-2 2a2.6 2.6 0 0 0 3.7 3.7l1.1-1.1"></path>
-            </svg>
-            <span>{{prev.slug}}</span>
-          </div>
-        </div>
-        <div class="m-foot">
-          <span class="p-sub">Opens in a new tab — the host drawing never edits it.</span>
-          <span class="spacer"></span>
-          <button type="button" class="btn" onClick="{{closePreview}}">Close</button>
-          <button type="button" class="btn btn-primary" onClick="{{closePreview}}">
-            Open in new tab
-            <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M6.2 9.8L13 3"></path><path d="M9 2.8h4.2V7"></path><path d="M12 9.4v3.4H3.2V4h3.4"></path>
-            </svg>
-          </button>
-        </div>
-      </div>
-    </div>
-  </sc-if>
-
-</div>
-</x-dc>
-
-<script data-dc-script data-props='{"theme":{"editor":"enum","options":["light","dark"],"default":"light","section":"Theme"},"accent":{"editor":"color","default":"#6965db","options":["#6965db","#1971c2","#2f9e44","#e03131"],"section":"Theme"},"$preview":{"width":1240,"height":900}}'>
-class Component extends DCLogic {
-  constructor(props) {
-    super(props);
-    this.state = {
-      menu: null,
-      picker: false,
-      pickQuery: "",
-      chosen: null,
-      mode: "embed",
-      preview: null,
-      links: [
-        { id: "d_graph", mode: "embed", x: 546, y: 430 },
-        { id: "d_mcp", mode: "title", x: 96, y: 606 }
-      ]
-    };
-  }
-
-  art(kind) {
-    const S = {
-      flow: {
-        shapes: [
-          { x: 14, y: 54, w: 50, h: 34, fill: "#a5d8ff" },
-          { x: 78, y: 54, w: 46, h: 34, fill: "#ffec99" },
-          { x: 138, y: 50, w: 50, h: 40, fill: "#ffc9c9" }
-        ],
-        arrows: [{ d: "M64 71 L76 71 M72 67 L76 71 L72 75" }, { d: "M124 71 L136 71 M132 67 L136 71 L132 75" }]
-      },
-      net: {
-        shapes: [
-          { x: 70, y: 58, w: 60, h: 36, fill: "#e0dfff" },
-          { x: 10, y: 14, w: 46, h: 26, fill: "#a5d8ff" },
-          { x: 144, y: 14, w: 46, h: 26, fill: "#ffec99" },
-          { x: 10, y: 110, w: 46, h: 26, fill: "#b2f2bb" },
-          { x: 144, y: 110, w: 46, h: 26, fill: "#ffc9c9" }
-        ],
-        arrows: [{ d: "M56 34 L70 60" }, { d: "M144 34 L130 60" }, { d: "M56 116 L70 92" }, { d: "M144 116 L130 92" }]
-      },
-      stack: {
-        shapes: [
-          { x: 54, y: 14, w: 92, h: 28, fill: "#a5d8ff" },
-          { x: 54, y: 56, w: 92, h: 28, fill: "#ffec99" },
-          { x: 54, y: 98, w: 92, h: 28, fill: "#b2f2bb" }
-        ],
-        arrows: [{ d: "M100 42 L100 52 M96 48 L100 54 L104 48" }, { d: "M100 84 L100 94 M96 90 L100 96 L104 90" }]
-      },
-      lines: {
-        shapes: [{ x: 18, y: 14, w: 60, h: 18, fill: "#ffec99" }],
-        arrows: [
-          { d: "M18 48 L178 48" }, { d: "M18 64 L146 64" }, { d: "M18 80 L170 80" },
-          { d: "M18 96 L118 96" }, { d: "M18 112 L158 112" }
-        ]
-      }
-    };
-    return S[kind] || S.flow;
-  }
-
-  library() {
-    return [
-      { id: "d_graph", label: "Graph store vs SQLite", path: "work / local-first", cat: "Graph store", ago: "3 weeks ago", slug: "/d/graph-store-vs-sqlite", kind: "net", items: 19 },
-      { id: "d_mcp", label: "MCP tool surface", path: "work / local-first", cat: "MCP", ago: "5 hours ago", slug: "/d/mcp-tool-surface", kind: "flow", items: 21 },
-      { id: "d_ingest", label: "Ingest pipeline", path: "work / local-first", cat: "Storage", ago: "2 hours ago", slug: "/d/ingest-pipeline", kind: "stack", items: 34 },
-      { id: "d_parser", label: "Parser failure modes", path: "work / local-first / spikes", cat: "Storage", ago: "1 week ago", slug: "/d/parser-failure-modes", kind: "lines", items: 16 },
-      { id: "d_restore", label: "Restore flow", path: "work / product", cat: "UX flows", ago: "3 days ago", slug: "/d/restore-flow", kind: "stack", items: 12 },
-      { id: "d_rank", label: "Search ranking notes", path: "work / local-first", cat: "Storage", ago: "4 days ago", slug: "/d/search-ranking-notes", kind: "lines", items: 9 },
-      { id: "d_onboard", label: "Onboarding flow", path: "work / product", cat: "UX flows", ago: "1 week ago", slug: "/d/onboarding-flow", kind: "flow", items: 23 }
-    ];
-  }
-
-  byId(id) {
-    return this.library().filter((d) => d.id === id)[0] || null;
-  }
-
-  renderVals() {
-    const st = this.state;
-    const lib = this.library();
-    const linkedIds = st.links.map((l) => l.id);
-
-    const setLinks = (next) => this.setState({ links: next });
-
-    const openPreview = (id) => this.setState({ preview: id, menu: null });
-
-    const chips = st.links.filter((l) => l.mode === "title").map((l) => {
-      const d = this.byId(l.id);
-      return {
-        label: d ? d.label : "Missing drawing",
-        pos: "left: " + l.x + "px; top: " + l.y + "px",
-        preview: () => openPreview(l.id)
-      };
-    });
-
-    const embeds = st.links.filter((l) => l.mode === "embed").map((l) => {
-      const d = this.byId(l.id);
-      const a = this.art(d ? d.kind : "flow");
-      return {
-        label: d ? d.label : "Missing drawing",
-        foot: d ? d.path + " · " + d.items + " elements" : "",
-        shapes: a.shapes,
-        arrows: a.arrows,
-        pos: "left: " + l.x + "px; top: " + l.y + "px",
-        preview: () => openPreview(l.id)
-      };
-    });
-
-    const q = st.pickQuery.trim().toLowerCase();
-    const candidates = lib
-      .filter((d) => linkedIds.indexOf(d.id) === -1)
-      .filter((d) => !q || (d.label + " " + d.path + " " + d.cat).toLowerCase().indexOf(q) !== -1)
-      .map((d) => {
-        const a = this.art(d.kind);
-        return {
-          label: d.label,
-          meta: d.path + "  ·  " + d.cat,
-          ago: d.ago,
-          shapes: a.shapes,
-          arrows: a.arrows,
-          chosen: st.chosen === d.id,
-          choose: () => this.setState({ chosen: d.id })
-        };
-      });
-
-    const linked = st.links.map((l, i) => {
-      const d = this.byId(l.id);
-      return {
-        label: d ? d.label : "Missing drawing",
-        slug: d ? d.slug : "",
-        modeLabel: l.mode === "embed" ? "embedded" : "title",
-        swapLabel: l.mode === "embed" ? "Show as title" : "Embed as block",
-        swap: () => {
-          const next = st.links.slice();
-          next[i] = Object.assign({}, l, { mode: l.mode === "embed" ? "title" : "embed" });
-          setLinks(next);
-        },
-        preview: () => openPreview(l.id),
-        unlink: () => setLinks(st.links.filter((x) => x.id !== l.id))
-      };
-    });
-
-    const prevDoc = st.preview ? this.byId(st.preview) : null;
-    const prevArt = this.art(prevDoc ? prevDoc.kind : "flow");
-
-    const chosenDoc = st.chosen ? this.byId(st.chosen) : null;
-
-    const edges = st.links.map((l) => {
-      const d = this.byId(l.id);
-      return '    { "from": "scene:retry-queue", "to": "scene:' +
-        (d ? d.slug.replace("/d/", "") : "?") + '", "kind": "links-to", "render": "' + l.mode + '" }';
-    });
-
-    return {
-      theme: this.props.theme || "light",
-      accent: this.props.accent || "#6965db",
-
-      wires: [
-        { d: "M214 118 L292 118 M286 113 L294 118 L286 123" },
-        { d: "M446 118 L524 118 M518 113 L526 118 L518 123" },
-        { d: "M360 156 L360 250 M355 244 L360 252 L365 244" },
-        { d: "M300 288 L150 288 L150 400 M145 394 L150 402 L155 394" }
-      ],
-      boxes: [
-        { label: "Failed job", pos: "left: 60px; top: 84px; width: 154px; height: 70px; background: #ffc9c9; transform: rotate(-0.5deg)" },
-        { label: "Backoff", pos: "left: 296px; top: 84px; width: 150px; height: 70px; background: #ffec99; transform: rotate(0.4deg)" },
-        { label: "Retry queue", pos: "left: 528px; top: 84px; width: 166px; height: 70px; background: #a5d8ff; transform: rotate(-0.4deg)" },
-        { label: "Dead letter", pos: "left: 284px; top: 254px; width: 154px; height: 70px; background: #e0dfff; transform: rotate(0.5deg)" }
-      ],
-      chips: chips,
-      embeds: embeds,
-
-      onContext: (e) => {
-        if (e && e.preventDefault) { e.preventDefault(); }
-        let x = 300;
-        let y = 240;
-        if (e && e.nativeEvent && typeof e.nativeEvent.offsetX === "number") {
-          x = e.nativeEvent.offsetX;
-          y = e.nativeEvent.offsetY;
+    <script
+      data-dc-script
+      data-props='{"theme":{"editor":"enum","options":["light","dark"],"default":"light","section":"Theme"},"accent":{"editor":"color","default":"#6965db","options":["#6965db","#1971c2","#2f9e44","#e03131"],"section":"Theme"},"$preview":{"width":1240,"height":900}}'
+    >
+      class Component extends DCLogic {
+        constructor(props) {
+          super(props);
+          this.state = {
+            menu: null,
+            picker: false,
+            pickQuery: "",
+            chosen: null,
+            mode: "embed",
+            preview: null,
+            links: [
+              { id: "d_graph", mode: "embed", x: 546, y: 430 },
+              { id: "d_mcp", mode: "title", x: 96, y: 606 },
+            ],
+          };
         }
-        if (x > 620) { x = 620; }
-        if (y > 520) { y = 520; }
-        this.setState({ menu: { x: x, y: y } });
-      },
-      openMenuDefault: () => this.setState({ menu: { x: 300, y: 200 } }),
-      menuOpen: st.menu !== null,
-      menuPos: st.menu ? "left: " + st.menu.x + "px; top: " + st.menu.y + "px" : "left: 300px; top: 200px",
-      closeMenu: () => this.setState({ menu: null }),
 
-      openPicker: () => this.setState({ menu: null, picker: true, chosen: null, pickQuery: "" }),
-      pickerOpen: st.picker,
-      closePicker: () => this.setState({ picker: false }),
-      pickQuery: st.pickQuery,
-      onPickQuery: (e) => this.setState({ pickQuery: e.target.value }),
-      candidates: candidates,
-      noCandidates: candidates.length === 0,
-      modeEmbed: st.mode === "embed",
-      modeTitle: st.mode === "title",
-      setEmbed: () => this.setState({ mode: "embed" }),
-      setTitle: () => this.setState({ mode: "title" }),
-      linkLabel: chosenDoc
-        ? (st.mode === "embed" ? "Embed " + chosenDoc.label : "Link " + chosenDoc.label)
-        : "Pick a drawing",
-      confirmLink: () => {
-        if (!st.chosen) { return; }
-        const n = st.links.length;
-        const spot = st.mode === "embed"
-          ? { x: 60 + (n % 2) * 300, y: 430 + Math.floor(n / 2) * 60 }
-          : { x: 96 + (n % 3) * 220, y: 690 };
-        setLinks(st.links.concat([{ id: st.chosen, mode: st.mode, x: spot.x, y: spot.y }]));
-        this.setState({ picker: false, chosen: null });
-      },
+        art(kind) {
+          const S = {
+            flow: {
+              shapes: [
+                { x: 14, y: 54, w: 50, h: 34, fill: "#a5d8ff" },
+                { x: 78, y: 54, w: 46, h: 34, fill: "#ffec99" },
+                { x: 138, y: 50, w: 50, h: 40, fill: "#ffc9c9" },
+              ],
+              arrows: [
+                { d: "M64 71 L76 71 M72 67 L76 71 L72 75" },
+                { d: "M124 71 L136 71 M132 67 L136 71 L132 75" },
+              ],
+            },
+            net: {
+              shapes: [
+                { x: 70, y: 58, w: 60, h: 36, fill: "#e0dfff" },
+                { x: 10, y: 14, w: 46, h: 26, fill: "#a5d8ff" },
+                { x: 144, y: 14, w: 46, h: 26, fill: "#ffec99" },
+                { x: 10, y: 110, w: 46, h: 26, fill: "#b2f2bb" },
+                { x: 144, y: 110, w: 46, h: 26, fill: "#ffc9c9" },
+              ],
+              arrows: [
+                { d: "M56 34 L70 60" },
+                { d: "M144 34 L130 60" },
+                { d: "M56 116 L70 92" },
+                { d: "M144 116 L130 92" },
+              ],
+            },
+            stack: {
+              shapes: [
+                { x: 54, y: 14, w: 92, h: 28, fill: "#a5d8ff" },
+                { x: 54, y: 56, w: 92, h: 28, fill: "#ffec99" },
+                { x: 54, y: 98, w: 92, h: 28, fill: "#b2f2bb" },
+              ],
+              arrows: [
+                { d: "M100 42 L100 52 M96 48 L100 54 L104 48" },
+                { d: "M100 84 L100 94 M96 90 L100 96 L104 90" },
+              ],
+            },
+            lines: {
+              shapes: [{ x: 18, y: 14, w: 60, h: 18, fill: "#ffec99" }],
+              arrows: [
+                { d: "M18 48 L178 48" },
+                { d: "M18 64 L146 64" },
+                { d: "M18 80 L170 80" },
+                { d: "M18 96 L118 96" },
+                { d: "M18 112 L158 112" },
+              ],
+            },
+          };
+          return S[kind] || S.flow;
+        }
 
-      linked: linked,
-      noLinks: st.links.length === 0,
-      linkSummary: st.links.length + (st.links.length === 1 ? " drawing is" : " drawings are") +
-        " linked from this one. Embedded blocks render read-only — editing happens in the drawing's own tab.",
+        library() {
+          return [
+            {
+              id: "d_graph",
+              label: "Graph store vs SQLite",
+              path: "work / local-first",
+              cat: "Graph store",
+              ago: "3 weeks ago",
+              slug: "/d/graph-store-vs-sqlite",
+              kind: "net",
+              items: 19,
+            },
+            {
+              id: "d_mcp",
+              label: "MCP tool surface",
+              path: "work / local-first",
+              cat: "MCP",
+              ago: "5 hours ago",
+              slug: "/d/mcp-tool-surface",
+              kind: "flow",
+              items: 21,
+            },
+            {
+              id: "d_ingest",
+              label: "Ingest pipeline",
+              path: "work / local-first",
+              cat: "Storage",
+              ago: "2 hours ago",
+              slug: "/d/ingest-pipeline",
+              kind: "stack",
+              items: 34,
+            },
+            {
+              id: "d_parser",
+              label: "Parser failure modes",
+              path: "work / local-first / spikes",
+              cat: "Storage",
+              ago: "1 week ago",
+              slug: "/d/parser-failure-modes",
+              kind: "lines",
+              items: 16,
+            },
+            {
+              id: "d_restore",
+              label: "Restore flow",
+              path: "work / product",
+              cat: "UX flows",
+              ago: "3 days ago",
+              slug: "/d/restore-flow",
+              kind: "stack",
+              items: 12,
+            },
+            {
+              id: "d_rank",
+              label: "Search ranking notes",
+              path: "work / local-first",
+              cat: "Storage",
+              ago: "4 days ago",
+              slug: "/d/search-ranking-notes",
+              kind: "lines",
+              items: 9,
+            },
+            {
+              id: "d_onboard",
+              label: "Onboarding flow",
+              path: "work / product",
+              cat: "UX flows",
+              ago: "1 week ago",
+              slug: "/d/onboarding-flow",
+              kind: "flow",
+              items: 23,
+            },
+          ];
+        }
 
-      previewOpen: st.preview !== null,
-      closePreview: () => this.setState({ preview: null }),
-      prev: {
-        label: prevDoc ? prevDoc.label : "",
-        cat: prevDoc ? prevDoc.cat : "",
-        meta: prevDoc ? prevDoc.path + "  ·  " + prevDoc.items + " elements  ·  " + prevDoc.ago : "",
-        slug: prevDoc ? "localhost:3056" + prevDoc.slug : "",
-        shapes: prevArt.shapes,
-        arrows: prevArt.arrows
-      },
+        byId(id) {
+          return this.library().filter((d) => d.id === id)[0] || null;
+        }
 
-      graphJson: '{\n  "edges": [\n' + edges.join(",\n") + '\n  ]\n}',
-      stop: (e) => { if (e && e.stopPropagation) { e.stopPropagation(); } }
-    };
-  }
-}
-</script>
-</body>
+        renderVals() {
+          const st = this.state;
+          const lib = this.library();
+          const linkedIds = st.links.map((l) => l.id);
+
+          const setLinks = (next) => this.setState({ links: next });
+
+          const openPreview = (id) =>
+            this.setState({ preview: id, menu: null });
+
+          const chips = st.links
+            .filter((l) => l.mode === "title")
+            .map((l) => {
+              const d = this.byId(l.id);
+              return {
+                label: d ? d.label : "Missing drawing",
+                pos: "left: " + l.x + "px; top: " + l.y + "px",
+                preview: () => openPreview(l.id),
+              };
+            });
+
+          const embeds = st.links
+            .filter((l) => l.mode === "embed")
+            .map((l) => {
+              const d = this.byId(l.id);
+              const a = this.art(d ? d.kind : "flow");
+              return {
+                label: d ? d.label : "Missing drawing",
+                foot: d ? d.path + " · " + d.items + " elements" : "",
+                shapes: a.shapes,
+                arrows: a.arrows,
+                pos: "left: " + l.x + "px; top: " + l.y + "px",
+                preview: () => openPreview(l.id),
+              };
+            });
+
+          const q = st.pickQuery.trim().toLowerCase();
+          const candidates = lib
+            .filter((d) => linkedIds.indexOf(d.id) === -1)
+            .filter(
+              (d) =>
+                !q ||
+                (d.label + " " + d.path + " " + d.cat)
+                  .toLowerCase()
+                  .indexOf(q) !== -1,
+            )
+            .map((d) => {
+              const a = this.art(d.kind);
+              return {
+                label: d.label,
+                meta: d.path + "  ·  " + d.cat,
+                ago: d.ago,
+                shapes: a.shapes,
+                arrows: a.arrows,
+                chosen: st.chosen === d.id,
+                choose: () => this.setState({ chosen: d.id }),
+              };
+            });
+
+          const linked = st.links.map((l, i) => {
+            const d = this.byId(l.id);
+            return {
+              label: d ? d.label : "Missing drawing",
+              slug: d ? d.slug : "",
+              modeLabel: l.mode === "embed" ? "embedded" : "title",
+              swapLabel:
+                l.mode === "embed" ? "Show as title" : "Embed as block",
+              swap: () => {
+                const next = st.links.slice();
+                next[i] = Object.assign({}, l, {
+                  mode: l.mode === "embed" ? "title" : "embed",
+                });
+                setLinks(next);
+              },
+              preview: () => openPreview(l.id),
+              unlink: () => setLinks(st.links.filter((x) => x.id !== l.id)),
+            };
+          });
+
+          const prevDoc = st.preview ? this.byId(st.preview) : null;
+          const prevArt = this.art(prevDoc ? prevDoc.kind : "flow");
+
+          const chosenDoc = st.chosen ? this.byId(st.chosen) : null;
+
+          const edges = st.links.map((l) => {
+            const d = this.byId(l.id);
+            return (
+              '    { "from": "scene:retry-queue", "to": "scene:' +
+              (d ? d.slug.replace("/d/", "") : "?") +
+              '", "kind": "links-to", "render": "' +
+              l.mode +
+              '" }'
+            );
+          });
+
+          return {
+            theme: this.props.theme || "light",
+            accent: this.props.accent || "#6965db",
+
+            wires: [
+              { d: "M214 118 L292 118 M286 113 L294 118 L286 123" },
+              { d: "M446 118 L524 118 M518 113 L526 118 L518 123" },
+              { d: "M360 156 L360 250 M355 244 L360 252 L365 244" },
+              { d: "M300 288 L150 288 L150 400 M145 394 L150 402 L155 394" },
+            ],
+            boxes: [
+              {
+                label: "Failed job",
+                pos: "left: 60px; top: 84px; width: 154px; height: 70px; background: #ffc9c9; transform: rotate(-0.5deg)",
+              },
+              {
+                label: "Backoff",
+                pos: "left: 296px; top: 84px; width: 150px; height: 70px; background: #ffec99; transform: rotate(0.4deg)",
+              },
+              {
+                label: "Retry queue",
+                pos: "left: 528px; top: 84px; width: 166px; height: 70px; background: #a5d8ff; transform: rotate(-0.4deg)",
+              },
+              {
+                label: "Dead letter",
+                pos: "left: 284px; top: 254px; width: 154px; height: 70px; background: #e0dfff; transform: rotate(0.5deg)",
+              },
+            ],
+            chips: chips,
+            embeds: embeds,
+
+            onContext: (e) => {
+              if (e && e.preventDefault) {
+                e.preventDefault();
+              }
+              let x = 300;
+              let y = 240;
+              if (
+                e &&
+                e.nativeEvent &&
+                typeof e.nativeEvent.offsetX === "number"
+              ) {
+                x = e.nativeEvent.offsetX;
+                y = e.nativeEvent.offsetY;
+              }
+              if (x > 620) {
+                x = 620;
+              }
+              if (y > 520) {
+                y = 520;
+              }
+              this.setState({ menu: { x: x, y: y } });
+            },
+            openMenuDefault: () => this.setState({ menu: { x: 300, y: 200 } }),
+            menuOpen: st.menu !== null,
+            menuPos: st.menu
+              ? "left: " + st.menu.x + "px; top: " + st.menu.y + "px"
+              : "left: 300px; top: 200px",
+            closeMenu: () => this.setState({ menu: null }),
+
+            openPicker: () =>
+              this.setState({
+                menu: null,
+                picker: true,
+                chosen: null,
+                pickQuery: "",
+              }),
+            pickerOpen: st.picker,
+            closePicker: () => this.setState({ picker: false }),
+            pickQuery: st.pickQuery,
+            onPickQuery: (e) => this.setState({ pickQuery: e.target.value }),
+            candidates: candidates,
+            noCandidates: candidates.length === 0,
+            modeEmbed: st.mode === "embed",
+            modeTitle: st.mode === "title",
+            setEmbed: () => this.setState({ mode: "embed" }),
+            setTitle: () => this.setState({ mode: "title" }),
+            linkLabel: chosenDoc
+              ? st.mode === "embed"
+                ? "Embed " + chosenDoc.label
+                : "Link " + chosenDoc.label
+              : "Pick a drawing",
+            confirmLink: () => {
+              if (!st.chosen) {
+                return;
+              }
+              const n = st.links.length;
+              const spot =
+                st.mode === "embed"
+                  ? { x: 60 + (n % 2) * 300, y: 430 + Math.floor(n / 2) * 60 }
+                  : { x: 96 + (n % 3) * 220, y: 690 };
+              setLinks(
+                st.links.concat([
+                  { id: st.chosen, mode: st.mode, x: spot.x, y: spot.y },
+                ]),
+              );
+              this.setState({ picker: false, chosen: null });
+            },
+
+            linked: linked,
+            noLinks: st.links.length === 0,
+            linkSummary:
+              st.links.length +
+              (st.links.length === 1 ? " drawing is" : " drawings are") +
+              " linked from this one. Embedded blocks render read-only — editing happens in the drawing's own tab.",
+
+            previewOpen: st.preview !== null,
+            closePreview: () => this.setState({ preview: null }),
+            prev: {
+              label: prevDoc ? prevDoc.label : "",
+              cat: prevDoc ? prevDoc.cat : "",
+              meta: prevDoc
+                ? prevDoc.path +
+                  "  ·  " +
+                  prevDoc.items +
+                  " elements  ·  " +
+                  prevDoc.ago
+                : "",
+              slug: prevDoc ? "localhost:3056" + prevDoc.slug : "",
+              shapes: prevArt.shapes,
+              arrows: prevArt.arrows,
+            },
+
+            graphJson: '{\n  "edges": [\n' + edges.join(",\n") + "\n  ]\n}",
+            stop: (e) => {
+              if (e && e.stopPropagation) {
+                e.stopPropagation();
+              }
+            },
+          };
+        }
+      }
+    </script>
+  </body>
 </html>

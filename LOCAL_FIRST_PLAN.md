@@ -190,17 +190,17 @@ POST   /api/generate                      {prompt, sceneId?} -> semantic graph (
 
 Thin wrappers over the same route handlers — one code path.
 
-| Tool | Returns |
+| Group | Tools |
 | --- | --- |
-| `list_scenes()` | id, name, tags, updatedAt |
-| `search_scenes(query, mode?)` | ranked hits w/ snippet + deep link |
-| `get_scene(id, as?: "semantic"\|"mermaid"\|"markdown")` | compact view (default semantic) |
-| `get_scene_image(id, anchor?)` | image content block (LLM sees it) |
-| `create_scene(name, mermaid?\|semantic?)` | new id (+ initial content via `fromSemantic`) |
-| `update_scene(id, semantic)` | applies diff, bumps version, WS ping |
-| `append_elements(id, semantic_fragment)` | adds nodes/edges, auto-layout |
-| `set_anchor(id, elementRef, name)` | writes `customData.anchor` |
-| `render_scene(id, opts)` | PNG/SVG path or base64 |
+| find | `list_scenes` `search_scenes` `get_active_scene` `list_tags` `get_tag` `neighbours` `graph_stats` |
+| read | `describe_scene` `get_scene_outline` `get_scene_image` `get_scene` `links` `list_anchors` |
+| add meaning | `annotate_scene` `tag_element` `link_drawings` `set_anchor` |
+| draw | `list_templates` `apply_template` |
+| write | `create_scene` `update_scene` `append_to_scene` `set_scene_meta` `delete_scene` `generate_diagram` |
+| review | `list_comments` `reply_to_comment` `resolve_comment` |
+| status | `index_status` |
+
+29 tools. `server/AGENTS.md` is served as the MCP `instructions` on `initialize` — the cost ladder, the anti-hallucination rules and the 23 template specs, in one place that cannot drift from the file a human reads.
 
 Register once: `claude mcp add --transport http excalidraw http://localhost:3056/mcp`.
 
@@ -228,7 +228,11 @@ Scenes edited in a live tab upload their own client-rendered thumbnail on save �
 6. ✅ **MCP** — `/mcp` + stdio, full tool set, SSE live-sync (used in place of a separate WS ping).
 7. ✅ **Vectors** — `sqlite-vec` (loaded via `node:sqlite`'s extension support), Ollama embed, hybrid search (RRF), `/api/generate` text-to-diagram. Gracefully degrades to FTS-only when Ollama can't embed.
 8. ✅ **Anchors + server render** — `customData.anchor` (round-trips through the semantic graph), a persistent headless-Chromium render service (drives the app's own `window.h`, not a Playwright harness — see `server/src/render/browser.ts`), `?anchor=` crops, `set_anchor` / `list_anchors` / `get_scene_image` MCP tools.
-9. ⬜ **Polish** — git-commit-per-save option, Docker image. _(Tag management and export-all are effectively covered by the existing tags field + per-scene export.)_
+9. ✅ **Tag / link graph** — `graph.json`, a local in-memory graph store (not SQLite): scene, box, tag, category and folder nodes; `tagged` / `tagged-part` / `contains` / `links-to` / `filed-under` / `lives-in` / `child-of` edges. Derived from the drawings on every save and metadata edit, so it cannot drift; rebuildable via `POST /api/graph/rebuild`. Agent annotations (`by: "agent"`) survive a re-derive — see `server/SEMANTIC.md`.
+10. ✅ **Outline view + region reads** — `derive/outline.ts`, the lossy read format an LLM should use (41x smaller than raw, 103x for the summary), with `?bbox=` to read one region. `semantic` stays the only write path.
+11. ✅ **Background indexing** — derived files, FTS5 and embeddings moved off the save onto a coalesced, persisted, single-worker queue (`index-queue.ts`). The graph stays on the request path so tagging is read-after-write.
+12. ✅ **Diagram templates** — 23 solved layouts (`derive/templates.ts`) so an agent never hand-places coordinates.
+13. ⬜ **Polish** — git-commit-per-save option, Docker image. _(Tag management and export-all are effectively covered by the existing tags field + per-scene export.)_
 
 Each step ships something runnable. Steps 1–3 are the "open drawings, see previous saves from the browser" core; 4–7 are the LLM/search agenda; 8 is stable named anchors. Only step 9 (packaging polish) remains.
 

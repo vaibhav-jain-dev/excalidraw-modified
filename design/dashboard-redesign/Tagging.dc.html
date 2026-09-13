@@ -1,443 +1,957 @@
-<!doctype html>
+<!DOCTYPE html>
 <html>
-<head>
-  <meta charset="utf-8">
-  <script src="./support.js"></script>
-</head>
-<body>
-<x-dc>
-<helmet>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Assistant:wght@400;500;600;700&display=swap">
-  <style>
-    body { margin: 0; }
-    a { color: #6965db; text-decoration: none; }
-    a:hover { color: #5753d0; }
-    @media (prefers-color-scheme: dark) { a { color: #a8a5ff; } a:hover { color: #bbb8ff; } }
+  <head>
+    <meta charset="utf-8" />
+    <script src="./support.js"></script>
+  </head>
+  <body>
+    <x-dc>
+      <helmet>
+        <link
+          rel="stylesheet"
+          href="https://fonts.googleapis.com/css2?family=Assistant:wght@400;500;600;700&display=swap"
+        />
+        <style>
+          body {
+            margin: 0;
+          }
+          a {
+            color: #6965db;
+            text-decoration: none;
+          }
+          a:hover {
+            color: #5753d0;
+          }
+          @media (prefers-color-scheme: dark) {
+            a {
+              color: #a8a5ff;
+            }
+            a:hover {
+              color: #bbb8ff;
+            }
+          }
 
-    .ed {
-      --bg: #f6f6f9; --surface: #ffffff; --surface-high: #f1f0ff;
-      --border: #ebebeb; --border-strong: #c5c5d0;
-      --text: #1b1b1f; --muted: #7a7a7a; --muted-dark: #5c5c5c;
-      --accent: var(--accent-src, #6965db); --on-accent: #ffffff;
-      --accent-container: #e0dfff; --on-accent-container: #030064;
-      --canvas: #ffffff; --dot: #d6d6d6; --ink: #1e1e1e;
-      --island: 0px 0px 1px 0px rgba(0,0,0,0.17), 0px 0px 3px 0px rgba(0,0,0,0.08), 0px 7px 14px 0px rgba(0,0,0,0.05);
-      --island-strong: 0px 0px 1px 0px rgba(0,0,0,0.17), 0px 0px 3px 0px rgba(0,0,0,0.08), 0px 7px 14px 0px rgb(0 0 0 / 18%);
+          .ed {
+            --bg: #f6f6f9;
+            --surface: #ffffff;
+            --surface-high: #f1f0ff;
+            --border: #ebebeb;
+            --border-strong: #c5c5d0;
+            --text: #1b1b1f;
+            --muted: #7a7a7a;
+            --muted-dark: #5c5c5c;
+            --accent: var(--accent-src, #6965db);
+            --on-accent: #ffffff;
+            --accent-container: #e0dfff;
+            --on-accent-container: #030064;
+            --canvas: #ffffff;
+            --dot: #d6d6d6;
+            --ink: #1e1e1e;
+            --island: 0px 0px 1px 0px rgba(0, 0, 0, 0.17),
+              0px 0px 3px 0px rgba(0, 0, 0, 0.08),
+              0px 7px 14px 0px rgba(0, 0, 0, 0.05);
+            --island-strong: 0px 0px 1px 0px rgba(0, 0, 0, 0.17),
+              0px 0px 3px 0px rgba(0, 0, 0, 0.08),
+              0px 7px 14px 0px rgb(0 0 0 / 18%);
 
-      position: relative;
-      width: 1240px; height: 880px; overflow: hidden;
-      display: flex; flex-direction: column;
-      background: var(--bg); color: var(--text);
-      font-family: Assistant, system-ui, BlinkMacSystemFont, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-      font-size: 14px; -webkit-font-smoothing: antialiased;
-    }
-    .ed * { box-sizing: border-box; }
-    .ed[data-theme="dark"] {
-      --bg: #18181b; --surface: #232329; --surface-high: #2e2d39;
-      --border: #2e2e2e; --border-strong: #46464f;
-      --text: #e3e3e8; --muted: #999999; --muted-dark: #b8b8b8;
-      --accent: color-mix(in oklab, var(--accent-src, #6965db) 60%, #ffffff); --on-accent: #1e1e1e;
-      --accent-container: #403e6a; --on-accent-container: #e0dfff;
-      --canvas: #121212; --dot: #3d3d3d;
-    }
+            position: relative;
+            width: 1240px;
+            height: 880px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            background: var(--bg);
+            color: var(--text);
+            font-family: Assistant, system-ui, BlinkMacSystemFont, -apple-system,
+              "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            font-size: 14px;
+            -webkit-font-smoothing: antialiased;
+          }
+          .ed * {
+            box-sizing: border-box;
+          }
+          .ed[data-theme="dark"] {
+            --bg: #18181b;
+            --surface: #232329;
+            --surface-high: #2e2d39;
+            --border: #2e2e2e;
+            --border-strong: #46464f;
+            --text: #e3e3e8;
+            --muted: #999999;
+            --muted-dark: #b8b8b8;
+            --accent: color-mix(
+              in oklab,
+              var(--accent-src, #6965db) 60%,
+              #ffffff
+            );
+            --on-accent: #1e1e1e;
+            --accent-container: #403e6a;
+            --on-accent-container: #e0dfff;
+            --canvas: #121212;
+            --dot: #3d3d3d;
+          }
 
-    .top {
-      flex: none; display: flex; align-items: center; gap: 10px;
-      height: 56px; padding: 0 20px;
-      background: var(--surface); border-bottom: 1px solid var(--border);
-    }
-    .crumb { display: flex; align-items: center; gap: 6px; font-size: 12.5px; color: var(--muted); }
-    .doc-name { font-size: 15px; font-weight: 700; letter-spacing: -0.01em; color: var(--text); }
-    .spacer { flex: 1; }
-    .btn {
-      display: inline-flex; align-items: center; justify-content: center; gap: 7px;
-      height: 32px; padding: 0 12px;
-      font: inherit; font-size: 13.5px; font-weight: 600;
-      color: var(--text); background: var(--surface);
-      border: 1px solid var(--border-strong); border-radius: 8px; cursor: pointer;
-    }
-    .btn:hover { background: var(--surface-high); border-color: var(--accent); }
-    .btn-primary { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
-    .btn-ghost { border-color: transparent; background: transparent; }
-    .btn-ghost:hover { background: var(--surface-high); border-color: transparent; }
-    .btn-sm { height: 27px; padding: 0 9px; font-size: 12.5px; }
+          .top {
+            flex: none;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            height: 56px;
+            padding: 0 20px;
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+          }
+          .crumb {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12.5px;
+            color: var(--muted);
+          }
+          .doc-name {
+            font-size: 15px;
+            font-weight: 700;
+            letter-spacing: -0.01em;
+            color: var(--text);
+          }
+          .spacer {
+            flex: 1;
+          }
+          .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 7px;
+            height: 32px;
+            padding: 0 12px;
+            font: inherit;
+            font-size: 13.5px;
+            font-weight: 600;
+            color: var(--text);
+            background: var(--surface);
+            border: 1px solid var(--border-strong);
+            border-radius: 8px;
+            cursor: pointer;
+          }
+          .btn:hover {
+            background: var(--surface-high);
+            border-color: var(--accent);
+          }
+          .btn-primary {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: var(--on-accent);
+          }
+          .btn-ghost {
+            border-color: transparent;
+            background: transparent;
+          }
+          .btn-ghost:hover {
+            background: var(--surface-high);
+            border-color: transparent;
+          }
+          .btn-sm {
+            height: 27px;
+            padding: 0 9px;
+            font-size: 12.5px;
+          }
 
-    .body { flex: 1; min-height: 0; display: flex; gap: 20px; padding: 20px; }
+          .body {
+            flex: 1;
+            min-height: 0;
+            display: flex;
+            gap: 20px;
+            padding: 20px;
+          }
 
-    .canvas {
-      position: relative; width: 864px; height: 764px; flex: none;
-      border: 1px solid var(--border); border-radius: 12px; overflow: hidden;
-      background:
-        radial-gradient(circle at 1px 1px, var(--dot) 1px, transparent 0) 0 0 / 24px 24px,
-        var(--canvas);
-    }
-    .wires { position: absolute; left: 0; top: 0; width: 864px; height: 764px; }
-    .wires path { fill: none; stroke: var(--ink); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
-    .ed[data-theme="dark"] .wires path { stroke: #e3e3e8; }
+          .canvas {
+            position: relative;
+            width: 864px;
+            height: 764px;
+            flex: none;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            overflow: hidden;
+            background: radial-gradient(
+                  circle at 1px 1px,
+                  var(--dot) 1px,
+                  transparent 0
+                )
+                0 0 / 24px 24px,
+              var(--canvas);
+          }
+          .wires {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 864px;
+            height: 764px;
+          }
+          .wires path {
+            fill: none;
+            stroke: var(--ink);
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+          }
+          .ed[data-theme="dark"] .wires path {
+            stroke: #e3e3e8;
+          }
 
-    .box {
-      position: absolute; display: flex; align-items: center; justify-content: center;
-      padding: 0 12px; cursor: pointer;
-      font: inherit; font-size: 14.5px; font-weight: 600; color: #1b1b1f;
-      border: 2px solid var(--ink); border-radius: 5px;
-      text-align: center; line-height: 1.2;
-    }
-    .box[data-on="true"] { outline: 2px dashed var(--accent); outline-offset: 5px; }
-    .handle {
-      position: absolute; width: 9px; height: 9px;
-      background: var(--canvas); border: 1.5px solid var(--accent); border-radius: 2px;
-    }
-    .badges { position: absolute; display: flex; gap: 4px; }
-    .badge {
-      display: inline-flex; align-items: center; gap: 3px;
-      height: 19px; padding: 0 6px;
-      font-size: 11px; font-weight: 700;
-      color: var(--on-accent-container); background: var(--accent-container);
-      border: 1px solid var(--accent); border-radius: 5px;
-      white-space: nowrap;
-    }
+          .box {
+            position: absolute;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0 12px;
+            cursor: pointer;
+            font: inherit;
+            font-size: 14.5px;
+            font-weight: 600;
+            color: #1b1b1f;
+            border: 2px solid var(--ink);
+            border-radius: 5px;
+            text-align: center;
+            line-height: 1.2;
+          }
+          .box[data-on="true"] {
+            outline: 2px dashed var(--accent);
+            outline-offset: 5px;
+          }
+          .handle {
+            position: absolute;
+            width: 9px;
+            height: 9px;
+            background: var(--canvas);
+            border: 1.5px solid var(--accent);
+            border-radius: 2px;
+          }
+          .badges {
+            position: absolute;
+            display: flex;
+            gap: 4px;
+          }
+          .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 3px;
+            height: 19px;
+            padding: 0 6px;
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--on-accent-container);
+            background: var(--accent-container);
+            border: 1px solid var(--accent);
+            border-radius: 5px;
+            white-space: nowrap;
+          }
 
-    .pop {
-      position: absolute; z-index: 20; width: 268px;
-      display: flex; flex-direction: column; gap: 10px;
-      padding: 12px;
-      background: var(--surface); border: 1px solid var(--border-strong); border-radius: 12px;
-      box-shadow: var(--island-strong);
-    }
-    .pop-head { display: flex; align-items: center; gap: 8px; }
-    .pop-kicker { flex: 1; font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
-    .pop-x { width: 22px; height: 22px; display: flex; align-items: center; justify-content: center; padding: 0; border: 0; border-radius: 5px; background: transparent; color: var(--muted); cursor: pointer; }
-    .pop-x:hover { background: var(--surface-high); color: var(--text); }
-    .pop-title { font-size: 14.5px; font-weight: 700; letter-spacing: -0.01em; }
-    .chips { display: flex; flex-wrap: wrap; gap: 5px; }
-    .chip {
-      display: inline-flex; align-items: center; gap: 5px;
-      height: 24px; padding: 0 5px 0 8px;
-      font: inherit; font-size: 12px; font-weight: 600;
-      color: var(--on-accent-container); background: var(--accent-container);
-      border: 1px solid transparent; border-radius: 6px;
-    }
-    .chip-x { width: 15px; height: 15px; display: flex; align-items: center; justify-content: center; padding: 0; border: 0; border-radius: 3px; background: transparent; color: inherit; cursor: pointer; opacity: .6; }
-    .chip-x:hover { opacity: 1; background: rgba(0,0,0,.08); }
-    .add-input {
-      display: flex; align-items: center; gap: 7px;
-      height: 32px; padding: 0 9px;
-      background: var(--bg); border: 1px solid var(--border-strong); border-radius: 8px;
-      color: var(--muted); font-size: 13px;
-    }
-    .sug-label { font-size: 11px; font-weight: 700; letter-spacing: .07em; text-transform: uppercase; color: var(--muted); }
-    .sug { display: flex; flex-wrap: wrap; gap: 5px; }
-    .sug-chip {
-      display: inline-flex; align-items: center; gap: 4px;
-      height: 24px; padding: 0 8px;
-      font: inherit; font-size: 12px; font-weight: 600;
-      color: var(--muted-dark); background: var(--surface);
-      border: 1px solid var(--border-strong); border-radius: 6px; cursor: pointer;
-    }
-    .sug-chip:hover { border-color: var(--accent); color: var(--accent); }
-    .hash { opacity: .5; font-weight: 700; }
-    .pop-rule { height: 1px; background: var(--border); }
-    .pop-note { font-size: 11.5px; color: var(--muted); line-height: 1.4; }
+          .pop {
+            position: absolute;
+            z-index: 20;
+            width: 268px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            padding: 12px;
+            background: var(--surface);
+            border: 1px solid var(--border-strong);
+            border-radius: 12px;
+            box-shadow: var(--island-strong);
+          }
+          .pop-head {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+          }
+          .pop-kicker {
+            flex: 1;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: var(--muted);
+          }
+          .pop-x {
+            width: 22px;
+            height: 22px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+            border: 0;
+            border-radius: 5px;
+            background: transparent;
+            color: var(--muted);
+            cursor: pointer;
+          }
+          .pop-x:hover {
+            background: var(--surface-high);
+            color: var(--text);
+          }
+          .pop-title {
+            font-size: 14.5px;
+            font-weight: 700;
+            letter-spacing: -0.01em;
+          }
+          .chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+          }
+          .chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            height: 24px;
+            padding: 0 5px 0 8px;
+            font: inherit;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--on-accent-container);
+            background: var(--accent-container);
+            border: 1px solid transparent;
+            border-radius: 6px;
+          }
+          .chip-x {
+            width: 15px;
+            height: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+            border: 0;
+            border-radius: 3px;
+            background: transparent;
+            color: inherit;
+            cursor: pointer;
+            opacity: 0.6;
+          }
+          .chip-x:hover {
+            opacity: 1;
+            background: rgba(0, 0, 0, 0.08);
+          }
+          .add-input {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            height: 32px;
+            padding: 0 9px;
+            background: var(--bg);
+            border: 1px solid var(--border-strong);
+            border-radius: 8px;
+            color: var(--muted);
+            font-size: 13px;
+          }
+          .sug-label {
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.07em;
+            text-transform: uppercase;
+            color: var(--muted);
+          }
+          .sug {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+          }
+          .sug-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            height: 24px;
+            padding: 0 8px;
+            font: inherit;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--muted-dark);
+            background: var(--surface);
+            border: 1px solid var(--border-strong);
+            border-radius: 6px;
+            cursor: pointer;
+          }
+          .sug-chip:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+          }
+          .hash {
+            opacity: 0.5;
+            font-weight: 700;
+          }
+          .pop-rule {
+            height: 1px;
+            background: var(--border);
+          }
+          .pop-note {
+            font-size: 11.5px;
+            color: var(--muted);
+            line-height: 1.4;
+          }
 
-    .panel {
-      flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 16px;
-      padding: 16px; overflow: hidden;
-      background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
-    }
-    .p-label { font-size: 11px; font-weight: 700; letter-spacing: .09em; text-transform: uppercase; color: var(--muted); }
-    .p-sub { font-size: 12.5px; color: var(--muted); line-height: 1.45; }
-    .p-list { display: flex; flex-direction: column; gap: 6px; }
-    .p-row {
-      display: flex; align-items: center; gap: 9px;
-      width: 100%; padding: 8px 10px;
-      font: inherit; text-align: left; color: var(--text);
-      background: transparent; border: 1px solid var(--border); border-radius: 9px; cursor: pointer;
-    }
-    .p-row:hover { background: var(--surface-high); }
-    .p-row[data-on="true"] { border-color: var(--accent); background: var(--accent-container); color: var(--on-accent-container); }
-    .p-swatch { width: 18px; height: 18px; flex: none; border: 1.5px solid var(--ink); border-radius: 3px; }
-    .p-main { flex: 1; min-width: 0; }
-    .p-name { font-size: 13.5px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    .p-tags { font-size: 12px; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    .p-row[data-on="true"] .p-tags { color: var(--on-accent-container); opacity: .8; }
-    .p-rule { height: 1px; background: var(--border); }
-    .p-foot { margin-top: auto; display: flex; flex-direction: column; gap: 8px; padding-top: 14px; border-top: 1px solid var(--border); }
-    .p-code {
-      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-      font-size: 11.5px; line-height: 1.55; color: var(--muted-dark);
-      background: var(--bg); border: 1px solid var(--border); border-radius: 8px;
-      padding: 9px 10px; white-space: pre-wrap;
-    }
-  </style>
-</helmet>
+          .panel {
+            flex: 1;
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            padding: 16px;
+            overflow: hidden;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+          }
+          .p-label {
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.09em;
+            text-transform: uppercase;
+            color: var(--muted);
+          }
+          .p-sub {
+            font-size: 12.5px;
+            color: var(--muted);
+            line-height: 1.45;
+          }
+          .p-list {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+          }
+          .p-row {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            width: 100%;
+            padding: 8px 10px;
+            font: inherit;
+            text-align: left;
+            color: var(--text);
+            background: transparent;
+            border: 1px solid var(--border);
+            border-radius: 9px;
+            cursor: pointer;
+          }
+          .p-row:hover {
+            background: var(--surface-high);
+          }
+          .p-row[data-on="true"] {
+            border-color: var(--accent);
+            background: var(--accent-container);
+            color: var(--on-accent-container);
+          }
+          .p-swatch {
+            width: 18px;
+            height: 18px;
+            flex: none;
+            border: 1.5px solid var(--ink);
+            border-radius: 3px;
+          }
+          .p-main {
+            flex: 1;
+            min-width: 0;
+          }
+          .p-name {
+            font-size: 13.5px;
+            font-weight: 600;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+          }
+          .p-tags {
+            font-size: 12px;
+            color: var(--muted);
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+          }
+          .p-row[data-on="true"] .p-tags {
+            color: var(--on-accent-container);
+            opacity: 0.8;
+          }
+          .p-rule {
+            height: 1px;
+            background: var(--border);
+          }
+          .p-foot {
+            margin-top: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            padding-top: 14px;
+            border-top: 1px solid var(--border);
+          }
+          .p-code {
+            font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+            font-size: 11.5px;
+            line-height: 1.55;
+            color: var(--muted-dark);
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 9px 10px;
+            white-space: pre-wrap;
+          }
+        </style>
+      </helmet>
 
-<div class="ed" data-theme="{{theme}}" style="--accent-src: {{accent}}">
-
-  <div class="top">
-    <div>
-      <div class="crumb">
-        <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round">
-          <path d="M2 4.4h4.2l1.2 1.6H14v6.4a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1z"></path>
-        </svg>
-        work / local-first
-      </div>
-      <div class="doc-name">Ingest pipeline</div>
-    </div>
-    <span class="spacer"></span>
-    <button type="button" class="btn" onClick="{{tagWhole}}">
-      <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round">
-        <path d="M7.4 1.8H2.4a.6.6 0 0 0-.6.6v5l6.6 6.6a.9.9 0 0 0 1.3 0l4.3-4.3a.9.9 0 0 0 0-1.3z"></path>
-        <circle cx="5" cy="5" r="1"></circle>
-      </svg>
-      Tag whole drawing
-    </button>
-    <button type="button" class="btn btn-primary">Save</button>
-  </div>
-
-  <div class="body">
-    <div class="canvas">
-      <svg class="wires" viewBox="0 0 864 764">
-        <sc-for list="{{wires}}" as="w" hint-placeholder-count="6">
-          <path d="{{w.d}}"></path>
-        </sc-for>
-      </svg>
-
-      <sc-for list="{{boxes}}" as="b" hint-placeholder-count="7">
-        <button type="button" class="box" data-on="{{b.selected}}" style="{{b.pos}}" onClick="{{b.pick}}">{{b.label}}</button>
-      </sc-for>
-
-      <sc-for list="{{badgeRows}}" as="g" hint-placeholder-count="4">
-        <div class="badges" style="{{g.pos}}">
-          <sc-for list="{{g.tags}}" as="t" hint-placeholder-count="2">
-            <span class="badge"><span class="hash">#</span>{{t}}</span>
-          </sc-for>
-        </div>
-      </sc-for>
-
-      <sc-for list="{{handles}}" as="h" hint-placeholder-count="4">
-        <span class="handle" style="{{h.pos}}"></span>
-      </sc-for>
-
-      <sc-if value="{{hasSel}}" hint-placeholder-val="{{true}}">
-        <div class="pop" style="{{popPos}}">
-          <div class="pop-head">
-            <span class="pop-kicker">Rectangle · tags</span>
-            <button type="button" class="pop-x" onClick="{{clearSel}}" aria-label="Close">
-              <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4.2 4.2l7.6 7.6M11.8 4.2l-7.6 7.6"></path></svg>
-            </button>
+      <div class="ed" data-theme="{{theme}}" style="--accent-src: {{accent}}">
+        <div class="top">
+          <div>
+            <div class="crumb">
+              <svg
+                width="12"
+                height="12"
+                viewBox="0 0 16 16"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.5"
+                stroke-linejoin="round"
+              >
+                <path
+                  d="M2 4.4h4.2l1.2 1.6H14v6.4a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1z"
+                ></path>
+              </svg>
+              work / local-first
+            </div>
+            <div class="doc-name">Ingest pipeline</div>
           </div>
-          <div class="pop-title">{{selLabel}}</div>
-          <div class="chips">
-            <sc-for list="{{selTags}}" as="t" hint-placeholder-count="2">
-              <span class="chip">
-                <span class="hash">#</span>{{t.name}}
-                <button type="button" class="chip-x" onClick="{{t.remove}}" aria-label="Remove tag">
-                  <svg width="9" height="9" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M4.2 4.2l7.6 7.6M11.8 4.2l-7.6 7.6"></path></svg>
-                </button>
-              </span>
+          <span class="spacer"></span>
+          <button type="button" class="btn" onClick="{{tagWhole}}">
+            <svg
+              width="15"
+              height="15"
+              viewBox="0 0 16 16"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.6"
+              stroke-linejoin="round"
+            >
+              <path
+                d="M7.4 1.8H2.4a.6.6 0 0 0-.6.6v5l6.6 6.6a.9.9 0 0 0 1.3 0l4.3-4.3a.9.9 0 0 0 0-1.3z"
+              ></path>
+              <circle cx="5" cy="5" r="1"></circle>
+            </svg>
+            Tag whole drawing
+          </button>
+          <button type="button" class="btn btn-primary">Save</button>
+        </div>
+
+        <div class="body">
+          <div class="canvas">
+            <svg class="wires" viewBox="0 0 864 764">
+              <sc-for list="{{wires}}" as="w" hint-placeholder-count="6">
+                <path d="{{w.d}}"></path>
+              </sc-for>
+            </svg>
+
+            <sc-for list="{{boxes}}" as="b" hint-placeholder-count="7">
+              <button
+                type="button"
+                class="box"
+                data-on="{{b.selected}}"
+                style="{{b.pos}}"
+                onClick="{{b.pick}}"
+              >
+                {{b.label}}
+              </button>
             </sc-for>
-            <sc-if value="{{selNoTags}}" hint-placeholder-val="{{false}}">
-              <span class="pop-note">Not a tag yet.</span>
+
+            <sc-for list="{{badgeRows}}" as="g" hint-placeholder-count="4">
+              <div class="badges" style="{{g.pos}}">
+                <sc-for list="{{g.tags}}" as="t" hint-placeholder-count="2">
+                  <span class="badge"><span class="hash">#</span>{{t}}</span>
+                </sc-for>
+              </div>
+            </sc-for>
+
+            <sc-for list="{{handles}}" as="h" hint-placeholder-count="4">
+              <span class="handle" style="{{h.pos}}"></span>
+            </sc-for>
+
+            <sc-if value="{{hasSel}}" hint-placeholder-val="{{true}}">
+              <div class="pop" style="{{popPos}}">
+                <div class="pop-head">
+                  <span class="pop-kicker">Rectangle · tags</span>
+                  <button
+                    type="button"
+                    class="pop-x"
+                    onClick="{{clearSel}}"
+                    aria-label="Close"
+                  >
+                    <svg
+                      width="12"
+                      height="12"
+                      viewBox="0 0 16 16"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                    >
+                      <path d="M4.2 4.2l7.6 7.6M11.8 4.2l-7.6 7.6"></path>
+                    </svg>
+                  </button>
+                </div>
+                <div class="pop-title">{{selLabel}}</div>
+                <div class="chips">
+                  <sc-for list="{{selTags}}" as="t" hint-placeholder-count="2">
+                    <span class="chip">
+                      <span class="hash">#</span>{{t.name}}
+                      <button
+                        type="button"
+                        class="chip-x"
+                        onClick="{{t.remove}}"
+                        aria-label="Remove tag"
+                      >
+                        <svg
+                          width="9"
+                          height="9"
+                          viewBox="0 0 16 16"
+                          fill="none"
+                          stroke="currentColor"
+                          stroke-width="2.4"
+                          stroke-linecap="round"
+                        >
+                          <path d="M4.2 4.2l7.6 7.6M11.8 4.2l-7.6 7.6"></path>
+                        </svg>
+                      </button>
+                    </span>
+                  </sc-for>
+                  <sc-if value="{{selNoTags}}" hint-placeholder-val="{{false}}">
+                    <span class="pop-note">Not a tag yet.</span>
+                  </sc-if>
+                </div>
+                <div class="add-input">
+                  <svg
+                    width="14"
+                    height="14"
+                    viewBox="0 0 16 16"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.8"
+                    stroke-linecap="round"
+                  >
+                    <path d="M8 3v10M3 8h10"></path>
+                  </svg>
+                  Add a tag…
+                </div>
+                <div class="sug-label">Existing tags</div>
+                <div class="sug">
+                  <sc-for
+                    list="{{suggestions}}"
+                    as="s"
+                    hint-placeholder-count="5"
+                  >
+                    <button type="button" class="sug-chip" onClick="{{s.add}}">
+                      <span class="hash">#</span>{{s.name}}
+                    </button>
+                  </sc-for>
+                </div>
+                <div class="pop-rule"></div>
+                <div class="pop-note">
+                  A box can carry as many tags as you like. Each one becomes an
+                  edge from this box — not the whole file — so the graph
+                  remembers which part of the drawing you meant.
+                </div>
+              </div>
             </sc-if>
           </div>
-          <div class="add-input">
-            <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M8 3v10M3 8h10"></path></svg>
-            Add a tag…
+
+          <div class="panel">
+            <div>
+              <div class="p-label">Whole drawing</div>
+              <div class="chips" style="margin-top: 8px">
+                <sc-for list="{{docTags}}" as="t" hint-placeholder-count="2">
+                  <span class="chip"><span class="hash">#</span>{{t}}</span>
+                </sc-for>
+              </div>
+            </div>
+
+            <div class="p-rule"></div>
+
+            <div>
+              <div class="p-label">Boxes marked as tags</div>
+              <div class="p-sub" style="margin-top: 5px">{{taggedSummary}}</div>
+            </div>
+            <div class="p-list">
+              <sc-for list="{{taggedBoxes}}" as="b" hint-placeholder-count="4">
+                <button
+                  type="button"
+                  class="p-row"
+                  data-on="{{b.selected}}"
+                  onClick="{{b.pick}}"
+                >
+                  <span class="p-swatch" style="background: {{b.fill}}"></span>
+                  <span class="p-main">
+                    <span class="p-name">{{b.label}}</span>
+                    <span class="p-tags">{{b.tagLine}}</span>
+                  </span>
+                </button>
+              </sc-for>
+            </div>
+
+            <div class="p-foot">
+              <div class="p-label">What this writes</div>
+              <div class="p-code">{{graphJson}}</div>
+            </div>
           </div>
-          <div class="sug-label">Existing tags</div>
-          <div class="sug">
-            <sc-for list="{{suggestions}}" as="s" hint-placeholder-count="5">
-              <button type="button" class="sug-chip" onClick="{{s.add}}"><span class="hash">#</span>{{s.name}}</button>
-            </sc-for>
-          </div>
-          <div class="pop-rule"></div>
-          <div class="pop-note">A box can carry as many tags as you like. Each one becomes an edge from this box — not the whole file — so the graph remembers which part of the drawing you meant.</div>
-        </div>
-      </sc-if>
-    </div>
-
-    <div class="panel">
-      <div>
-        <div class="p-label">Whole drawing</div>
-        <div class="chips" style="margin-top: 8px;">
-          <sc-for list="{{docTags}}" as="t" hint-placeholder-count="2">
-            <span class="chip"><span class="hash">#</span>{{t}}</span>
-          </sc-for>
         </div>
       </div>
+    </x-dc>
 
-      <div class="p-rule"></div>
+    <script
+      data-dc-script
+      data-props='{"theme":{"editor":"enum","options":["light","dark"],"default":"light","section":"Theme"},"accent":{"editor":"color","default":"#6965db","options":["#6965db","#1971c2","#2f9e44","#e03131"],"section":"Theme"},"$preview":{"width":1240,"height":880}}'
+    >
+      class Component extends DCLogic {
+        constructor(props) {
+          super(props);
+          this.state = {
+            sel: "b3",
+            tags: {
+              b1: ["ingest"],
+              b3: ["broken-code", "error-path"],
+              b5: ["storage", "graph"],
+              b7: ["mcp"],
+            },
+          };
+        }
 
-      <div>
-        <div class="p-label">Boxes marked as tags</div>
-        <div class="p-sub" style="margin-top: 5px;">{{taggedSummary}}</div>
-      </div>
-      <div class="p-list">
-        <sc-for list="{{taggedBoxes}}" as="b" hint-placeholder-count="4">
-          <button type="button" class="p-row" data-on="{{b.selected}}" onClick="{{b.pick}}">
-            <span class="p-swatch" style="background: {{b.fill}}"></span>
-            <span class="p-main">
-              <span class="p-name">{{b.label}}</span>
-              <span class="p-tags">{{b.tagLine}}</span>
-            </span>
-          </button>
-        </sc-for>
-      </div>
+        boxDefs() {
+          return [
+            {
+              id: "b1",
+              label: "File watcher",
+              x: 48,
+              y: 56,
+              w: 168,
+              h: 74,
+              fill: "#a5d8ff",
+              rot: "-0.6deg",
+            },
+            {
+              id: "b2",
+              label: "Parser",
+              x: 300,
+              y: 56,
+              w: 150,
+              h: 74,
+              fill: "#ffec99",
+              rot: "0.5deg",
+            },
+            {
+              id: "b3",
+              label: "Broken code path",
+              x: 540,
+              y: 48,
+              w: 200,
+              h: 82,
+              fill: "#ffc9c9",
+              rot: "-0.4deg",
+            },
+            {
+              id: "b4",
+              label: "Index writer",
+              x: 300,
+              y: 250,
+              w: 150,
+              h: 74,
+              fill: "#b2f2bb",
+              rot: "0.4deg",
+            },
+            {
+              id: "b5",
+              label: "Graph store",
+              x: 48,
+              y: 470,
+              w: 186,
+              h: 76,
+              fill: "#e0dfff",
+              rot: "0.6deg",
+            },
+            {
+              id: "b6",
+              label: "FTS5 + vectors",
+              x: 316,
+              y: 470,
+              w: 186,
+              h: 76,
+              fill: "#a5d8ff",
+              rot: "-0.5deg",
+            },
+            {
+              id: "b7",
+              label: "MCP surface",
+              x: 580,
+              y: 330,
+              w: 172,
+              h: 74,
+              fill: "#ffec99",
+              rot: "0.5deg",
+            },
+          ];
+        }
 
-      <div class="p-foot">
-        <div class="p-label">What this writes</div>
-        <div class="p-code">{{graphJson}}</div>
-      </div>
-    </div>
-  </div>
-</div>
-</x-dc>
+        renderVals() {
+          const st = this.state;
+          const defs = this.boxDefs();
+          const vocabulary = [
+            "ingest",
+            "storage",
+            "graph",
+            "search",
+            "mcp",
+            "broken-code",
+            "error-path",
+            "decision",
+          ];
 
-<script data-dc-script data-props='{"theme":{"editor":"enum","options":["light","dark"],"default":"light","section":"Theme"},"accent":{"editor":"color","default":"#6965db","options":["#6965db","#1971c2","#2f9e44","#e03131"],"section":"Theme"},"$preview":{"width":1240,"height":880}}'>
-class Component extends DCLogic {
-  constructor(props) {
-    super(props);
-    this.state = {
-      sel: "b3",
-      tags: {
-        b1: ["ingest"],
-        b3: ["broken-code", "error-path"],
-        b5: ["storage", "graph"],
-        b7: ["mcp"]
+          const sel = defs.filter((b) => b.id === st.sel)[0] || null;
+          const tagsOf = (id) => st.tags[id] || [];
+
+          const setTags = (id, next) => {
+            const t = Object.assign({}, st.tags);
+            t[id] = next;
+            this.setState({ tags: t });
+          };
+
+          const boxes = defs.map((b) => ({
+            label: b.label,
+            selected: st.sel === b.id,
+            pos:
+              "left: " +
+              b.x +
+              "px; top: " +
+              b.y +
+              "px; width: " +
+              b.w +
+              "px; height: " +
+              b.h +
+              "px; background: " +
+              b.fill +
+              "; transform: rotate(" +
+              b.rot +
+              ")",
+            pick: () => this.setState({ sel: st.sel === b.id ? null : b.id }),
+          }));
+
+          const badgeRows = defs
+            .filter((b) => tagsOf(b.id).length > 0)
+            .map((b) => ({
+              pos: "left: " + b.x + "px; top: " + (b.y + b.h + 7) + "px",
+              tags: tagsOf(b.id),
+            }));
+
+          const handles = [];
+          if (sel) {
+            const pad = 5;
+            const pts = [
+              [sel.x - pad, sel.y - pad],
+              [sel.x + sel.w + pad, sel.y - pad],
+              [sel.x - pad, sel.y + sel.h + pad],
+              [sel.x + sel.w + pad, sel.y + sel.h + pad],
+            ];
+            pts.forEach((p) => {
+              handles.push({
+                pos: "left: " + (p[0] - 4) + "px; top: " + (p[1] - 4) + "px",
+              });
+            });
+          }
+
+          const taggedBoxes = defs
+            .filter((b) => tagsOf(b.id).length > 0)
+            .map((b) => ({
+              label: b.label,
+              fill: b.fill,
+              selected: st.sel === b.id,
+              tagLine: tagsOf(b.id)
+                .map((t) => "#" + t)
+                .join("  "),
+              pick: () => this.setState({ sel: b.id }),
+            }));
+
+          const selTags = sel
+            ? tagsOf(sel.id).map((name) => ({
+                name: name,
+                remove: () =>
+                  setTags(
+                    sel.id,
+                    tagsOf(sel.id).filter((x) => x !== name),
+                  ),
+              }))
+            : [];
+
+          const suggestions = sel
+            ? vocabulary
+                .filter((v) => tagsOf(sel.id).indexOf(v) === -1)
+                .slice(0, 6)
+                .map((v) => ({
+                  name: v,
+                  add: () => setTags(sel.id, tagsOf(sel.id).concat([v])),
+                }))
+            : [];
+
+          // popover sits below the selected box, nudged to stay inside the canvas
+          let popPos = "left: 540px; top: 150px";
+          if (sel) {
+            let px = sel.x;
+            if (px + 268 > 856) {
+              px = 856 - 268;
+            }
+            let py = sel.y + sel.h + 34;
+            if (py + 330 > 756) {
+              py = Math.max(8, sel.y - 338);
+            }
+            popPos = "left: " + px + "px; top: " + py + "px";
+          }
+
+          const totalPart = defs.filter((b) => tagsOf(b.id).length > 0).length;
+          const totalTags = defs.reduce((n, b) => n + tagsOf(b.id).length, 0);
+
+          const json =
+            sel && tagsOf(sel.id).length
+              ? '{\n  "scene": "ingest-pipeline",\n  "element": "' +
+                sel.id +
+                '",\n  "tags": ' +
+                JSON.stringify(tagsOf(sel.id)) +
+                "\n}"
+              : '{\n  "scene": "ingest-pipeline",\n  "element": null,\n  "tags": []\n}';
+
+          return {
+            theme: this.props.theme || "light",
+            accent: this.props.accent || "#6965db",
+            wires: [
+              { d: "M216 93 L296 93 M290 88 L297 93 L290 98" },
+              { d: "M450 93 L536 90 M530 85 L537 90 L530 95" },
+              { d: "M375 130 L375 246 M370 240 L375 247 L380 240" },
+              { d: "M640 130 L640 200 L375 200 L375 246" },
+              { d: "M340 324 L180 324 L180 466 M175 460 L180 467 L185 460" },
+              { d: "M400 324 L409 466 M404 460 L410 467 L414 460" },
+              { d: "M450 300 L578 348 M572 342 L580 349 L572 353" },
+            ],
+            boxes: boxes,
+            badgeRows: badgeRows,
+            handles: handles,
+            hasSel: sel !== null,
+            selLabel: sel ? sel.label : "",
+            selTags: selTags,
+            selNoTags: sel !== null && tagsOf(sel.id).length === 0,
+            suggestions: suggestions,
+            popPos: popPos,
+            clearSel: () => this.setState({ sel: null }),
+            docTags: ["local-first", "ingest"],
+            tagWhole: () => this.setState({ sel: null }),
+            taggedBoxes: taggedBoxes,
+            taggedSummary:
+              totalPart +
+              " of " +
+              defs.length +
+              " boxes carry tags — " +
+              totalTags +
+              " tags in total. Each is its own node in the graph.",
+            graphJson: json,
+          };
+        }
       }
-    };
-  }
-
-  boxDefs() {
-    return [
-      { id: "b1", label: "File watcher", x: 48, y: 56, w: 168, h: 74, fill: "#a5d8ff", rot: "-0.6deg" },
-      { id: "b2", label: "Parser", x: 300, y: 56, w: 150, h: 74, fill: "#ffec99", rot: "0.5deg" },
-      { id: "b3", label: "Broken code path", x: 540, y: 48, w: 200, h: 82, fill: "#ffc9c9", rot: "-0.4deg" },
-      { id: "b4", label: "Index writer", x: 300, y: 250, w: 150, h: 74, fill: "#b2f2bb", rot: "0.4deg" },
-      { id: "b5", label: "Graph store", x: 48, y: 470, w: 186, h: 76, fill: "#e0dfff", rot: "0.6deg" },
-      { id: "b6", label: "FTS5 + vectors", x: 316, y: 470, w: 186, h: 76, fill: "#a5d8ff", rot: "-0.5deg" },
-      { id: "b7", label: "MCP surface", x: 580, y: 330, w: 172, h: 74, fill: "#ffec99", rot: "0.5deg" }
-    ];
-  }
-
-  renderVals() {
-    const st = this.state;
-    const defs = this.boxDefs();
-    const vocabulary = ["ingest", "storage", "graph", "search", "mcp", "broken-code", "error-path", "decision"];
-
-    const sel = defs.filter((b) => b.id === st.sel)[0] || null;
-    const tagsOf = (id) => st.tags[id] || [];
-
-    const setTags = (id, next) => {
-      const t = Object.assign({}, st.tags);
-      t[id] = next;
-      this.setState({ tags: t });
-    };
-
-    const boxes = defs.map((b) => ({
-      label: b.label,
-      selected: st.sel === b.id,
-      pos: "left: " + b.x + "px; top: " + b.y + "px; width: " + b.w + "px; height: " + b.h +
-           "px; background: " + b.fill + "; transform: rotate(" + b.rot + ")",
-      pick: () => this.setState({ sel: st.sel === b.id ? null : b.id })
-    }));
-
-    const badgeRows = defs
-      .filter((b) => tagsOf(b.id).length > 0)
-      .map((b) => ({
-        pos: "left: " + b.x + "px; top: " + (b.y + b.h + 7) + "px",
-        tags: tagsOf(b.id)
-      }));
-
-    const handles = [];
-    if (sel) {
-      const pad = 5;
-      const pts = [
-        [sel.x - pad, sel.y - pad],
-        [sel.x + sel.w + pad, sel.y - pad],
-        [sel.x - pad, sel.y + sel.h + pad],
-        [sel.x + sel.w + pad, sel.y + sel.h + pad]
-      ];
-      pts.forEach((p) => {
-        handles.push({ pos: "left: " + (p[0] - 4) + "px; top: " + (p[1] - 4) + "px" });
-      });
-    }
-
-    const taggedBoxes = defs
-      .filter((b) => tagsOf(b.id).length > 0)
-      .map((b) => ({
-        label: b.label,
-        fill: b.fill,
-        selected: st.sel === b.id,
-        tagLine: tagsOf(b.id).map((t) => "#" + t).join("  "),
-        pick: () => this.setState({ sel: b.id })
-      }));
-
-    const selTags = sel
-      ? tagsOf(sel.id).map((name) => ({
-          name: name,
-          remove: () => setTags(sel.id, tagsOf(sel.id).filter((x) => x !== name))
-        }))
-      : [];
-
-    const suggestions = sel
-      ? vocabulary
-          .filter((v) => tagsOf(sel.id).indexOf(v) === -1)
-          .slice(0, 6)
-          .map((v) => ({
-            name: v,
-            add: () => setTags(sel.id, tagsOf(sel.id).concat([v]))
-          }))
-      : [];
-
-    // popover sits below the selected box, nudged to stay inside the canvas
-    let popPos = "left: 540px; top: 150px";
-    if (sel) {
-      let px = sel.x;
-      if (px + 268 > 856) { px = 856 - 268; }
-      let py = sel.y + sel.h + 34;
-      if (py + 330 > 756) { py = Math.max(8, sel.y - 338); }
-      popPos = "left: " + px + "px; top: " + py + "px";
-    }
-
-    const totalPart = defs.filter((b) => tagsOf(b.id).length > 0).length;
-    const totalTags = defs.reduce((n, b) => n + tagsOf(b.id).length, 0);
-
-    const json = sel && tagsOf(sel.id).length
-      ? '{\n  "scene": "ingest-pipeline",\n  "element": "' + sel.id + '",\n  "tags": ' +
-        JSON.stringify(tagsOf(sel.id)) + '\n}'
-      : '{\n  "scene": "ingest-pipeline",\n  "element": null,\n  "tags": []\n}';
-
-    return {
-      theme: this.props.theme || "light",
-      accent: this.props.accent || "#6965db",
-      wires: [
-        { d: "M216 93 L296 93 M290 88 L297 93 L290 98" },
-        { d: "M450 93 L536 90 M530 85 L537 90 L530 95" },
-        { d: "M375 130 L375 246 M370 240 L375 247 L380 240" },
-        { d: "M640 130 L640 200 L375 200 L375 246" },
-        { d: "M340 324 L180 324 L180 466 M175 460 L180 467 L185 460" },
-        { d: "M400 324 L409 466 M404 460 L410 467 L414 460" },
-        { d: "M450 300 L578 348 M572 342 L580 349 L572 353" }
-      ],
-      boxes: boxes,
-      badgeRows: badgeRows,
-      handles: handles,
-      hasSel: sel !== null,
-      selLabel: sel ? sel.label : "",
-      selTags: selTags,
-      selNoTags: sel !== null && tagsOf(sel.id).length === 0,
-      suggestions: suggestions,
-      popPos: popPos,
-      clearSel: () => this.setState({ sel: null }),
-      docTags: ["local-first", "ingest"],
-      tagWhole: () => this.setState({ sel: null }),
-      taggedBoxes: taggedBoxes,
-      taggedSummary: totalPart + " of " + defs.length + " boxes carry tags — " + totalTags + " tags in total. Each is its own node in the graph.",
-      graphJson: json
-    };
-  }
-}
-</script>
-</body>
+    </script>
+  </body>
 </html>

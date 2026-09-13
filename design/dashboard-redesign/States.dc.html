@@ -1,559 +1,1375 @@
-<!doctype html>
+<!DOCTYPE html>
 <html>
-<head>
-  <meta charset="utf-8">
-  <script src="./support.js"></script>
-</head>
-<body>
-<x-dc>
-<helmet>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Assistant:wght@400;500;600;700&display=swap">
-  <style>
-    body { margin: 0; }
-    a { color: #6965db; text-decoration: none; }
-    a:hover { color: #5753d0; }
-    @media (prefers-color-scheme: dark) { a { color: #a8a5ff; } a:hover { color: #bbb8ff; } }
+  <head>
+    <meta charset="utf-8" />
+    <script src="./support.js"></script>
+  </head>
+  <body>
+    <x-dc>
+      <helmet>
+        <link
+          rel="stylesheet"
+          href="https://fonts.googleapis.com/css2?family=Assistant:wght@400;500;600;700&display=swap"
+        />
+        <style>
+          body {
+            margin: 0;
+          }
+          a {
+            color: #6965db;
+            text-decoration: none;
+          }
+          a:hover {
+            color: #5753d0;
+          }
+          @media (prefers-color-scheme: dark) {
+            a {
+              color: #a8a5ff;
+            }
+            a:hover {
+              color: #bbb8ff;
+            }
+          }
 
-    .sheet {
-      --bg: #f6f6f9;
-      --surface: #ffffff;
-      --surface-high: #f1f0ff;
-      --border: #ebebeb;
-      --border-strong: #c5c5d0;
-      --text: #1b1b1f;
-      --muted: #7a7a7a;
-      --muted-dark: #5c5c5c;
-      --accent: var(--accent-src, #6965db);
-      --on-accent: #ffffff;
-      --star: #f5c354;
-      --chip-bg: rgba(255, 255, 255, 0.92);
-      --accent-container: #e0dfff;
-      --on-accent-container: #030064;
-      --danger: #d1413c;
-      --danger-bg: #fff0f0;
-      --warn-bg: #fceeca;
-      --warn-line: #f5c354;
-      --warn-text: #3d3d3d;
-      --sketch-filter: none;
-      --island: 0px 0px 1px 0px rgba(0,0,0,0.17), 0px 0px 3px 0px rgba(0,0,0,0.08), 0px 7px 14px 0px rgba(0,0,0,0.05);
+          .sheet {
+            --bg: #f6f6f9;
+            --surface: #ffffff;
+            --surface-high: #f1f0ff;
+            --border: #ebebeb;
+            --border-strong: #c5c5d0;
+            --text: #1b1b1f;
+            --muted: #7a7a7a;
+            --muted-dark: #5c5c5c;
+            --accent: var(--accent-src, #6965db);
+            --on-accent: #ffffff;
+            --star: #f5c354;
+            --chip-bg: rgba(255, 255, 255, 0.92);
+            --accent-container: #e0dfff;
+            --on-accent-container: #030064;
+            --danger: #d1413c;
+            --danger-bg: #fff0f0;
+            --warn-bg: #fceeca;
+            --warn-line: #f5c354;
+            --warn-text: #3d3d3d;
+            --sketch-filter: none;
+            --island: 0px 0px 1px 0px rgba(0, 0, 0, 0.17),
+              0px 0px 3px 0px rgba(0, 0, 0, 0.08),
+              0px 7px 14px 0px rgba(0, 0, 0, 0.05);
 
-      width: 1240px;
-      min-height: 2060px;
-      display: flex;
-      flex-direction: column;
-      gap: 34px;
-      padding: 38px 40px 44px;
-      background: var(--bg);
-      color: var(--text);
-      font-family: Assistant, system-ui, BlinkMacSystemFont, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-      font-size: 14px;
-      -webkit-font-smoothing: antialiased;
-    }
-    .sheet * { box-sizing: border-box; }
+            width: 1240px;
+            min-height: 2060px;
+            display: flex;
+            flex-direction: column;
+            gap: 34px;
+            padding: 38px 40px 44px;
+            background: var(--bg);
+            color: var(--text);
+            font-family: Assistant, system-ui, BlinkMacSystemFont, -apple-system,
+              "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            font-size: 14px;
+            -webkit-font-smoothing: antialiased;
+          }
+          .sheet * {
+            box-sizing: border-box;
+          }
 
-    .sheet[data-theme="dark"] {
-      --bg: #18181b;
-      --surface: #232329;
-      --surface-high: #2e2d39;
-      --border: #2e2e2e;
-      --border-strong: #46464f;
-      --text: #e3e3e8;
-      --muted: #999999;
-      --muted-dark: #b8b8b8;
-      --accent: color-mix(in oklab, var(--accent-src, #6965db) 60%, #ffffff);
-      --on-accent: #1e1e1e;
-      --star: #f5c354;
-      --chip-bg: rgba(35, 35, 41, 0.92);
-      --accent-container: #403e6a;
-      --on-accent-container: #e0dfff;
-      --danger: #ffa8a5;
-      --danger-bg: #2a1a1a;
-      --warn-bg: #3a3020;
-      --warn-text: #ebebeb;
-      --sketch-filter: invert(93%) hue-rotate(180deg);
-    }
+          .sheet[data-theme="dark"] {
+            --bg: #18181b;
+            --surface: #232329;
+            --surface-high: #2e2d39;
+            --border: #2e2e2e;
+            --border-strong: #46464f;
+            --text: #e3e3e8;
+            --muted: #999999;
+            --muted-dark: #b8b8b8;
+            --accent: color-mix(
+              in oklab,
+              var(--accent-src, #6965db) 60%,
+              #ffffff
+            );
+            --on-accent: #1e1e1e;
+            --star: #f5c354;
+            --chip-bg: rgba(35, 35, 41, 0.92);
+            --accent-container: #403e6a;
+            --on-accent-container: #e0dfff;
+            --danger: #ffa8a5;
+            --danger-bg: #2a1a1a;
+            --warn-bg: #3a3020;
+            --warn-text: #ebebeb;
+            --sketch-filter: invert(93%) hue-rotate(180deg);
+          }
 
-    .sheet-head { display: flex; flex-direction: column; gap: 3px; }
-    .sheet-title { font-size: 21px; font-weight: 700; letter-spacing: -0.02em; }
-    .sheet-sub { font-size: 14px; color: var(--muted); max-width: 780px; }
-    .sheet code, .panel-text code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.86em; padding: 1px 5px; border-radius: 5px; background: var(--bg); border: 1px solid var(--border); }
+          .sheet-head {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+          }
+          .sheet-title {
+            font-size: 21px;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+          }
+          .sheet-sub {
+            font-size: 14px;
+            color: var(--muted);
+            max-width: 780px;
+          }
+          .sheet code,
+          .panel-text code {
+            font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+            font-size: 0.86em;
+            padding: 1px 5px;
+            border-radius: 5px;
+            background: var(--bg);
+            border: 1px solid var(--border);
+          }
 
-    .sec { display: flex; flex-direction: column; gap: 18px; }
-    .sec-label {
-      font-size: 11.5px; font-weight: 700; letter-spacing: .09em; text-transform: uppercase;
-      color: var(--muted); padding-bottom: 10px;
-      border-bottom: 1px solid var(--border);
-    }
+          .sec {
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+          }
+          .sec-label {
+            font-size: 11.5px;
+            font-weight: 700;
+            letter-spacing: 0.09em;
+            text-transform: uppercase;
+            color: var(--muted);
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border);
+          }
 
-    .strip { display: flex; gap: 16px; }
-    .spec { width: 172px; flex: none; display: flex; flex-direction: column; gap: 2px; }
-    .spec .card, .spec .sk-card { margin-bottom: 7px; }
-    .spec-name { font-size: 12px; font-weight: 700; color: var(--muted-dark); }
-    .spec-note { font-size: 11.5px; color: var(--muted); line-height: 1.35; }
+          .strip {
+            display: flex;
+            gap: 16px;
+          }
+          .spec {
+            width: 172px;
+            flex: none;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+          }
+          .spec .card,
+          .spec .sk-card {
+            margin-bottom: 7px;
+          }
+          .spec-name {
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--muted-dark);
+          }
+          .spec-note {
+            font-size: 11.5px;
+            color: var(--muted);
+            line-height: 1.35;
+          }
 
-    .card {
-      position: relative;
-      display: flex; flex-direction: column;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-    }
-    .card.is-hover { box-shadow: var(--island); border-color: var(--border-strong); transform: translateY(-1px); }
-    .card.is-selected { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent); }
+          .card {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+          }
+          .card.is-hover {
+            box-shadow: var(--island);
+            border-color: var(--border-strong);
+            transform: translateY(-1px);
+          }
+          .card.is-selected {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 2px var(--accent);
+          }
 
-    .thumb {
-      position: relative; width: 100%; aspect-ratio: 1 / 1;
-      display: flex; align-items: center; justify-content: center;
-      border-bottom: 1px solid var(--border);
-      border-radius: 11px 11px 0 0;
-      overflow: hidden;
-      background:
-        repeating-conic-gradient(rgba(128,128,128,0.08) 0% 25%, transparent 0% 50%) 50% / 16px 16px,
-        var(--surface);
-    }
-    .sketch { width: 94%; height: 94%; filter: var(--sketch-filter); }
-    .sketch rect { stroke: #1e1e1e; stroke-width: 1.8; }
-    .sketch path { fill: none; stroke: #1e1e1e; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
-    .thumb-empty { font-size: 12px; color: var(--muted); }
+          .thumb {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 1 / 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-bottom: 1px solid var(--border);
+            border-radius: 11px 11px 0 0;
+            overflow: hidden;
+            background: repeating-conic-gradient(
+                  rgba(128, 128, 128, 0.08) 0% 25%,
+                  transparent 0% 50%
+                )
+                50% / 16px 16px,
+              var(--surface);
+          }
+          .sketch {
+            width: 94%;
+            height: 94%;
+            filter: var(--sketch-filter);
+          }
+          .sketch rect {
+            stroke: #1e1e1e;
+            stroke-width: 1.8;
+          }
+          .sketch path {
+            fill: none;
+            stroke: #1e1e1e;
+            stroke-width: 1.8;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+          }
+          .thumb-empty {
+            font-size: 12px;
+            color: var(--muted);
+          }
 
-    .pick {
-      position: absolute; top: 8px; left: 8px;
-      width: 22px; height: 22px;
-      display: flex; align-items: center; justify-content: center;
-      border: 1px solid var(--border-strong); border-radius: 6px;
-      background: var(--chip-bg); color: transparent;
-    }
-    .pick.is-on { background: var(--accent); border-color: var(--accent); color: #fff; }
-    .star {
-      position: absolute; top: 8px; right: 8px;
-      width: 24px; height: 24px;
-      display: flex; align-items: center; justify-content: center;
-      border-radius: 6px;
-      background: var(--chip-bg); color: var(--muted);
-      box-shadow: 0 1px 2px rgba(0,0,0,.1);
-    }
-    .star.is-on { color: var(--star); }
-    .star.is-on svg { fill: var(--star); }
-    .more {
-      width: 22px; height: 20px; flex: none; margin-top: 1px;
-      display: flex; align-items: center; justify-content: center;
-      border-radius: 5px; color: var(--muted);
-    }
-    .more.is-on { background: var(--surface-high); color: var(--text); }
+          .pick {
+            position: absolute;
+            top: 8px;
+            left: 8px;
+            width: 22px;
+            height: 22px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid var(--border-strong);
+            border-radius: 6px;
+            background: var(--chip-bg);
+            color: transparent;
+          }
+          .pick.is-on {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: #fff;
+          }
+          .star {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 6px;
+            background: var(--chip-bg);
+            color: var(--muted);
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+          }
+          .star.is-on {
+            color: var(--star);
+          }
+          .star.is-on svg {
+            fill: var(--star);
+          }
+          .more {
+            width: 22px;
+            height: 20px;
+            flex: none;
+            margin-top: 1px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 5px;
+            color: var(--muted);
+          }
+          .more.is-on {
+            background: var(--surface-high);
+            color: var(--text);
+          }
 
-    .body { padding: 10px 12px 12px; display: flex; flex-direction: column; gap: 5px; }
-    .title-row { display: flex; align-items: flex-start; gap: 6px; }
-    .title {
-      flex: 1; min-width: 0;
-      font-size: 14.5px; font-weight: 600; letter-spacing: -0.005em;
-      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-    }
-    .title.is-hover { color: var(--accent); }
-    .desc {
-      font-size: 12.5px; color: var(--muted); line-height: 1.4;
-      display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
-      min-height: 35px;
-    }
-    .meta { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; font-size: 12px; color: var(--muted); }
-    .meta-dot { width: 3px; height: 3px; border-radius: 50%; background: currentColor; opacity: .5; }
-    .pill { display: inline-flex; align-items: center; gap: 5px; height: 19px; padding: 0 7px; font-size: 11.5px; font-weight: 600; border-radius: 999px; }
-    .pill-cat { background: var(--accent-container); color: var(--on-accent-container); }
-    .pill-temp { background: var(--warn-bg); color: var(--warn-text); }
+          .body {
+            padding: 10px 12px 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+          }
+          .title-row {
+            display: flex;
+            align-items: flex-start;
+            gap: 6px;
+          }
+          .title {
+            flex: 1;
+            min-width: 0;
+            font-size: 14.5px;
+            font-weight: 600;
+            letter-spacing: -0.005em;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+          }
+          .title.is-hover {
+            color: var(--accent);
+          }
+          .desc {
+            font-size: 12.5px;
+            color: var(--muted);
+            line-height: 1.4;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            min-height: 35px;
+          }
+          .meta {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex-wrap: wrap;
+            font-size: 12px;
+            color: var(--muted);
+          }
+          .meta-dot {
+            width: 3px;
+            height: 3px;
+            border-radius: 50%;
+            background: currentColor;
+            opacity: 0.5;
+          }
+          .pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            height: 19px;
+            padding: 0 7px;
+            font-size: 11.5px;
+            font-weight: 600;
+            border-radius: 999px;
+          }
+          .pill-cat {
+            background: var(--accent-container);
+            color: var(--on-accent-container);
+          }
+          .pill-temp {
+            background: var(--warn-bg);
+            color: var(--warn-text);
+          }
 
-    .vocab { display: flex; gap: 20px; flex-wrap: wrap; }
-    .voc { width: 212px; display: flex; flex-direction: column; gap: 2px; }
-    .voc-demo {
-      display: flex; align-items: center; min-height: 52px; padding: 0 14px; margin-bottom: 7px;
-      background: var(--surface); border: 1px solid var(--border); border-radius: 10px;
-    }
-    .crumb { display: inline-flex; align-items: center; gap: 5px; font-size: 11.5px; color: var(--muted); }
-    .tag {
-      display: inline-flex; align-items: center; gap: 4px;
-      height: 20px; padding: 0 7px;
-      font-size: 11.5px; font-weight: 600;
-      color: var(--muted-dark); background: var(--bg);
-      border: 1px solid var(--border-strong); border-radius: 6px;
-    }
-    .tag[data-scope="part"] { border-style: dashed; }
-    .tag-hash { opacity: .5; font-weight: 700; }
-    .voc-dot { width: 8px; height: 8px; border-radius: 50%; }
-    .pill-arch { background: var(--warn-bg); color: var(--warn-text); gap: 7px; }
-    .arch-mark { font-size: 10px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; opacity: .75; }
+          .vocab {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+          }
+          .voc {
+            width: 212px;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+          }
+          .voc-demo {
+            display: flex;
+            align-items: center;
+            min-height: 52px;
+            padding: 0 14px;
+            margin-bottom: 7px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+          }
+          .crumb {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 11.5px;
+            color: var(--muted);
+          }
+          .tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            height: 20px;
+            padding: 0 7px;
+            font-size: 11.5px;
+            font-weight: 600;
+            color: var(--muted-dark);
+            background: var(--bg);
+            border: 1px solid var(--border-strong);
+            border-radius: 6px;
+          }
+          .tag[data-scope="part"] {
+            border-style: dashed;
+          }
+          .tag-hash {
+            opacity: 0.5;
+            font-weight: 700;
+          }
+          .voc-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+          }
+          .pill-arch {
+            background: var(--warn-bg);
+            color: var(--warn-text);
+            gap: 7px;
+          }
+          .arch-mark {
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            opacity: 0.75;
+          }
 
-    /* empty / error panels */
-    .panels { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; }
-    .panel {
-      display: flex; flex-direction: column; align-items: center; justify-content: center;
-      gap: 12px; text-align: center;
-      min-height: 244px; padding: 28px 26px;
-      background: var(--surface); border: 1px solid var(--border); border-radius: 14px;
-    }
-    .panel-art { color: var(--muted); opacity: .55; }
-    .panel-art.is-warn { color: var(--danger); opacity: .8; }
-    .panel-title { font-size: 16px; font-weight: 700; letter-spacing: -0.01em; }
-    .panel-text { font-size: 13.5px; color: var(--muted); line-height: 1.45; max-width: 280px; }
-    .panel-code {
-      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-      font-size: 12px; color: var(--muted-dark);
-      background: var(--bg); border: 1px solid var(--border); border-radius: 7px;
-      padding: 5px 9px;
-    }
-    .btn {
-      display: inline-flex; align-items: center; justify-content: center; gap: 7px;
-      height: 32px; padding: 0 13px;
-      font: inherit; font-size: 13.5px; font-weight: 600;
-      color: var(--text); background: var(--surface);
-      border: 1px solid var(--border-strong); border-radius: 8px; cursor: pointer;
-    }
-    .btn:hover { background: var(--surface-high); border-color: var(--accent); }
-    .btn-primary { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+          /* empty / error panels */
+          .panels {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 20px;
+          }
+          .panel {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            text-align: center;
+            min-height: 244px;
+            padding: 28px 26px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+          }
+          .panel-art {
+            color: var(--muted);
+            opacity: 0.55;
+          }
+          .panel-art.is-warn {
+            color: var(--danger);
+            opacity: 0.8;
+          }
+          .panel-title {
+            font-size: 16px;
+            font-weight: 700;
+            letter-spacing: -0.01em;
+          }
+          .panel-text {
+            font-size: 13.5px;
+            color: var(--muted);
+            line-height: 1.45;
+            max-width: 280px;
+          }
+          .panel-code {
+            font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+            font-size: 12px;
+            color: var(--muted-dark);
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 7px;
+            padding: 5px 9px;
+          }
+          .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 7px;
+            height: 32px;
+            padding: 0 13px;
+            font: inherit;
+            font-size: 13.5px;
+            font-weight: 600;
+            color: var(--text);
+            background: var(--surface);
+            border: 1px solid var(--border-strong);
+            border-radius: 8px;
+            cursor: pointer;
+          }
+          .btn:hover {
+            background: var(--surface-high);
+            border-color: var(--accent);
+          }
+          .btn-primary {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: var(--on-accent);
+          }
 
-    /* skeleton */
-    .sk-card { display: flex; flex-direction: column; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
-    .sk-thumb { width: 100%; aspect-ratio: 4 / 3; background: var(--surface-high); }
-    .sk-body { padding: 12px; display: flex; flex-direction: column; gap: 8px; }
-    .sk-line { height: 9px; border-radius: 5px; background: var(--surface-high); }
+          /* skeleton */
+          .sk-card {
+            display: flex;
+            flex-direction: column;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            overflow: hidden;
+          }
+          .sk-thumb {
+            width: 100%;
+            aspect-ratio: 4 / 3;
+            background: var(--surface-high);
+          }
+          .sk-body {
+            padding: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+          }
+          .sk-line {
+            height: 9px;
+            border-radius: 5px;
+            background: var(--surface-high);
+          }
 
-    /* tokens */
-    .tok-row { display: flex; gap: 26px; flex-wrap: wrap; }
-    .tok-group { display: flex; flex-direction: column; gap: 9px; }
-    .tok-group-name { font-size: 11.5px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
-    .swatches { display: flex; gap: 8px; }
-    .sw { width: 76px; }
-    .sw-chip { height: 42px; border-radius: 8px; border: 1px solid rgba(0,0,0,.08); }
-    .sw { display: flex; flex-direction: column; gap: 2px; }
-    .sw-name { font-size: 10.5px; font-weight: 600; color: var(--muted-dark); }
-    .sw-hex { font-size: 10px; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; color: var(--muted); }
+          /* tokens */
+          .tok-row {
+            display: flex;
+            gap: 26px;
+            flex-wrap: wrap;
+          }
+          .tok-group {
+            display: flex;
+            flex-direction: column;
+            gap: 9px;
+          }
+          .tok-group-name {
+            font-size: 11.5px;
+            font-weight: 700;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            color: var(--muted);
+          }
+          .swatches {
+            display: flex;
+            gap: 8px;
+          }
+          .sw {
+            width: 76px;
+          }
+          .sw-chip {
+            height: 42px;
+            border-radius: 8px;
+            border: 1px solid rgba(0, 0, 0, 0.08);
+          }
+          .sw {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+          }
+          .sw-name {
+            font-size: 10.5px;
+            font-weight: 600;
+            color: var(--muted-dark);
+          }
+          .sw-hex {
+            font-size: 10px;
+            font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+            color: var(--muted);
+          }
 
-    .ramp { display: flex; flex-direction: column; gap: 7px; }
-    .ramp-row { display: flex; align-items: baseline; gap: 14px; }
-    .ramp-key { width: 118px; flex: none; font-size: 10.5px; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; color: var(--muted); }
-  </style>
-</helmet>
+          .ramp {
+            display: flex;
+            flex-direction: column;
+            gap: 7px;
+          }
+          .ramp-row {
+            display: flex;
+            align-items: baseline;
+            gap: 14px;
+          }
+          .ramp-key {
+            width: 118px;
+            flex: none;
+            font-size: 10.5px;
+            font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+            color: var(--muted);
+          }
+        </style>
+      </helmet>
 
-<div class="sheet" data-theme="{{theme}}" style="--accent-src: {{accent}}">
-
-  <div class="sheet-head">
-    <div class="sheet-title">Dashboard — states &amp; tokens</div>
-    <div class="sheet-sub">Card anatomy, the states it has to survive, and the values everything is built from. Every colour and size here is lifted from <code>packages/excalidraw/css/theme.scss</code>, so the library page and the editor stay one product.</div>
-  </div>
-
-  <div class="sec">
-    <div class="sec-label">Scene card · states</div>
-    <div class="strip">
-
-      <div class="spec">
-        <div class="card">
-          <div class="thumb">
-            <svg class="sketch" viewBox="0 0 200 150" preserveAspectRatio="xMidYMid meet">
-              <rect x="12" y="52" width="48" height="34" fill="#a5d8ff" rx="3" transform="rotate(-0.7 36 69)"></rect>
-              <rect x="76" y="52" width="48" height="34" fill="#ffec99" rx="3" transform="rotate(0.6 100 69)"></rect>
-              <rect x="140" y="52" width="48" height="34" fill="#b2f2bb" rx="3" transform="rotate(-0.4 164 69)"></rect>
-              <path d="M62 69 L74 69 M70 65 L74 69 L70 73"></path>
-              <path d="M126 69 L138 69 M134 65 L138 69 L134 73"></path>
-            </svg>
+      <div
+        class="sheet"
+        data-theme="{{theme}}"
+        style="--accent-src: {{accent}}"
+      >
+        <div class="sheet-head">
+          <div class="sheet-title">Dashboard — states &amp; tokens</div>
+          <div class="sheet-sub">
+            Card anatomy, the states it has to survive, and the values
+            everything is built from. Every colour and size here is lifted from
+            <code>packages/excalidraw/css/theme.scss</code>, so the library page
+            and the editor stay one product.
           </div>
-          <div class="body">
-            <div class="title-row"><div class="title">Local-first architecture</div></div>
-            <div class="desc">One origin on :3056 — editor, REST API and MCP served by the same Node process.</div>
-            <div class="meta">
-              <span class="pill pill-cat">architecture</span>
-              <span class="meta-dot"></span><span>34 elements</span>
+        </div>
+
+        <div class="sec">
+          <div class="sec-label">Scene card · states</div>
+          <div class="strip">
+            <div class="spec">
+              <div class="card">
+                <div class="thumb">
+                  <svg
+                    class="sketch"
+                    viewBox="0 0 200 150"
+                    preserveAspectRatio="xMidYMid meet"
+                  >
+                    <rect
+                      x="12"
+                      y="52"
+                      width="48"
+                      height="34"
+                      fill="#a5d8ff"
+                      rx="3"
+                      transform="rotate(-0.7 36 69)"
+                    ></rect>
+                    <rect
+                      x="76"
+                      y="52"
+                      width="48"
+                      height="34"
+                      fill="#ffec99"
+                      rx="3"
+                      transform="rotate(0.6 100 69)"
+                    ></rect>
+                    <rect
+                      x="140"
+                      y="52"
+                      width="48"
+                      height="34"
+                      fill="#b2f2bb"
+                      rx="3"
+                      transform="rotate(-0.4 164 69)"
+                    ></rect>
+                    <path d="M62 69 L74 69 M70 65 L74 69 L70 73"></path>
+                    <path d="M126 69 L138 69 M134 65 L138 69 L134 73"></path>
+                  </svg>
+                </div>
+                <div class="body">
+                  <div class="title-row">
+                    <div class="title">Local-first architecture</div>
+                  </div>
+                  <div class="desc">
+                    One origin on :3056 — editor, REST API and MCP served by the
+                    same Node process.
+                  </div>
+                  <div class="meta">
+                    <span class="pill pill-cat">architecture</span>
+                    <span class="meta-dot"></span><span>34 elements</span>
+                  </div>
+                </div>
+              </div>
+              <div class="spec-name">Default</div>
+              <div class="spec-note">
+                Actions hidden. Title, one clamped description, one meta line.
+              </div>
+            </div>
+
+            <div class="spec">
+              <div class="card is-hover">
+                <div class="thumb">
+                  <svg
+                    class="sketch"
+                    viewBox="0 0 200 150"
+                    preserveAspectRatio="xMidYMid meet"
+                  >
+                    <rect
+                      x="74"
+                      y="16"
+                      width="52"
+                      height="30"
+                      fill="#e0dfff"
+                      rx="3"
+                      transform="rotate(0.5 100 31)"
+                    ></rect>
+                    <rect
+                      x="14"
+                      y="96"
+                      width="48"
+                      height="30"
+                      fill="#ffc9c9"
+                      rx="3"
+                      transform="rotate(-0.8 38 111)"
+                    ></rect>
+                    <rect
+                      x="76"
+                      y="96"
+                      width="48"
+                      height="30"
+                      fill="#b2f2bb"
+                      rx="3"
+                      transform="rotate(0.4 100 111)"
+                    ></rect>
+                    <rect
+                      x="138"
+                      y="96"
+                      width="48"
+                      height="30"
+                      fill="#a5d8ff"
+                      rx="3"
+                      transform="rotate(-0.5 162 111)"
+                    ></rect>
+                    <path
+                      d="M100 48 L100 70 L38 70 L38 92 M34 88 L38 93 L42 88"
+                    ></path>
+                    <path d="M100 48 L100 92 M96 88 L100 93 L104 88"></path>
+                    <path
+                      d="M100 48 L100 70 L162 70 L162 92 M158 88 L162 93 L166 88"
+                    ></path>
+                  </svg>
+                  <span class="pick">
+                    <svg
+                      width="13"
+                      height="13"
+                      viewBox="0 0 16 16"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2.2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    >
+                      <path d="M3.4 8.4l3 3 6.2-6.6"></path>
+                    </svg>
+                  </span>
+                  <span class="star">
+                    <svg
+                      width="14"
+                      height="14"
+                      viewBox="0 0 16 16"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="1.5"
+                      stroke-linejoin="round"
+                    >
+                      <path
+                        d="M8 2.2l1.8 3.9 4.2.5-3.1 2.9.9 4.2L8 11.6l-3.8 2.1.9-4.2L2 6.6l4.2-.5z"
+                      ></path>
+                    </svg>
+                  </span>
+                </div>
+                <div class="body">
+                  <div class="title-row">
+                    <div class="title is-hover">MCP tool surface</div>
+                    <span class="more is-on">
+                      <svg
+                        width="15"
+                        height="15"
+                        viewBox="0 0 16 16"
+                        fill="currentColor"
+                      >
+                        <circle cx="4" cy="8" r="1.3"></circle>
+                        <circle cx="8" cy="8" r="1.3"></circle>
+                        <circle cx="12" cy="8" r="1.3"></circle>
+                      </svg>
+                    </span>
+                  </div>
+                  <div class="desc">
+                    Tools the agent gets: search scenes, read semantic JSON,
+                    patch elements.
+                  </div>
+                  <div class="meta">
+                    <span class="pill pill-cat">architecture</span>
+                    <span class="meta-dot"></span><span>21 elements</span>
+                  </div>
+                </div>
+              </div>
+              <div class="spec-name">Hover</div>
+              <div class="spec-note">
+                Select box, pin and overflow fade in. Nothing reflows — they sit
+                on top.
+              </div>
+            </div>
+
+            <div class="spec">
+              <div class="card is-selected">
+                <div class="thumb">
+                  <svg
+                    class="sketch"
+                    viewBox="0 0 200 150"
+                    preserveAspectRatio="xMidYMid meet"
+                  >
+                    <rect
+                      x="56"
+                      y="10"
+                      width="88"
+                      height="26"
+                      fill="#a5d8ff"
+                      rx="3"
+                      transform="rotate(0.4 100 23)"
+                    ></rect>
+                    <rect
+                      x="56"
+                      y="48"
+                      width="88"
+                      height="26"
+                      fill="#ffec99"
+                      rx="3"
+                      transform="rotate(-0.5 100 61)"
+                    ></rect>
+                    <rect
+                      x="56"
+                      y="86"
+                      width="88"
+                      height="26"
+                      fill="#ffc9c9"
+                      rx="3"
+                      transform="rotate(0.5 100 99)"
+                    ></rect>
+                    <rect
+                      x="56"
+                      y="122"
+                      width="88"
+                      height="22"
+                      fill="#b2f2bb"
+                      rx="3"
+                      transform="rotate(-0.3 100 133)"
+                    ></rect>
+                    <path d="M100 38 L100 45 M96 41 L100 46 L104 41"></path>
+                    <path d="M100 76 L100 83 M96 79 L100 84 L104 79"></path>
+                    <path
+                      d="M100 114 L100 119 M96 115 L100 120 L104 115"
+                    ></path>
+                  </svg>
+                  <span class="pick is-on">
+                    <svg
+                      width="13"
+                      height="13"
+                      viewBox="0 0 16 16"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2.2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    >
+                      <path d="M3.4 8.4l3 3 6.2-6.6"></path>
+                    </svg>
+                  </span>
+                </div>
+                <div class="body">
+                  <div class="title-row">
+                    <div class="title">Scene save pipeline</div>
+                  </div>
+                  <div class="desc">
+                    save → .excalidraw → derived scene.md, semantic.json,
+                    scene.mmd → PNG thumbnail.
+                  </div>
+                  <div class="meta">
+                    <span class="pill pill-cat">architecture</span>
+                    <span class="meta-dot"></span><span>28 elements</span>
+                  </div>
+                </div>
+              </div>
+              <div class="spec-name">Selected</div>
+              <div class="spec-note">
+                2px accent ring. Batch actions move to a floating island, not
+                the header.
+              </div>
+            </div>
+
+            <div class="spec">
+              <div class="card">
+                <div class="thumb">
+                  <svg
+                    class="sketch"
+                    viewBox="0 0 200 150"
+                    preserveAspectRatio="xMidYMid meet"
+                  >
+                    <rect
+                      x="18"
+                      y="12"
+                      width="62"
+                      height="18"
+                      fill="#ffec99"
+                      rx="3"
+                      transform="rotate(-0.6 49 21)"
+                    ></rect>
+                    <path d="M18 46 L178 46"></path>
+                    <path d="M18 60 L152 60"></path>
+                    <path d="M18 74 L172 74"></path>
+                    <path d="M18 88 L120 88"></path>
+                    <path d="M18 102 L164 102"></path>
+                    <path d="M18 116 L140 116"></path>
+                  </svg>
+                  <span class="star is-on">
+                    <svg
+                      width="14"
+                      height="14"
+                      viewBox="0 0 16 16"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="1.5"
+                      stroke-linejoin="round"
+                    >
+                      <path
+                        d="M8 2.2l1.8 3.9 4.2.5-3.1 2.9.9 4.2L8 11.6l-3.8 2.1.9-4.2L2 6.6l4.2-.5z"
+                      ></path>
+                    </svg>
+                  </span>
+                </div>
+                <div class="body">
+                  <div class="title-row">
+                    <div class="title">Fork roadmap</div>
+                  </div>
+                  <div class="desc">
+                    What has to land before this replaces excalidraw.com day to
+                    day.
+                  </div>
+                  <div class="meta">
+                    <span class="pill pill-cat">notes</span>
+                    <span class="meta-dot"></span><span>31 elements</span>
+                  </div>
+                </div>
+              </div>
+              <div class="spec-name">Pinned</div>
+              <div class="spec-note">
+                Star stays visible at rest. Pinned scenes sort to the front of
+                the default view.
+              </div>
+            </div>
+
+            <div class="spec">
+              <div class="card">
+                <div class="thumb">
+                  <svg
+                    class="sketch"
+                    viewBox="0 0 200 150"
+                    preserveAspectRatio="xMidYMid meet"
+                  >
+                    <rect
+                      x="16"
+                      y="18"
+                      width="76"
+                      height="50"
+                      fill="#ffec99"
+                      rx="3"
+                      transform="rotate(-0.5 54 43)"
+                    ></rect>
+                    <rect
+                      x="108"
+                      y="18"
+                      width="76"
+                      height="50"
+                      fill="#a5d8ff"
+                      rx="3"
+                      transform="rotate(0.6 146 43)"
+                    ></rect>
+                    <rect
+                      x="16"
+                      y="82"
+                      width="76"
+                      height="50"
+                      fill="#b2f2bb"
+                      rx="3"
+                      transform="rotate(0.4 54 107)"
+                    ></rect>
+                    <rect
+                      x="108"
+                      y="82"
+                      width="76"
+                      height="50"
+                      fill="#ffc9c9"
+                      rx="3"
+                      transform="rotate(-0.6 146 107)"
+                    ></rect>
+                  </svg>
+                </div>
+                <div class="body">
+                  <div class="title-row">
+                    <div class="title">Embedding chunk sizes</div>
+                  </div>
+                  <div class="desc">
+                    Scratch math for nomic-embed-text windows.
+                  </div>
+                  <div class="meta">
+                    <span class="pill pill-temp">
+                      <svg
+                        width="11"
+                        height="11"
+                        viewBox="0 0 16 16"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="1.8"
+                        stroke-linecap="round"
+                      >
+                        <circle cx="8" cy="8.4" r="5.6"></circle>
+                        <path d="M8 5.2v3.2l2.2 1.3"></path>
+                      </svg>
+                      deletes in 48m
+                    </span>
+                    <span class="pill pill-cat">scratch</span>
+                  </div>
+                </div>
+              </div>
+              <div class="spec-name">Temporary</div>
+              <div class="spec-note">
+                The pill counts down instead of just saying “temporary”, so the
+                deadline is visible.
+              </div>
+            </div>
+
+            <div class="spec">
+              <div class="card">
+                <div class="thumb">
+                  <span class="thumb-empty">No preview yet</span>
+                </div>
+                <div class="body">
+                  <div class="title-row"><div class="title">Untitled</div></div>
+                  <div class="desc">
+                    Thumbnail renders on the first save. Empty scenes keep the
+                    checkerboard so the grid never jumps.
+                  </div>
+                  <div class="meta">
+                    <span>0 elements</span><span class="meta-dot"></span
+                    ><span>just now</span>
+                  </div>
+                </div>
+              </div>
+              <div class="spec-name">No preview</div>
+              <div class="spec-note">
+                Same box, same height — a missing thumbnail must not resize the
+                card.
+              </div>
             </div>
           </div>
         </div>
-        <div class="spec-name">Default</div>
-        <div class="spec-note">Actions hidden. Title, one clamped description, one meta line.</div>
-      </div>
 
-      <div class="spec">
-        <div class="card is-hover">
-          <div class="thumb">
-            <svg class="sketch" viewBox="0 0 200 150" preserveAspectRatio="xMidYMid meet">
-              <rect x="74" y="16" width="52" height="30" fill="#e0dfff" rx="3" transform="rotate(0.5 100 31)"></rect>
-              <rect x="14" y="96" width="48" height="30" fill="#ffc9c9" rx="3" transform="rotate(-0.8 38 111)"></rect>
-              <rect x="76" y="96" width="48" height="30" fill="#b2f2bb" rx="3" transform="rotate(0.4 100 111)"></rect>
-              <rect x="138" y="96" width="48" height="30" fill="#a5d8ff" rx="3" transform="rotate(-0.5 162 111)"></rect>
-              <path d="M100 48 L100 70 L38 70 L38 92 M34 88 L38 93 L42 88"></path>
-              <path d="M100 48 L100 92 M96 88 L100 93 L104 88"></path>
-              <path d="M100 48 L100 70 L162 70 L162 92 M158 88 L162 93 L166 88"></path>
-            </svg>
-            <span class="pick">
-              <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3.4 8.4l3 3 6.2-6.6"></path></svg>
-            </span>
-            <span class="star">
-              <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><path d="M8 2.2l1.8 3.9 4.2.5-3.1 2.9.9 4.2L8 11.6l-3.8 2.1.9-4.2L2 6.6l4.2-.5z"></path></svg>
-            </span>
+        <div class="sec">
+          <div class="sec-label">Folder path, tags, categories</div>
+          <div class="vocab">
+            <div class="voc">
+              <div class="voc-demo">
+                <span class="crumb">
+                  <svg
+                    width="12"
+                    height="12"
+                    viewBox="0 0 16 16"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.5"
+                    stroke-linejoin="round"
+                  >
+                    <path
+                      d="M2 4.4h4.2l1.2 1.6H14v6.4a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1z"
+                    ></path>
+                  </svg>
+                  work / local-first / spikes
+                </span>
+              </div>
+              <div class="spec-name">Folder path</div>
+              <div class="spec-note">
+                Where the file actually sits. Shown on every card and indexed
+                for search. Filtering by folder is deliberately future work.
+              </div>
+            </div>
+            <div class="voc">
+              <div class="voc-demo">
+                <span class="tag"
+                  ><span class="tag-hash">#</span>local-first</span
+                >
+              </div>
+              <div class="spec-name">Tag — whole drawing</div>
+              <div class="spec-note">
+                Solid border. The file as a whole is the thing tagged.
+              </div>
+            </div>
+            <div class="voc">
+              <div class="voc-demo">
+                <span class="tag" data-scope="part"
+                  ><span class="tag-hash">#</span>broken-code
+                  <svg
+                    width="10"
+                    height="10"
+                    viewBox="0 0 16 16"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.8"
+                    stroke-linejoin="round"
+                  >
+                    <path d="M5.4 1.6v9h9"></path>
+                    <path d="M1.6 5.4h9v9"></path>
+                  </svg>
+                </span>
+              </div>
+              <div class="spec-name">Tag — one box</div>
+              <div class="spec-note">
+                Dashed, with a crop mark. Only a rectangle inside the drawing
+                carries it, and the graph keeps that element id.
+              </div>
+            </div>
+            <div class="voc">
+              <div class="voc-demo">
+                <span class="pill pill-cat"
+                  ><span class="voc-dot" style="background: #74c0fc"></span
+                  >Storage</span
+                >
+              </div>
+              <div class="spec-name">Category</div>
+              <div class="spec-note">
+                Exactly one per drawing, nested as deep as you like. The dot is
+                the category colour; its id never changes on rename.
+              </div>
+            </div>
+            <div class="voc">
+              <div class="voc-demo">
+                <span class="pill pill-arch"
+                  >Scratch<span class="arch-mark">archived</span></span
+                >
+              </div>
+              <div class="spec-name">Archived category</div>
+              <div class="spec-note">
+                Hidden from the sidebar and the picker, still shown on the cards
+                already filed under it. Categories are never deleted.
+              </div>
+            </div>
           </div>
-          <div class="body">
-            <div class="title-row">
-              <div class="title is-hover">MCP tool surface</div>
-              <span class="more is-on">
-                <svg width="15" height="15" viewBox="0 0 16 16" fill="currentColor"><circle cx="4" cy="8" r="1.3"></circle><circle cx="8" cy="8" r="1.3"></circle><circle cx="12" cy="8" r="1.3"></circle></svg>
+        </div>
+
+        <div class="sec">
+          <div class="sec-label">Empty, error and loading</div>
+          <div class="panels">
+            <div class="panel">
+              <span class="panel-art">
+                <svg
+                  width="48"
+                  height="48"
+                  viewBox="0 0 48 48"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.8"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path
+                    d="M8 12.5h14l3.5 4.5H40v20a2.5 2.5 0 0 1-2.5 2.5h-29A2.5 2.5 0 0 1 6 37V15a2.5 2.5 0 0 1 2.5-2.5z"
+                  ></path>
+                  <path d="M23 23.5v9M18.5 28h9"></path>
+                </svg>
               </span>
+              <div class="panel-title">Nothing here yet</div>
+              <div class="panel-text">
+                Make the first drawing, or point the server at a folder of
+                existing <code>.excalidraw</code> files and it will index them.
+              </div>
+              <div style="display: flex; gap: 8px">
+                <button type="button" class="btn btn-primary">
+                  New drawing
+                </button>
+                <button type="button" class="btn">Import a folder</button>
+              </div>
             </div>
-            <div class="desc">Tools the agent gets: search scenes, read semantic JSON, patch elements.</div>
-            <div class="meta">
-              <span class="pill pill-cat">architecture</span>
-              <span class="meta-dot"></span><span>21 elements</span>
-            </div>
-          </div>
-        </div>
-        <div class="spec-name">Hover</div>
-        <div class="spec-note">Select box, pin and overflow fade in. Nothing reflows — they sit on top.</div>
-      </div>
 
-      <div class="spec">
-        <div class="card is-selected">
-          <div class="thumb">
-            <svg class="sketch" viewBox="0 0 200 150" preserveAspectRatio="xMidYMid meet">
-              <rect x="56" y="10" width="88" height="26" fill="#a5d8ff" rx="3" transform="rotate(0.4 100 23)"></rect>
-              <rect x="56" y="48" width="88" height="26" fill="#ffec99" rx="3" transform="rotate(-0.5 100 61)"></rect>
-              <rect x="56" y="86" width="88" height="26" fill="#ffc9c9" rx="3" transform="rotate(0.5 100 99)"></rect>
-              <rect x="56" y="122" width="88" height="22" fill="#b2f2bb" rx="3" transform="rotate(-0.3 100 133)"></rect>
-              <path d="M100 38 L100 45 M96 41 L100 46 L104 41"></path>
-              <path d="M100 76 L100 83 M96 79 L100 84 L104 79"></path>
-              <path d="M100 114 L100 119 M96 115 L100 120 L104 115"></path>
-            </svg>
-            <span class="pick is-on">
-              <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3.4 8.4l3 3 6.2-6.6"></path></svg>
-            </span>
-          </div>
-          <div class="body">
-            <div class="title-row"><div class="title">Scene save pipeline</div></div>
-            <div class="desc">save → .excalidraw → derived scene.md, semantic.json, scene.mmd → PNG thumbnail.</div>
-            <div class="meta">
-              <span class="pill pill-cat">architecture</span>
-              <span class="meta-dot"></span><span>28 elements</span>
-            </div>
-          </div>
-        </div>
-        <div class="spec-name">Selected</div>
-        <div class="spec-note">2px accent ring. Batch actions move to a floating island, not the header.</div>
-      </div>
-
-      <div class="spec">
-        <div class="card">
-          <div class="thumb">
-            <svg class="sketch" viewBox="0 0 200 150" preserveAspectRatio="xMidYMid meet">
-              <rect x="18" y="12" width="62" height="18" fill="#ffec99" rx="3" transform="rotate(-0.6 49 21)"></rect>
-              <path d="M18 46 L178 46"></path><path d="M18 60 L152 60"></path><path d="M18 74 L172 74"></path>
-              <path d="M18 88 L120 88"></path><path d="M18 102 L164 102"></path><path d="M18 116 L140 116"></path>
-            </svg>
-            <span class="star is-on">
-              <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><path d="M8 2.2l1.8 3.9 4.2.5-3.1 2.9.9 4.2L8 11.6l-3.8 2.1.9-4.2L2 6.6l4.2-.5z"></path></svg>
-            </span>
-          </div>
-          <div class="body">
-            <div class="title-row"><div class="title">Fork roadmap</div></div>
-            <div class="desc">What has to land before this replaces excalidraw.com day to day.</div>
-            <div class="meta">
-              <span class="pill pill-cat">notes</span>
-              <span class="meta-dot"></span><span>31 elements</span>
-            </div>
-          </div>
-        </div>
-        <div class="spec-name">Pinned</div>
-        <div class="spec-note">Star stays visible at rest. Pinned scenes sort to the front of the default view.</div>
-      </div>
-
-      <div class="spec">
-        <div class="card">
-          <div class="thumb">
-            <svg class="sketch" viewBox="0 0 200 150" preserveAspectRatio="xMidYMid meet">
-              <rect x="16" y="18" width="76" height="50" fill="#ffec99" rx="3" transform="rotate(-0.5 54 43)"></rect>
-              <rect x="108" y="18" width="76" height="50" fill="#a5d8ff" rx="3" transform="rotate(0.6 146 43)"></rect>
-              <rect x="16" y="82" width="76" height="50" fill="#b2f2bb" rx="3" transform="rotate(0.4 54 107)"></rect>
-              <rect x="108" y="82" width="76" height="50" fill="#ffc9c9" rx="3" transform="rotate(-0.6 146 107)"></rect>
-            </svg>
-          </div>
-          <div class="body">
-            <div class="title-row"><div class="title">Embedding chunk sizes</div></div>
-            <div class="desc">Scratch math for nomic-embed-text windows.</div>
-            <div class="meta">
-              <span class="pill pill-temp">
-                <svg width="11" height="11" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="8" cy="8.4" r="5.6"></circle><path d="M8 5.2v3.2l2.2 1.3"></path></svg>
-                deletes in 48m
+            <div class="panel">
+              <span class="panel-art">
+                <svg
+                  width="48"
+                  height="48"
+                  viewBox="0 0 48 48"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.8"
+                  stroke-linecap="round"
+                >
+                  <circle cx="21" cy="21" r="13"></circle>
+                  <path d="M30.5 30.5L41 41"></path>
+                  <path d="M16.5 21h9"></path>
+                </svg>
               </span>
-              <span class="pill pill-cat">scratch</span>
+              <div class="panel-title">No match for “sqlite-vec”</div>
+              <div class="panel-text">
+                Full-text and semantic search both came back empty. Try fewer
+                words, or clear the category filter.
+              </div>
+              <button type="button" class="btn">Clear filters</button>
+            </div>
+
+            <div class="panel">
+              <span class="panel-art is-warn">
+                <svg
+                  width="48"
+                  height="48"
+                  viewBox="0 0 48 48"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.8"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path d="M24 7.5l18 31.5H6z"></path>
+                  <path d="M24 19v9M24 33.5v.2"></path>
+                </svg>
+              </span>
+              <div class="panel-title">Can’t reach the local server</div>
+              <div class="panel-text">
+                The library lives in the Node process on port 3056. Start it and
+                this page reconnects on its own.
+              </div>
+              <div class="panel-code">yarn server</div>
             </div>
           </div>
         </div>
-        <div class="spec-name">Temporary</div>
-        <div class="spec-note">The pill counts down instead of just saying “temporary”, so the deadline is visible.</div>
-      </div>
 
-      <div class="spec">
-        <div class="card">
-          <div class="thumb"><span class="thumb-empty">No preview yet</span></div>
-          <div class="body">
-            <div class="title-row"><div class="title">Untitled</div></div>
-            <div class="desc">Thumbnail renders on the first save. Empty scenes keep the checkerboard so the grid never jumps.</div>
-            <div class="meta"><span>0 elements</span><span class="meta-dot"></span><span>just now</span></div>
+        <div class="sec">
+          <div class="sec-label">Loading</div>
+          <div class="strip">
+            <div class="spec">
+              <div class="sk-card">
+                <div class="sk-thumb"></div>
+                <div class="sk-body">
+                  <div class="sk-line" style="width: 72%"></div>
+                  <div class="sk-line" style="width: 92%"></div>
+                  <div class="sk-line" style="width: 46%"></div>
+                </div>
+              </div>
+            </div>
+            <div class="spec">
+              <div class="sk-card">
+                <div class="sk-thumb"></div>
+                <div class="sk-body">
+                  <div class="sk-line" style="width: 60%"></div>
+                  <div class="sk-line" style="width: 88%"></div>
+                  <div class="sk-line" style="width: 52%"></div>
+                </div>
+              </div>
+            </div>
+            <div class="spec">
+              <div class="sk-card">
+                <div class="sk-thumb"></div>
+                <div class="sk-body">
+                  <div class="sk-line" style="width: 80%"></div>
+                  <div class="sk-line" style="width: 66%"></div>
+                  <div class="sk-line" style="width: 44%"></div>
+                </div>
+              </div>
+            </div>
+            <div
+              class="spec"
+              style="display: flex; align-items: center; width: 420px"
+            >
+              <div class="spec-note" style="font-size: 13px; line-height: 1.5">
+                Skeleton cards in the real grid geometry, not a centred
+                “Loading…”. The layout is already correct when data lands, so
+                nothing jumps.
+              </div>
+            </div>
           </div>
         </div>
-        <div class="spec-name">No preview</div>
-        <div class="spec-note">Same box, same height — a missing thumbnail must not resize the card.</div>
-      </div>
 
-    </div>
-  </div>
-
-  <div class="sec">
-    <div class="sec-label">Folder path, tags, categories</div>
-    <div class="vocab">
-      <div class="voc">
-        <div class="voc-demo">
-          <span class="crumb">
-            <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><path d="M2 4.4h4.2l1.2 1.6H14v6.4a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1z"></path></svg>
-            work / local-first / spikes
-          </span>
-        </div>
-        <div class="spec-name">Folder path</div>
-        <div class="spec-note">Where the file actually sits. Shown on every card and indexed for search. Filtering by folder is deliberately future work.</div>
-      </div>
-      <div class="voc">
-        <div class="voc-demo">
-          <span class="tag"><span class="tag-hash">#</span>local-first</span>
-        </div>
-        <div class="spec-name">Tag — whole drawing</div>
-        <div class="spec-note">Solid border. The file as a whole is the thing tagged.</div>
-      </div>
-      <div class="voc">
-        <div class="voc-demo">
-          <span class="tag" data-scope="part"><span class="tag-hash">#</span>broken-code
-            <svg width="10" height="10" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M5.4 1.6v9h9"></path><path d="M1.6 5.4h9v9"></path></svg>
-          </span>
-        </div>
-        <div class="spec-name">Tag — one box</div>
-        <div class="spec-note">Dashed, with a crop mark. Only a rectangle inside the drawing carries it, and the graph keeps that element id.</div>
-      </div>
-      <div class="voc">
-        <div class="voc-demo">
-          <span class="pill pill-cat"><span class="voc-dot" style="background: #74c0fc"></span>Storage</span>
-        </div>
-        <div class="spec-name">Category</div>
-        <div class="spec-note">Exactly one per drawing, nested as deep as you like. The dot is the category colour; its id never changes on rename.</div>
-      </div>
-      <div class="voc">
-        <div class="voc-demo">
-          <span class="pill pill-arch">Scratch<span class="arch-mark">archived</span></span>
-        </div>
-        <div class="spec-name">Archived category</div>
-        <div class="spec-note">Hidden from the sidebar and the picker, still shown on the cards already filed under it. Categories are never deleted.</div>
-      </div>
-    </div>
-  </div>
-
-  <div class="sec">
-    <div class="sec-label">Empty, error and loading</div>
-    <div class="panels">
-
-      <div class="panel">
-        <span class="panel-art">
-          <svg width="48" height="48" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M8 12.5h14l3.5 4.5H40v20a2.5 2.5 0 0 1-2.5 2.5h-29A2.5 2.5 0 0 1 6 37V15a2.5 2.5 0 0 1 2.5-2.5z"></path>
-            <path d="M23 23.5v9M18.5 28h9"></path>
-          </svg>
-        </span>
-        <div class="panel-title">Nothing here yet</div>
-        <div class="panel-text">Make the first drawing, or point the server at a folder of existing <code>.excalidraw</code> files and it will index them.</div>
-        <div style="display: flex; gap: 8px;">
-          <button type="button" class="btn btn-primary">New drawing</button>
-          <button type="button" class="btn">Import a folder</button>
-        </div>
-      </div>
-
-      <div class="panel">
-        <span class="panel-art">
-          <svg width="48" height="48" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
-            <circle cx="21" cy="21" r="13"></circle>
-            <path d="M30.5 30.5L41 41"></path>
-            <path d="M16.5 21h9"></path>
-          </svg>
-        </span>
-        <div class="panel-title">No match for “sqlite-vec”</div>
-        <div class="panel-text">Full-text and semantic search both came back empty. Try fewer words, or clear the category filter.</div>
-        <button type="button" class="btn">Clear filters</button>
-      </div>
-
-      <div class="panel">
-        <span class="panel-art is-warn">
-          <svg width="48" height="48" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M24 7.5l18 31.5H6z"></path>
-            <path d="M24 19v9M24 33.5v.2"></path>
-          </svg>
-        </span>
-        <div class="panel-title">Can’t reach the local server</div>
-        <div class="panel-text">The library lives in the Node process on port 3056. Start it and this page reconnects on its own.</div>
-        <div class="panel-code">yarn server</div>
-      </div>
-
-    </div>
-  </div>
-
-  <div class="sec">
-    <div class="sec-label">Loading</div>
-    <div class="strip">
-      <div class="spec"><div class="sk-card"><div class="sk-thumb"></div><div class="sk-body"><div class="sk-line" style="width: 72%"></div><div class="sk-line" style="width: 92%"></div><div class="sk-line" style="width: 46%"></div></div></div></div>
-      <div class="spec"><div class="sk-card"><div class="sk-thumb"></div><div class="sk-body"><div class="sk-line" style="width: 60%"></div><div class="sk-line" style="width: 88%"></div><div class="sk-line" style="width: 52%"></div></div></div></div>
-      <div class="spec"><div class="sk-card"><div class="sk-thumb"></div><div class="sk-body"><div class="sk-line" style="width: 80%"></div><div class="sk-line" style="width: 66%"></div><div class="sk-line" style="width: 44%"></div></div></div></div>
-      <div class="spec" style="display: flex; align-items: center; width: 420px;">
-        <div class="spec-note" style="font-size: 13px; line-height: 1.5;">Skeleton cards in the real grid geometry, not a centred “Loading…”. The layout is already correct when data lands, so nothing jumps.</div>
-      </div>
-    </div>
-  </div>
-
-  <div class="sec">
-    <div class="sec-label">Tokens in use</div>
-    <div class="tok-row">
-      <div class="tok-group">
-        <div class="tok-group-name">Colour</div>
-        <div class="swatches">
-          <div class="sw"><div class="sw-chip" style="background: #6965db"></div><div class="sw-name">primary</div><div class="sw-hex">#6965db</div></div>
-          <div class="sw"><div class="sw-chip" style="background: #e0dfff"></div><div class="sw-name">container</div><div class="sw-hex">#e0dfff</div></div>
-          <div class="sw"><div class="sw-chip" style="background: #f1f0ff"></div><div class="sw-name">surface-high</div><div class="sw-hex">#f1f0ff</div></div>
-          <div class="sw"><div class="sw-chip" style="background: #f6f6f9"></div><div class="sw-name">surface-mid</div><div class="sw-hex">#f6f6f9</div></div>
-          <div class="sw"><div class="sw-chip" style="background: #1b1b1f"></div><div class="sw-name">on-surface</div><div class="sw-hex">#1b1b1f</div></div>
-          <div class="sw"><div class="sw-chip" style="background: #fceeca"></div><div class="sw-name">warning</div><div class="sw-hex">#fceeca</div></div>
-          <div class="sw"><div class="sw-chip" style="background: #fff0f0"></div><div class="sw-name">danger-bg</div><div class="sw-hex">#fff0f0</div></div>
+        <div class="sec">
+          <div class="sec-label">Tokens in use</div>
+          <div class="tok-row">
+            <div class="tok-group">
+              <div class="tok-group-name">Colour</div>
+              <div class="swatches">
+                <div class="sw">
+                  <div class="sw-chip" style="background: #6965db"></div>
+                  <div class="sw-name">primary</div>
+                  <div class="sw-hex">#6965db</div>
+                </div>
+                <div class="sw">
+                  <div class="sw-chip" style="background: #e0dfff"></div>
+                  <div class="sw-name">container</div>
+                  <div class="sw-hex">#e0dfff</div>
+                </div>
+                <div class="sw">
+                  <div class="sw-chip" style="background: #f1f0ff"></div>
+                  <div class="sw-name">surface-high</div>
+                  <div class="sw-hex">#f1f0ff</div>
+                </div>
+                <div class="sw">
+                  <div class="sw-chip" style="background: #f6f6f9"></div>
+                  <div class="sw-name">surface-mid</div>
+                  <div class="sw-hex">#f6f6f9</div>
+                </div>
+                <div class="sw">
+                  <div class="sw-chip" style="background: #1b1b1f"></div>
+                  <div class="sw-name">on-surface</div>
+                  <div class="sw-hex">#1b1b1f</div>
+                </div>
+                <div class="sw">
+                  <div class="sw-chip" style="background: #fceeca"></div>
+                  <div class="sw-name">warning</div>
+                  <div class="sw-hex">#fceeca</div>
+                </div>
+                <div class="sw">
+                  <div class="sw-chip" style="background: #fff0f0"></div>
+                  <div class="sw-name">danger-bg</div>
+                  <div class="sw-hex">#fff0f0</div>
+                </div>
+              </div>
+            </div>
+            <div class="tok-group" style="flex: 1; min-width: 380px">
+              <div class="tok-group-name">Type · Assistant</div>
+              <div class="ramp">
+                <div class="ramp-row">
+                  <span class="ramp-key">21 / 700</span
+                  ><span
+                    style="
+                      font-size: 21px;
+                      font-weight: 700;
+                      letter-spacing: -0.02em;
+                    "
+                    >Page heading</span
+                  >
+                </div>
+                <div class="ramp-row">
+                  <span class="ramp-key">14.5 / 600</span
+                  ><span style="font-size: 14.5px; font-weight: 600"
+                    >Card title, one line, ellipsis</span
+                  >
+                </div>
+                <div class="ramp-row">
+                  <span class="ramp-key">12.5 / 400</span
+                  ><span style="font-size: 12.5px; color: var(--muted)"
+                    >Description, clamped to two lines</span
+                  >
+                </div>
+                <div class="ramp-row">
+                  <span class="ramp-key">12 / 400</span
+                  ><span style="font-size: 12px; color: var(--muted)"
+                    >Meta — elements, edited, category</span
+                  >
+                </div>
+                <div class="ramp-row">
+                  <span class="ramp-key">11.5 / 600</span
+                  ><span style="font-size: 11.5px; font-weight: 600"
+                    >Pills and badges</span
+                  >
+                </div>
+              </div>
+            </div>
+            <div class="tok-group">
+              <div class="tok-group-name">Geometry</div>
+              <div class="ramp">
+                <div class="ramp-row">
+                  <span class="ramp-key">radius</span
+                  ><span style="font-size: 13px">6 · 8 · 12 · 14 px</span>
+                </div>
+                <div class="ramp-row">
+                  <span class="ramp-key">control h</span
+                  ><span style="font-size: 13px"
+                    >32 px desktop · 44 px touch</span
+                  >
+                </div>
+                <div class="ramp-row">
+                  <span class="ramp-key">card min</span
+                  ><span style="font-size: 13px">260 px, gap 18</span>
+                </div>
+                <div class="ramp-row">
+                  <span class="ramp-key">thumb</span
+                  ><span style="font-size: 13px"
+                    >4 / 3, checkerboard 16 px</span
+                  >
+                </div>
+                <div class="ramp-row">
+                  <span class="ramp-key">elevation</span
+                  ><span style="font-size: 13px">--shadow-island</span>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
-      <div class="tok-group" style="flex: 1; min-width: 380px;">
-        <div class="tok-group-name">Type · Assistant</div>
-        <div class="ramp">
-          <div class="ramp-row"><span class="ramp-key">21 / 700</span><span style="font-size: 21px; font-weight: 700; letter-spacing: -0.02em;">Page heading</span></div>
-          <div class="ramp-row"><span class="ramp-key">14.5 / 600</span><span style="font-size: 14.5px; font-weight: 600;">Card title, one line, ellipsis</span></div>
-          <div class="ramp-row"><span class="ramp-key">12.5 / 400</span><span style="font-size: 12.5px; color: var(--muted);">Description, clamped to two lines</span></div>
-          <div class="ramp-row"><span class="ramp-key">12 / 400</span><span style="font-size: 12px; color: var(--muted);">Meta — elements, edited, category</span></div>
-          <div class="ramp-row"><span class="ramp-key">11.5 / 600</span><span style="font-size: 11.5px; font-weight: 600;">Pills and badges</span></div>
-        </div>
-      </div>
-      <div class="tok-group">
-        <div class="tok-group-name">Geometry</div>
-        <div class="ramp">
-          <div class="ramp-row"><span class="ramp-key">radius</span><span style="font-size: 13px;">6 · 8 · 12 · 14 px</span></div>
-          <div class="ramp-row"><span class="ramp-key">control h</span><span style="font-size: 13px;">32 px desktop · 44 px touch</span></div>
-          <div class="ramp-row"><span class="ramp-key">card min</span><span style="font-size: 13px;">260 px, gap 18</span></div>
-          <div class="ramp-row"><span class="ramp-key">thumb</span><span style="font-size: 13px;">4 / 3, checkerboard 16 px</span></div>
-          <div class="ramp-row"><span class="ramp-key">elevation</span><span style="font-size: 13px;">--shadow-island</span></div>
-        </div>
-      </div>
-    </div>
-  </div>
+    </x-dc>
 
-</div>
-</x-dc>
-
-<script data-dc-script data-props='{"theme":{"editor":"enum","options":["light","dark"],"default":"light","section":"Theme"},"accent":{"editor":"color","default":"#6965db","options":["#6965db","#1971c2","#2f9e44","#e03131"],"section":"Theme"},"$preview":{"width":1240,"height":2060}}'>
-class Component extends DCLogic {
-  renderVals() {
-    return {
-      theme: this.props.theme || "light",
-      accent: this.props.accent || "#6965db"
-    };
-  }
-}
-</script>
-</body>
+    <script
+      data-dc-script
+      data-props='{"theme":{"editor":"enum","options":["light","dark"],"default":"light","section":"Theme"},"accent":{"editor":"color","default":"#6965db","options":["#6965db","#1971c2","#2f9e44","#e03131"],"section":"Theme"},"$preview":{"width":1240,"height":2060}}'
+    >
+      class Component extends DCLogic {
+        renderVals() {
+          return {
+            theme: this.props.theme || "light",
+            accent: this.props.accent || "#6965db",
+          };
+        }
+      }
+    </script>
+  </body>
 </html>

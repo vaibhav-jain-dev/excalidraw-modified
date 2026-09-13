@@ -237,6 +237,26 @@ of its own position, so labels never vanish from their boxes.
 Pass a comment's `x/y/width/height` straight in to answer "what is inside the
 box this note points at".
 
+## Templates
+
+23 solved layouts in `derive/templates.ts`, reached through `list_templates`
+and `apply_template`. They exist because hand-computed coordinates are where
+generated diagrams go wrong — overlapping boxes, crossing arrows, spacing that
+drifts. Each takes plain content and returns a finished `SemanticScene`.
+
+Process `flowchart` `decision` `swimlane` `cycle` `statemachine` `sequence` ·
+Structure `architecture` `layers` `erd` `orgchart` `mindmap` `network`
+`fishbone` · Planning `kanban` `timeline` `gantt` `matrix` `quadrant` ·
+Thinking `funnel` `venn` `proscons` · Sketching `wireframe` `storyboard`
+
+`network` is the escape hatch: arbitrary nodes and edges on a ring, for when
+no shaped template fits. Every template is tested for zero overlapping nodes
+(containment exempt, `venn` exempt because intersecting *is* the diagram),
+edges that point at nodes that exist, compiling to real elements, and
+surviving an empty spec. The registry is the single source for
+`list_templates`, so a template cannot be added without documenting what it
+takes.
+
 ## Left open
 
 - **Cluster naming.** `gist` is the first few labels joined. An unlabelled

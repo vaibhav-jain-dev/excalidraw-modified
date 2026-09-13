@@ -31,15 +31,13 @@ const freedrawCursorSvgPaths = [
 ];
 
 const freedrawCursorDataURL = `data:${MIME_TYPES.svg},${encodeURIComponent(
-  `<svg viewBox="0 0 20 20" width="24" height="24" fill="none" xmlns="http://www.w3.org/2000/svg" stroke-linecap="round" stroke-linejoin="round">${
-    `<g stroke="#fff" stroke-width="3.5">${freedrawCursorSvgPaths
-      .map((path) => `<path d="${path}" />`)
-      .join("")}</g>`
-  }${
-    `<g stroke="#1b1b1f" stroke-width="1.25">${freedrawCursorSvgPaths
-      .map((path) => `<path d="${path}" />`)
-      .join("")}</g>`
-  }</svg>`,
+  `<svg viewBox="0 0 20 20" width="24" height="24" fill="none" xmlns="http://www.w3.org/2000/svg" stroke-linecap="round" stroke-linejoin="round">${`<g stroke="#fff" stroke-width="3.5">${freedrawCursorSvgPaths
+    .map((path) => `<path d="${path}" />`)
+    .join(
+      "",
+    )}</g>`}${`<g stroke="#1b1b1f" stroke-width="1.25">${freedrawCursorSvgPaths
+    .map((path) => `<path d="${path}" />`)
+    .join("")}</g>`}</svg>`,
 )}`;
 
 const createBucketFillCursorDataURL = (color: string) => {

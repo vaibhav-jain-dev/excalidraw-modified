@@ -1,9 +1,9 @@
-import { pickThumbnailElements } from "../data/thumbnail";
-
 import type { ExcalidrawElement } from "@excalidraw/element/types";
 
+import { pickThumbnailElements } from "../data/thumbnail";
+
 const el = (id: string, x: number, y: number, w: number, h: number) =>
-  ({ id, x, y, width: w, height: h }) as ExcalidrawElement;
+  ({ id, x, y, width: w, height: h } as ExcalidrawElement);
 
 describe("thumbnail area", () => {
   it("keeps the whole scene when it is already roughly square", () => {

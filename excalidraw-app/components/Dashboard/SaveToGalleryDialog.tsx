@@ -8,9 +8,9 @@ import type { ExcalidrawImperativeAPI } from "@excalidraw/excalidraw/types";
 import { ServerData, type RemoteSceneSummary } from "../../data/ServerData";
 import { routeToScene } from "../../data/route";
 import { setActiveLocalSceneId } from "../../data/localScene";
+import { pickThumbnailElements } from "../../data/thumbnail";
 
 import "./Dashboard.scss";
-import { pickThumbnailElements } from "../../data/thumbnail";
 
 const THUMBNAIL_MAX_DIMENSION = 480;
 

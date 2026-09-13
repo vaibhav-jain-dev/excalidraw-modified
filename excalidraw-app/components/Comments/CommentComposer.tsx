@@ -77,7 +77,10 @@ export const CommentComposer = ({
       .split("\n")
       .map((line, i) => (line.trim() ? prefix(i) + line : line))
       .join("\n");
-    apply(value.slice(0, from) + marked + value.slice(to), from + marked.length);
+    apply(
+      value.slice(0, from) + marked + value.slice(to),
+      from + marked.length,
+    );
   };
 
   return (

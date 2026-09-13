@@ -10,3 +10,8 @@ packages/excalidraw/types
 examples/**/public
 dev-dist
 coverage
+
+# Generated: the seeded design-canvas payload. ~2 MB of precompiled editor plus
+# an escaped state block — reformatting it would corrupt the embedded content.
+# The hand-authored sources next to it (*.dc.html, canvas.json) stay checked.
+design/**/excalidraw-library-redesign.html

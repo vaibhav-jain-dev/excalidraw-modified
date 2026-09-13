@@ -1,477 +1,1122 @@
-<!doctype html>
+<!DOCTYPE html>
 <html>
-<head>
-  <meta charset="utf-8">
-  <script src="./support.js"></script>
-</head>
-<body>
-<x-dc>
-<helmet>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Assistant:wght@400;500;600;700&display=swap">
-  <style>
-    body { margin: 0; }
-    a { color: #6965db; text-decoration: none; }
-    a:hover { color: #5753d0; }
-    @media (prefers-color-scheme: dark) { a { color: #a8a5ff; } a:hover { color: #bbb8ff; } }
+  <head>
+    <meta charset="utf-8" />
+    <script src="./support.js"></script>
+  </head>
+  <body>
+    <x-dc>
+      <helmet>
+        <link
+          rel="stylesheet"
+          href="https://fonts.googleapis.com/css2?family=Assistant:wght@400;500;600;700&display=swap"
+        />
+        <style>
+          body {
+            margin: 0;
+          }
+          a {
+            color: #6965db;
+            text-decoration: none;
+          }
+          a:hover {
+            color: #5753d0;
+          }
+          @media (prefers-color-scheme: dark) {
+            a {
+              color: #a8a5ff;
+            }
+            a:hover {
+              color: #bbb8ff;
+            }
+          }
 
-    .ph {
-      --bg: #f6f6f9;
-      --surface: #ffffff;
-      --surface-high: #f1f0ff;
-      --border: #ebebeb;
-      --border-strong: #c5c5d0;
-      --text: #1b1b1f;
-      --muted: #7a7a7a;
-      --muted-dark: #5c5c5c;
-      --accent: var(--accent-src, #6965db);
-      --on-accent: #ffffff;
-      --star: #f5c354;
-      --accent-container: #e0dfff;
-      --on-accent-container: #030064;
-      --warn-bg: #fceeca;
-      --warn-text: #3d3d3d;
-      --sketch-filter: none;
-      --island: 0px 0px 1px 0px rgba(0,0,0,0.17), 0px 0px 3px 0px rgba(0,0,0,0.08), 0px 7px 14px 0px rgba(0,0,0,0.05);
+          .ph {
+            --bg: #f6f6f9;
+            --surface: #ffffff;
+            --surface-high: #f1f0ff;
+            --border: #ebebeb;
+            --border-strong: #c5c5d0;
+            --text: #1b1b1f;
+            --muted: #7a7a7a;
+            --muted-dark: #5c5c5c;
+            --accent: var(--accent-src, #6965db);
+            --on-accent: #ffffff;
+            --star: #f5c354;
+            --accent-container: #e0dfff;
+            --on-accent-container: #030064;
+            --warn-bg: #fceeca;
+            --warn-text: #3d3d3d;
+            --sketch-filter: none;
+            --island: 0px 0px 1px 0px rgba(0, 0, 0, 0.17),
+              0px 0px 3px 0px rgba(0, 0, 0, 0.08),
+              0px 7px 14px 0px rgba(0, 0, 0, 0.05);
 
-      position: relative;
-      width: 390px;
-      height: 844px;
-      overflow: hidden;
-      display: flex;
-      flex-direction: column;
-      background: var(--bg);
-      color: var(--text);
-      font-family: Assistant, system-ui, BlinkMacSystemFont, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-      font-size: 15px;
-      -webkit-font-smoothing: antialiased;
-    }
-    .ph * { box-sizing: border-box; }
+            position: relative;
+            width: 390px;
+            height: 844px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            background: var(--bg);
+            color: var(--text);
+            font-family: Assistant, system-ui, BlinkMacSystemFont, -apple-system,
+              "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            font-size: 15px;
+            -webkit-font-smoothing: antialiased;
+          }
+          .ph * {
+            box-sizing: border-box;
+          }
 
-    .ph[data-theme="dark"] {
-      --bg: #18181b;
-      --surface: #232329;
-      --surface-high: #2e2d39;
-      --border: #2e2e2e;
-      --border-strong: #46464f;
-      --text: #e3e3e8;
-      --muted: #999999;
-      --muted-dark: #b8b8b8;
-      --accent: color-mix(in oklab, var(--accent-src, #6965db) 60%, #ffffff);
-      --on-accent: #1e1e1e;
-      --star: #f5c354;
-      --accent-container: #403e6a;
-      --on-accent-container: #e0dfff;
-      --warn-bg: #3a3020;
-      --warn-text: #ebebeb;
-      --sketch-filter: invert(93%) hue-rotate(180deg);
-    }
+          .ph[data-theme="dark"] {
+            --bg: #18181b;
+            --surface: #232329;
+            --surface-high: #2e2d39;
+            --border: #2e2e2e;
+            --border-strong: #46464f;
+            --text: #e3e3e8;
+            --muted: #999999;
+            --muted-dark: #b8b8b8;
+            --accent: color-mix(
+              in oklab,
+              var(--accent-src, #6965db) 60%,
+              #ffffff
+            );
+            --on-accent: #1e1e1e;
+            --star: #f5c354;
+            --accent-container: #403e6a;
+            --on-accent-container: #e0dfff;
+            --warn-bg: #3a3020;
+            --warn-text: #ebebeb;
+            --sketch-filter: invert(93%) hue-rotate(180deg);
+          }
 
-    .head {
-      flex: none;
-      padding: 14px 16px 10px;
-      background: var(--surface);
-      border-bottom: 1px solid var(--border);
-    }
-    .head { display: flex; flex-direction: column; gap: 12px; }
-    .head-row { display: flex; align-items: center; gap: 10px; }
-    .h1 { flex: 1; font-size: 22px; font-weight: 700; letter-spacing: -0.02em; }
-    .icon-btn {
-      width: 44px; height: 44px; flex: none;
-      display: flex; align-items: center; justify-content: center;
-      padding: 0; border: 0; border-radius: 12px; cursor: pointer;
-      background: transparent; color: var(--muted-dark);
-    }
-    .icon-btn:hover { background: var(--surface-high); color: var(--text); }
+          .head {
+            flex: none;
+            padding: 14px 16px 10px;
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+          }
+          .head {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+          }
+          .head-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+          }
+          .h1 {
+            flex: 1;
+            font-size: 22px;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+          }
+          .icon-btn {
+            width: 44px;
+            height: 44px;
+            flex: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+            border: 0;
+            border-radius: 12px;
+            cursor: pointer;
+            background: transparent;
+            color: var(--muted-dark);
+          }
+          .icon-btn:hover {
+            background: var(--surface-high);
+            color: var(--text);
+          }
 
-    .search { position: relative; display: flex; align-items: center; }
-    .search svg { position: absolute; left: 13px; color: var(--muted); pointer-events: none; }
-    .search input {
-      width: 100%; height: 44px;
-      padding: 0 14px 0 40px;
-      font: inherit; font-size: 15px; color: var(--text);
-      background: var(--bg); border: 1px solid var(--border); border-radius: 12px;
-    }
-    .search input::placeholder { color: var(--muted); }
-    .search input:focus { outline: 2px solid var(--accent); outline-offset: -1px; border-color: transparent; background: var(--surface); }
+          .search {
+            position: relative;
+            display: flex;
+            align-items: center;
+          }
+          .search svg {
+            position: absolute;
+            left: 13px;
+            color: var(--muted);
+            pointer-events: none;
+          }
+          .search input {
+            width: 100%;
+            height: 44px;
+            padding: 0 14px 0 40px;
+            font: inherit;
+            font-size: 15px;
+            color: var(--text);
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+          }
+          .search input::placeholder {
+            color: var(--muted);
+          }
+          .search input:focus {
+            outline: 2px solid var(--accent);
+            outline-offset: -1px;
+            border-color: transparent;
+            background: var(--surface);
+          }
 
-    .chips {
-      flex: none;
-      display: flex; gap: 8px;
-      padding: 12px 16px;
-      overflow-x: auto;
-      background: var(--surface);
-      border-bottom: 1px solid var(--border);
-    }
-    .chip {
-      display: inline-flex; align-items: center; gap: 7px; flex: none;
-      height: 44px; padding: 0 16px;
-      font: inherit; font-size: 14px; font-weight: 600;
-      color: var(--muted-dark); background: var(--bg);
-      border: 1px solid var(--border); border-radius: 999px;
-      cursor: pointer;
-    }
-    .chip[data-on="true"] { background: var(--accent-container); border-color: var(--accent-container); color: var(--on-accent-container); }
-    .chip-dot { width: 8px; height: 8px; border-radius: 50%; flex: none; }
-    .chip-n { font-size: 13px; opacity: .65; font-variant-numeric: tabular-nums; }
+          .chips {
+            flex: none;
+            display: flex;
+            gap: 8px;
+            padding: 12px 16px;
+            overflow-x: auto;
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+          }
+          .chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            flex: none;
+            height: 44px;
+            padding: 0 16px;
+            font: inherit;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--muted-dark);
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 999px;
+            cursor: pointer;
+          }
+          .chip[data-on="true"] {
+            background: var(--accent-container);
+            border-color: var(--accent-container);
+            color: var(--on-accent-container);
+          }
+          .chip-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            flex: none;
+          }
+          .chip-n {
+            font-size: 13px;
+            opacity: 0.65;
+            font-variant-numeric: tabular-nums;
+          }
 
-    .scroll { flex: 1; min-height: 0; overflow: hidden; padding: 14px 16px 0; }
-    .scroll-inner { display: flex; flex-direction: column; gap: 10px; }
-    .count { font-size: 13.5px; font-weight: 600; color: var(--muted); }
+          .scroll {
+            flex: 1;
+            min-height: 0;
+            overflow: hidden;
+            padding: 14px 16px 0;
+          }
+          .scroll-inner {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+          }
+          .count {
+            font-size: 13.5px;
+            font-weight: 600;
+            color: var(--muted);
+          }
 
-    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; align-content: start; }
-    .card {
-      display: flex; flex-direction: column;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      overflow: hidden;
-      cursor: pointer;
-    }
-    .card:active { transform: scale(0.985); }
-    .thumb {
-      position: relative; width: 100%; aspect-ratio: 1 / 1;
-      display: flex; align-items: center; justify-content: center;
-      border-bottom: 1px solid var(--border);
-      background:
-        repeating-conic-gradient(rgba(128,128,128,0.08) 0% 25%, transparent 0% 50%) 50% / 14px 14px,
-        var(--surface);
-    }
-    .sketch { width: 100%; height: 100%; filter: var(--sketch-filter); }
-    .sketch rect.bounds { fill: none; stroke: var(--muted); stroke-width: 1.4; stroke-dasharray: 6 5; opacity: .55; }
-    .sketch rect { stroke: #1e1e1e; stroke-width: 2; }
-    .sketch path { fill: none; stroke: #1e1e1e; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
-    .star { position: absolute; top: 7px; right: 7px; color: var(--star); }
+          .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            align-content: start;
+          }
+          .card {
+            display: flex;
+            flex-direction: column;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            overflow: hidden;
+            cursor: pointer;
+          }
+          .card:active {
+            transform: scale(0.985);
+          }
+          .thumb {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 1 / 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-bottom: 1px solid var(--border);
+            background: repeating-conic-gradient(
+                  rgba(128, 128, 128, 0.08) 0% 25%,
+                  transparent 0% 50%
+                )
+                50% / 14px 14px,
+              var(--surface);
+          }
+          .sketch {
+            width: 100%;
+            height: 100%;
+            filter: var(--sketch-filter);
+          }
+          .sketch rect.bounds {
+            fill: none;
+            stroke: var(--muted);
+            stroke-width: 1.4;
+            stroke-dasharray: 6 5;
+            opacity: 0.55;
+          }
+          .sketch rect {
+            stroke: #1e1e1e;
+            stroke-width: 2;
+          }
+          .sketch path {
+            fill: none;
+            stroke: #1e1e1e;
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+          }
+          .star {
+            position: absolute;
+            top: 7px;
+            right: 7px;
+            color: var(--star);
+          }
 
-    .body { padding: 9px 11px 11px; display: flex; flex-direction: column; gap: 4px; }
-    .crumb { display: flex; align-items: center; gap: 4px; font-size: 11px; color: var(--muted); white-space: nowrap; overflow: hidden; }
-    .crumb span { overflow: hidden; text-overflow: ellipsis; }
-    .title {
-      font-size: 14.5px; font-weight: 600; line-height: 1.3;
-      display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
-      min-height: 38px;
-    }
-    .meta { display: flex; align-items: center; gap: 6px; font-size: 12.5px; color: var(--muted); }
-    .meta-dot { width: 3px; height: 3px; border-radius: 50%; background: currentColor; opacity: .5; }
-    .pill {
-      display: inline-flex; align-items: center; gap: 5px;
-      height: 20px; padding: 0 8px;
-      font-size: 11.5px; font-weight: 700;
-      border-radius: 999px;
-      background: var(--warn-bg); color: var(--warn-text);
-      align-self: flex-start;
-    }
+          .body {
+            padding: 9px 11px 11px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+          }
+          .crumb {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 11px;
+            color: var(--muted);
+            white-space: nowrap;
+            overflow: hidden;
+          }
+          .crumb span {
+            overflow: hidden;
+            text-overflow: ellipsis;
+          }
+          .title {
+            font-size: 14.5px;
+            font-weight: 600;
+            line-height: 1.3;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            min-height: 38px;
+          }
+          .meta {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12.5px;
+            color: var(--muted);
+          }
+          .meta-dot {
+            width: 3px;
+            height: 3px;
+            border-radius: 50%;
+            background: currentColor;
+            opacity: 0.5;
+          }
+          .pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            height: 20px;
+            padding: 0 8px;
+            font-size: 11.5px;
+            font-weight: 700;
+            border-radius: 999px;
+            background: var(--warn-bg);
+            color: var(--warn-text);
+            align-self: flex-start;
+          }
 
-    .fab {
-      position: absolute; right: 20px; bottom: 26px; z-index: 5;
-      width: 56px; height: 56px;
-      display: flex; align-items: center; justify-content: center;
-      padding: 0; border: 0; border-radius: 18px; cursor: pointer;
-      background: var(--accent); color: #fff;
-      box-shadow: 0 8px 20px rgba(0,0,0,.22), 0 2px 4px rgba(0,0,0,.12);
-    }
-    .fab:active { filter: brightness(.92); }
+          .fab {
+            position: absolute;
+            right: 20px;
+            bottom: 26px;
+            z-index: 5;
+            width: 56px;
+            height: 56px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+            border: 0;
+            border-radius: 18px;
+            cursor: pointer;
+            background: var(--accent);
+            color: #fff;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.22),
+              0 2px 4px rgba(0, 0, 0, 0.12);
+          }
+          .fab:active {
+            filter: brightness(0.92);
+          }
 
-    .fade {
-      position: absolute; left: 0; right: 0; bottom: 0; height: 90px;
-      background: linear-gradient(to bottom, transparent, var(--bg) 72%);
-      pointer-events: none;
-    }
-  </style>
-</helmet>
+          .fade {
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            height: 90px;
+            background: linear-gradient(to bottom, transparent, var(--bg) 72%);
+            pointer-events: none;
+          }
+        </style>
+      </helmet>
 
-<div class="ph" data-theme="{{theme}}" style="--accent-src: {{accent}}">
-  <div class="head">
-    <div class="head-row">
-      <div class="h1">Drawings</div>
-      <button type="button" class="icon-btn" onClick="{{cycleSort}}" aria-label="Sort">
-        <svg width="21" height="21" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M4 5.5h12M6 10h8M8.5 14.5h3"></path>
-        </svg>
-      </button>
-      <button type="button" class="icon-btn" aria-label="Settings">
-        <svg width="21" height="21" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round">
-          <circle cx="10" cy="10" r="2.6"></circle>
-          <path d="M10 2.6l1 2 2.2-.5 1.2 1.9-1.4 1.7.9 2.1 2.1.7v2.2l-2.1.7-.9 2.1 1.4 1.7-1.2 1.9-2.2-.5-1 2h-2l-1-2-2.2.5-1.2-1.9 1.4-1.7-.9-2.1-2.1-.7v-2.2l2.1-.7.9-2.1L3.6 6l1.2-1.9 2.2.5 1-2z"></path>
-        </svg>
-      </button>
-    </div>
-    <label class="search">
-      <svg width="17" height="17" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round">
-        <circle cx="7" cy="7" r="4.4"></circle>
-        <path d="M10.3 10.3L14 14"></path>
-      </svg>
-      <input type="text" placeholder="Search drawings" value="{{query}}" onChange="{{onQuery}}" />
-    </label>
-  </div>
-
-  <div class="chips">
-    <sc-for list="{{chips}}" as="c" hint-placeholder-count="5">
-      <button type="button" class="chip" data-on="{{c.active}}" onClick="{{c.pick}}">
-        <sc-if value="{{c.hasDot}}" hint-placeholder-val="{{false}}">
-          <span class="chip-dot" style="background: {{c.color}}"></span>
-        </sc-if>
-        {{c.name}}
-        <span class="chip-n">{{c.count}}</span>
-      </button>
-    </sc-for>
-  </div>
-
-  <div class="scroll">
-    <div class="scroll-inner">
-    <div class="count">{{resultLabel}}</div>
-    <div class="grid">
-      <sc-for list="{{scenes}}" as="s" hint-placeholder-count="6">
-        <div class="card">
-          <div class="thumb">
-            <svg class="sketch" viewBox="{{s.viewBox}}" preserveAspectRatio="xMidYMid meet">
-              <rect class="bounds" x="{{s.bx}}" y="{{s.by}}" width="{{s.bw}}" height="{{s.bh}}" rx="4"></rect>
-              <sc-for list="{{s.shapes}}" as="r" hint-placeholder-count="3">
-                <rect x="{{r.x}}" y="{{r.y}}" width="{{r.w}}" height="{{r.h}}" fill="{{r.fill}}" rx="3" transform="{{r.t}}"></rect>
-              </sc-for>
-              <sc-for list="{{s.arrows}}" as="a" hint-placeholder-count="2">
-                <path d="{{a.d}}"></path>
-              </sc-for>
-            </svg>
-            <sc-if value="{{s.pinned}}" hint-placeholder-val="{{false}}">
-              <span class="star">
-                <svg width="15" height="15" viewBox="0 0 16 16" fill="currentColor" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round">
-                  <path d="M8 2.2l1.8 3.9 4.2.5-3.1 2.9.9 4.2L8 11.6l-3.8 2.1.9-4.2L2 6.6l4.2-.5z"></path>
-                </svg>
-              </span>
-            </sc-if>
+      <div class="ph" data-theme="{{theme}}" style="--accent-src: {{accent}}">
+        <div class="head">
+          <div class="head-row">
+            <div class="h1">Drawings</div>
+            <button
+              type="button"
+              class="icon-btn"
+              onClick="{{cycleSort}}"
+              aria-label="Sort"
+            >
+              <svg
+                width="21"
+                height="21"
+                viewBox="0 0 20 20"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.7"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="M4 5.5h12M6 10h8M8.5 14.5h3"></path>
+              </svg>
+            </button>
+            <button type="button" class="icon-btn" aria-label="Settings">
+              <svg
+                width="21"
+                height="21"
+                viewBox="0 0 20 20"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.7"
+                stroke-linejoin="round"
+              >
+                <circle cx="10" cy="10" r="2.6"></circle>
+                <path
+                  d="M10 2.6l1 2 2.2-.5 1.2 1.9-1.4 1.7.9 2.1 2.1.7v2.2l-2.1.7-.9 2.1 1.4 1.7-1.2 1.9-2.2-.5-1 2h-2l-1-2-2.2.5-1.2-1.9 1.4-1.7-.9-2.1-2.1-.7v-2.2l2.1-.7.9-2.1L3.6 6l1.2-1.9 2.2.5 1-2z"
+                ></path>
+              </svg>
+            </button>
           </div>
-          <div class="body">
-            <sc-if value="{{s.temporary}}" hint-placeholder-val="{{false}}">
-              <span class="pill">
-                <svg width="11" height="11" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round">
-                  <circle cx="8" cy="8.4" r="5.6"></circle>
-                  <path d="M8 5.2v3.2l2.2 1.3"></path>
-                </svg>
-                {{s.tempLabel}}
-              </span>
-            </sc-if>
-            <div class="crumb">
-              <svg width="11" height="11" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><path d="M2 4.4h4.2l1.2 1.6H14v6.4a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1z"></path></svg>
-              <span>{{s.path}}</span>
-            </div>
-            <div class="title">{{s.name}}</div>
-            <div class="meta">
-              <span>{{s.items}} el.</span>
-              <span class="meta-dot"></span>
-              <span>{{s.ago}}</span>
+          <label class="search">
+            <svg
+              width="17"
+              height="17"
+              viewBox="0 0 16 16"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.7"
+              stroke-linecap="round"
+            >
+              <circle cx="7" cy="7" r="4.4"></circle>
+              <path d="M10.3 10.3L14 14"></path>
+            </svg>
+            <input
+              type="text"
+              placeholder="Search drawings"
+              value="{{query}}"
+              onChange="{{onQuery}}"
+            />
+          </label>
+        </div>
+
+        <div class="chips">
+          <sc-for list="{{chips}}" as="c" hint-placeholder-count="5">
+            <button
+              type="button"
+              class="chip"
+              data-on="{{c.active}}"
+              onClick="{{c.pick}}"
+            >
+              <sc-if value="{{c.hasDot}}" hint-placeholder-val="{{false}}">
+                <span class="chip-dot" style="background: {{c.color}}"></span>
+              </sc-if>
+              {{c.name}}
+              <span class="chip-n">{{c.count}}</span>
+            </button>
+          </sc-for>
+        </div>
+
+        <div class="scroll">
+          <div class="scroll-inner">
+            <div class="count">{{resultLabel}}</div>
+            <div class="grid">
+              <sc-for list="{{scenes}}" as="s" hint-placeholder-count="6">
+                <div class="card">
+                  <div class="thumb">
+                    <svg
+                      class="sketch"
+                      viewBox="{{s.viewBox}}"
+                      preserveAspectRatio="xMidYMid meet"
+                    >
+                      <rect
+                        class="bounds"
+                        x="{{s.bx}}"
+                        y="{{s.by}}"
+                        width="{{s.bw}}"
+                        height="{{s.bh}}"
+                        rx="4"
+                      ></rect>
+                      <sc-for
+                        list="{{s.shapes}}"
+                        as="r"
+                        hint-placeholder-count="3"
+                      >
+                        <rect
+                          x="{{r.x}}"
+                          y="{{r.y}}"
+                          width="{{r.w}}"
+                          height="{{r.h}}"
+                          fill="{{r.fill}}"
+                          rx="3"
+                          transform="{{r.t}}"
+                        ></rect>
+                      </sc-for>
+                      <sc-for
+                        list="{{s.arrows}}"
+                        as="a"
+                        hint-placeholder-count="2"
+                      >
+                        <path d="{{a.d}}"></path>
+                      </sc-for>
+                    </svg>
+                    <sc-if
+                      value="{{s.pinned}}"
+                      hint-placeholder-val="{{false}}"
+                    >
+                      <span class="star">
+                        <svg
+                          width="15"
+                          height="15"
+                          viewBox="0 0 16 16"
+                          fill="currentColor"
+                          stroke="currentColor"
+                          stroke-width="1.4"
+                          stroke-linejoin="round"
+                        >
+                          <path
+                            d="M8 2.2l1.8 3.9 4.2.5-3.1 2.9.9 4.2L8 11.6l-3.8 2.1.9-4.2L2 6.6l4.2-.5z"
+                          ></path>
+                        </svg>
+                      </span>
+                    </sc-if>
+                  </div>
+                  <div class="body">
+                    <sc-if
+                      value="{{s.temporary}}"
+                      hint-placeholder-val="{{false}}"
+                    >
+                      <span class="pill">
+                        <svg
+                          width="11"
+                          height="11"
+                          viewBox="0 0 16 16"
+                          fill="none"
+                          stroke="currentColor"
+                          stroke-width="1.9"
+                          stroke-linecap="round"
+                        >
+                          <circle cx="8" cy="8.4" r="5.6"></circle>
+                          <path d="M8 5.2v3.2l2.2 1.3"></path>
+                        </svg>
+                        {{s.tempLabel}}
+                      </span>
+                    </sc-if>
+                    <div class="crumb">
+                      <svg
+                        width="11"
+                        height="11"
+                        viewBox="0 0 16 16"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="1.5"
+                        stroke-linejoin="round"
+                      >
+                        <path
+                          d="M2 4.4h4.2l1.2 1.6H14v6.4a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1z"
+                        ></path>
+                      </svg>
+                      <span>{{s.path}}</span>
+                    </div>
+                    <div class="title">{{s.name}}</div>
+                    <div class="meta">
+                      <span>{{s.items}} el.</span>
+                      <span class="meta-dot"></span>
+                      <span>{{s.ago}}</span>
+                    </div>
+                  </div>
+                </div>
+              </sc-for>
             </div>
           </div>
         </div>
-      </sc-for>
-    </div>
-    </div>
-  </div>
 
-  <div class="fade"></div>
-  <button type="button" class="fab" aria-label="New drawing">
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
-      <path d="M12 5v14M5 12h14"></path>
-    </svg>
-  </button>
-</div>
-</x-dc>
+        <div class="fade"></div>
+        <button type="button" class="fab" aria-label="New drawing">
+          <svg
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2.2"
+            stroke-linecap="round"
+          >
+            <path d="M12 5v14M5 12h14"></path>
+          </svg>
+        </button>
+      </div>
+    </x-dc>
 
-<script data-dc-script data-props='{"theme":{"editor":"enum","options":["light","dark"],"default":"light","section":"Theme"},"accent":{"editor":"color","default":"#6965db","options":["#6965db","#1971c2","#2f9e44","#e03131"],"section":"Theme"},"$preview":{"width":390,"height":844}}'>
-class Component extends DCLogic {
-  constructor(props) {
-    super(props);
-    this.state = { filter: "all", query: "", sort: "edited" };
-  }
+    <script
+      data-dc-script
+      data-props='{"theme":{"editor":"enum","options":["light","dark"],"default":"light","section":"Theme"},"accent":{"editor":"color","default":"#6965db","options":["#6965db","#1971c2","#2f9e44","#e03131"],"section":"Theme"},"$preview":{"width":390,"height":844}}'
+    >
+      class Component extends DCLogic {
+        constructor(props) {
+          super(props);
+          this.state = { filter: "all", query: "", sort: "edited" };
+        }
 
-  // thumbnails are a fixed square: fit the scene into it, never crop it
-  fitBox(shapes) {
-    let x0 = 1e9, y0 = 1e9, x1 = -1e9, y1 = -1e9;
-    shapes.forEach((r) => {
-      x0 = Math.min(x0, r.x); y0 = Math.min(y0, r.y);
-      x1 = Math.max(x1, r.x + r.w); y1 = Math.max(y1, r.y + r.h);
-    });
-    if (x1 < x0) { x0 = 0; y0 = 0; x1 = 200; y1 = 150; }
-    const pad = 14;
-    const b = { x: x0 - pad, y: y0 - pad, w: (x1 - x0) + pad * 2, h: (y1 - y0) + pad * 2 };
-    const side = Math.max(b.w, b.h) * 1.06;
-    const round = (n) => Math.round(n * 10) / 10;
-    return {
-      viewBox: [b.x + b.w / 2 - side / 2, b.y + b.h / 2 - side / 2, side, side].map(round).join(" "),
-      bx: round(b.x), by: round(b.y), bw: round(b.w), bh: round(b.h)
-    };
-  }
+        // thumbnails are a fixed square: fit the scene into it, never crop it
+        fitBox(shapes) {
+          let x0 = 1e9,
+            y0 = 1e9,
+            x1 = -1e9,
+            y1 = -1e9;
+          shapes.forEach((r) => {
+            x0 = Math.min(x0, r.x);
+            y0 = Math.min(y0, r.y);
+            x1 = Math.max(x1, r.x + r.w);
+            y1 = Math.max(y1, r.y + r.h);
+          });
+          if (x1 < x0) {
+            x0 = 0;
+            y0 = 0;
+            x1 = 200;
+            y1 = 150;
+          }
+          const pad = 14;
+          const b = {
+            x: x0 - pad,
+            y: y0 - pad,
+            w: x1 - x0 + pad * 2,
+            h: y1 - y0 + pad * 2,
+          };
+          const side = Math.max(b.w, b.h) * 1.06;
+          const round = (n) => Math.round(n * 10) / 10;
+          return {
+            viewBox: [
+              b.x + b.w / 2 - side / 2,
+              b.y + b.h / 2 - side / 2,
+              side,
+              side,
+            ]
+              .map(round)
+              .join(" "),
+            bx: round(b.x),
+            by: round(b.y),
+            bw: round(b.w),
+            bh: round(b.h),
+          };
+        }
 
-  catColor(name) {
-    return {
-      architecture: "#a5d8ff",
-      product: "#b2f2bb",
-      notes: "#ffec99",
-      scratch: "#ffc9c9"
-    }[name] || "#d6d6d6";
-  }
+        catColor(name) {
+          return (
+            {
+              architecture: "#a5d8ff",
+              product: "#b2f2bb",
+              notes: "#ffec99",
+              scratch: "#ffc9c9",
+            }[name] || "#d6d6d6"
+          );
+        }
 
-  sketch(kind) {
-    const S = {
-      flow: {
-        shapes: [
-          { x: 12, y: 52, w: 48, h: 34, fill: "#a5d8ff", t: "rotate(-0.7 36 69)" },
-          { x: 76, y: 52, w: 48, h: 34, fill: "#ffec99", t: "rotate(0.6 100 69)" },
-          { x: 140, y: 52, w: 48, h: 34, fill: "#b2f2bb", t: "rotate(-0.4 164 69)" }
-        ],
-        arrows: [
-          { d: "M62 69 L74 69 M70 65 L74 69 L70 73" },
-          { d: "M126 69 L138 69 M134 65 L138 69 L134 73" }
-        ]
-      },
-      tree: {
-        shapes: [
-          { x: 74, y: 16, w: 52, h: 30, fill: "#e0dfff", t: "rotate(0.5 100 31)" },
-          { x: 14, y: 96, w: 48, h: 30, fill: "#ffc9c9", t: "rotate(-0.8 38 111)" },
-          { x: 76, y: 96, w: 48, h: 30, fill: "#b2f2bb", t: "rotate(0.4 100 111)" },
-          { x: 138, y: 96, w: 48, h: 30, fill: "#a5d8ff", t: "rotate(-0.5 162 111)" }
-        ],
-        arrows: [
-          { d: "M100 48 L100 70 L38 70 L38 92 M34 88 L38 93 L42 88" },
-          { d: "M100 48 L100 92 M96 88 L100 93 L104 88" },
-          { d: "M100 48 L100 70 L162 70 L162 92 M158 88 L162 93 L166 88" }
-        ]
-      },
-      stack: {
-        shapes: [
-          { x: 56, y: 10, w: 88, h: 26, fill: "#a5d8ff", t: "rotate(0.4 100 23)" },
-          { x: 56, y: 48, w: 88, h: 26, fill: "#ffec99", t: "rotate(-0.5 100 61)" },
-          { x: 56, y: 86, w: 88, h: 26, fill: "#ffc9c9", t: "rotate(0.5 100 99)" },
-          { x: 56, y: 122, w: 88, h: 22, fill: "#b2f2bb", t: "rotate(-0.3 100 133)" }
-        ],
-        arrows: [
-          { d: "M100 38 L100 45 M96 41 L100 46 L104 41" },
-          { d: "M100 76 L100 83 M96 79 L100 84 L104 79" },
-          { d: "M100 114 L100 119 M96 115 L100 120 L104 115" }
-        ]
-      },
-      grid4: {
-        shapes: [
-          { x: 16, y: 18, w: 76, h: 50, fill: "#ffec99", t: "rotate(-0.5 54 43)" },
-          { x: 108, y: 18, w: 76, h: 50, fill: "#a5d8ff", t: "rotate(0.6 146 43)" },
-          { x: 16, y: 82, w: 76, h: 50, fill: "#b2f2bb", t: "rotate(0.4 54 107)" },
-          { x: 108, y: 82, w: 76, h: 50, fill: "#ffc9c9", t: "rotate(-0.6 146 107)" }
-        ],
-        arrows: []
-      },
-      hub: {
-        shapes: [
-          { x: 72, y: 56, w: 56, h: 36, fill: "#e0dfff", t: "rotate(0.4 100 74)" },
-          { x: 10, y: 14, w: 44, h: 26, fill: "#a5d8ff", t: "rotate(-0.9 32 27)" },
-          { x: 146, y: 14, w: 44, h: 26, fill: "#ffec99", t: "rotate(0.8 168 27)" },
-          { x: 10, y: 108, w: 44, h: 26, fill: "#b2f2bb", t: "rotate(0.7 32 121)" },
-          { x: 146, y: 108, w: 44, h: 26, fill: "#ffc9c9", t: "rotate(-0.6 168 121)" }
-        ],
-        arrows: [
-          { d: "M54 34 L72 58" },
-          { d: "M146 34 L128 58" },
-          { d: "M54 114 L72 90" },
-          { d: "M146 114 L128 90" }
-        ]
-      },
-      notes: {
-        shapes: [
-          { x: 18, y: 12, w: 62, h: 18, fill: "#ffec99", t: "rotate(-0.6 49 21)" }
-        ],
-        arrows: [
-          { d: "M18 46 L178 46" },
-          { d: "M18 60 L152 60" },
-          { d: "M18 74 L172 74" },
-          { d: "M18 88 L120 88" },
-          { d: "M18 102 L164 102" },
-          { d: "M18 116 L140 116" }
-        ]
+        sketch(kind) {
+          const S = {
+            flow: {
+              shapes: [
+                {
+                  x: 12,
+                  y: 52,
+                  w: 48,
+                  h: 34,
+                  fill: "#a5d8ff",
+                  t: "rotate(-0.7 36 69)",
+                },
+                {
+                  x: 76,
+                  y: 52,
+                  w: 48,
+                  h: 34,
+                  fill: "#ffec99",
+                  t: "rotate(0.6 100 69)",
+                },
+                {
+                  x: 140,
+                  y: 52,
+                  w: 48,
+                  h: 34,
+                  fill: "#b2f2bb",
+                  t: "rotate(-0.4 164 69)",
+                },
+              ],
+              arrows: [
+                { d: "M62 69 L74 69 M70 65 L74 69 L70 73" },
+                { d: "M126 69 L138 69 M134 65 L138 69 L134 73" },
+              ],
+            },
+            tree: {
+              shapes: [
+                {
+                  x: 74,
+                  y: 16,
+                  w: 52,
+                  h: 30,
+                  fill: "#e0dfff",
+                  t: "rotate(0.5 100 31)",
+                },
+                {
+                  x: 14,
+                  y: 96,
+                  w: 48,
+                  h: 30,
+                  fill: "#ffc9c9",
+                  t: "rotate(-0.8 38 111)",
+                },
+                {
+                  x: 76,
+                  y: 96,
+                  w: 48,
+                  h: 30,
+                  fill: "#b2f2bb",
+                  t: "rotate(0.4 100 111)",
+                },
+                {
+                  x: 138,
+                  y: 96,
+                  w: 48,
+                  h: 30,
+                  fill: "#a5d8ff",
+                  t: "rotate(-0.5 162 111)",
+                },
+              ],
+              arrows: [
+                { d: "M100 48 L100 70 L38 70 L38 92 M34 88 L38 93 L42 88" },
+                { d: "M100 48 L100 92 M96 88 L100 93 L104 88" },
+                {
+                  d: "M100 48 L100 70 L162 70 L162 92 M158 88 L162 93 L166 88",
+                },
+              ],
+            },
+            stack: {
+              shapes: [
+                {
+                  x: 56,
+                  y: 10,
+                  w: 88,
+                  h: 26,
+                  fill: "#a5d8ff",
+                  t: "rotate(0.4 100 23)",
+                },
+                {
+                  x: 56,
+                  y: 48,
+                  w: 88,
+                  h: 26,
+                  fill: "#ffec99",
+                  t: "rotate(-0.5 100 61)",
+                },
+                {
+                  x: 56,
+                  y: 86,
+                  w: 88,
+                  h: 26,
+                  fill: "#ffc9c9",
+                  t: "rotate(0.5 100 99)",
+                },
+                {
+                  x: 56,
+                  y: 122,
+                  w: 88,
+                  h: 22,
+                  fill: "#b2f2bb",
+                  t: "rotate(-0.3 100 133)",
+                },
+              ],
+              arrows: [
+                { d: "M100 38 L100 45 M96 41 L100 46 L104 41" },
+                { d: "M100 76 L100 83 M96 79 L100 84 L104 79" },
+                { d: "M100 114 L100 119 M96 115 L100 120 L104 115" },
+              ],
+            },
+            grid4: {
+              shapes: [
+                {
+                  x: 16,
+                  y: 18,
+                  w: 76,
+                  h: 50,
+                  fill: "#ffec99",
+                  t: "rotate(-0.5 54 43)",
+                },
+                {
+                  x: 108,
+                  y: 18,
+                  w: 76,
+                  h: 50,
+                  fill: "#a5d8ff",
+                  t: "rotate(0.6 146 43)",
+                },
+                {
+                  x: 16,
+                  y: 82,
+                  w: 76,
+                  h: 50,
+                  fill: "#b2f2bb",
+                  t: "rotate(0.4 54 107)",
+                },
+                {
+                  x: 108,
+                  y: 82,
+                  w: 76,
+                  h: 50,
+                  fill: "#ffc9c9",
+                  t: "rotate(-0.6 146 107)",
+                },
+              ],
+              arrows: [],
+            },
+            hub: {
+              shapes: [
+                {
+                  x: 72,
+                  y: 56,
+                  w: 56,
+                  h: 36,
+                  fill: "#e0dfff",
+                  t: "rotate(0.4 100 74)",
+                },
+                {
+                  x: 10,
+                  y: 14,
+                  w: 44,
+                  h: 26,
+                  fill: "#a5d8ff",
+                  t: "rotate(-0.9 32 27)",
+                },
+                {
+                  x: 146,
+                  y: 14,
+                  w: 44,
+                  h: 26,
+                  fill: "#ffec99",
+                  t: "rotate(0.8 168 27)",
+                },
+                {
+                  x: 10,
+                  y: 108,
+                  w: 44,
+                  h: 26,
+                  fill: "#b2f2bb",
+                  t: "rotate(0.7 32 121)",
+                },
+                {
+                  x: 146,
+                  y: 108,
+                  w: 44,
+                  h: 26,
+                  fill: "#ffc9c9",
+                  t: "rotate(-0.6 168 121)",
+                },
+              ],
+              arrows: [
+                { d: "M54 34 L72 58" },
+                { d: "M146 34 L128 58" },
+                { d: "M54 114 L72 90" },
+                { d: "M146 114 L128 90" },
+              ],
+            },
+            notes: {
+              shapes: [
+                {
+                  x: 18,
+                  y: 12,
+                  w: 62,
+                  h: 18,
+                  fill: "#ffec99",
+                  t: "rotate(-0.6 49 21)",
+                },
+              ],
+              arrows: [
+                { d: "M18 46 L178 46" },
+                { d: "M18 60 L152 60" },
+                { d: "M18 74 L172 74" },
+                { d: "M18 88 L120 88" },
+                { d: "M18 102 L164 102" },
+                { d: "M18 116 L140 116" },
+              ],
+            },
+          };
+          return S[kind] || S.flow;
+        }
+
+        base() {
+          if (!this._base) {
+            const raw = [
+              [
+                "s1",
+                "Local-first architecture",
+                "architecture",
+                34,
+                "2h",
+                true,
+                false,
+                "",
+                "flow",
+                "work / local-first",
+              ],
+              [
+                "s2",
+                "Embedding chunk sizes",
+                "scratch",
+                6,
+                "12m",
+                false,
+                true,
+                "48m left",
+                "notes",
+                "scratch",
+              ],
+              [
+                "s3",
+                "MCP tool surface",
+                "architecture",
+                21,
+                "5h",
+                false,
+                false,
+                "",
+                "tree",
+                "work / local-first",
+              ],
+              [
+                "s4",
+                "Scene save pipeline",
+                "architecture",
+                28,
+                "1d",
+                false,
+                false,
+                "",
+                "stack",
+                "work / local-first",
+              ],
+              [
+                "s5",
+                "Comment anchoring",
+                "product",
+                17,
+                "2d",
+                false,
+                false,
+                "",
+                "hub",
+                "work / product",
+              ],
+              [
+                "s6",
+                "Fork roadmap",
+                "notes",
+                31,
+                "2d",
+                true,
+                false,
+                "",
+                "notes",
+                "work",
+              ],
+              [
+                "s7",
+                "Version history UX",
+                "product",
+                12,
+                "3d",
+                false,
+                false,
+                "",
+                "grid4",
+                "work / product",
+              ],
+              [
+                "s8",
+                "Search ranking notes",
+                "notes",
+                9,
+                "4d",
+                false,
+                false,
+                "",
+                "notes",
+                "work / local-first",
+              ],
+              [
+                "s9",
+                "Onboarding flow",
+                "product",
+                23,
+                "1w",
+                false,
+                false,
+                "",
+                "flow",
+                "work / product",
+              ],
+              [
+                "s10",
+                "Render worker spike",
+                "architecture",
+                11,
+                "2w",
+                false,
+                false,
+                "",
+                "stack",
+                "work / local-first / spikes",
+              ],
+            ];
+            this._base = raw.map((r) => {
+              const sk = this.sketch(r[8]);
+              const fit = this.fitBox(sk.shapes);
+              return {
+                id: r[0],
+                name: r[1],
+                cat: r[2],
+                items: r[3],
+                ago: r[4],
+                pinned: r[5],
+                temporary: r[6],
+                tempLabel: r[7],
+                path: r[9],
+                shapes: sk.shapes,
+                arrows: sk.arrows,
+                viewBox: fit.viewBox,
+                bx: fit.bx,
+                by: fit.by,
+                bw: fit.bw,
+                bh: fit.bh,
+              };
+            });
+          }
+          return this._base;
+        }
+
+        renderVals() {
+          const st = this.state;
+          const q = st.query.trim().toLowerCase();
+          const all = this.base();
+
+          const defs = [
+            { key: "all", name: "All", hasDot: false, color: "#d6d6d6" },
+            { key: "pinned", name: "Pinned", hasDot: false, color: "#d6d6d6" },
+            { key: "temp", name: "Temporary", hasDot: false, color: "#d6d6d6" },
+            {
+              key: "cat:architecture",
+              name: "architecture",
+              hasDot: true,
+              color: this.catColor("architecture"),
+            },
+            {
+              key: "cat:product",
+              name: "product",
+              hasDot: true,
+              color: this.catColor("product"),
+            },
+            {
+              key: "cat:notes",
+              name: "notes",
+              hasDot: true,
+              color: this.catColor("notes"),
+            },
+          ];
+
+          const match = (key, s) => {
+            if (key === "all") {
+              return true;
+            }
+            if (key === "pinned") {
+              return s.pinned;
+            }
+            if (key === "temp") {
+              return s.temporary;
+            }
+            return s.cat === key.slice(4);
+          };
+
+          const chips = defs.map((d) => ({
+            name: d.name,
+            hasDot: d.hasDot,
+            color: d.color,
+            count: all.filter((s) => match(d.key, s)).length,
+            active: st.filter === d.key,
+            pick: () => this.setState({ filter: d.key }),
+          }));
+
+          let list = all.filter((s) => match(st.filter, s));
+          if (q) {
+            list = list.filter(
+              (s) =>
+                (s.name + " " + s.cat + " " + s.path)
+                  .toLowerCase()
+                  .indexOf(q) !== -1,
+            );
+          }
+          if (st.sort === "name") {
+            list = list
+              .slice()
+              .sort((a, b) => (a.name < b.name ? -1 : a.name > b.name ? 1 : 0));
+          }
+
+          const n = list.length;
+
+          return {
+            theme: this.props.theme || "light",
+            accent: this.props.accent || "#6965db",
+            query: st.query,
+            onQuery: (e) => this.setState({ query: e.target.value }),
+            chips: chips,
+            scenes: list,
+            cycleSort: () =>
+              this.setState({ sort: st.sort === "edited" ? "name" : "edited" }),
+            resultLabel:
+              (st.sort === "name" ? "A–Z · " : "") +
+              (q
+                ? n + (n === 1 ? " match" : " matches")
+                : n + (n === 1 ? " drawing" : " drawings")),
+          };
+        }
       }
-    };
-    return S[kind] || S.flow;
-  }
-
-  base() {
-    if (!this._base) {
-      const raw = [
-        ["s1", "Local-first architecture", "architecture", 34, "2h", true, false, "", "flow", "work / local-first"],
-        ["s2", "Embedding chunk sizes", "scratch", 6, "12m", false, true, "48m left", "notes", "scratch"],
-        ["s3", "MCP tool surface", "architecture", 21, "5h", false, false, "", "tree", "work / local-first"],
-        ["s4", "Scene save pipeline", "architecture", 28, "1d", false, false, "", "stack", "work / local-first"],
-        ["s5", "Comment anchoring", "product", 17, "2d", false, false, "", "hub", "work / product"],
-        ["s6", "Fork roadmap", "notes", 31, "2d", true, false, "", "notes", "work"],
-        ["s7", "Version history UX", "product", 12, "3d", false, false, "", "grid4", "work / product"],
-        ["s8", "Search ranking notes", "notes", 9, "4d", false, false, "", "notes", "work / local-first"],
-        ["s9", "Onboarding flow", "product", 23, "1w", false, false, "", "flow", "work / product"],
-        ["s10", "Render worker spike", "architecture", 11, "2w", false, false, "", "stack", "work / local-first / spikes"]
-      ];
-      this._base = raw.map((r) => {
-        const sk = this.sketch(r[8]);
-        const fit = this.fitBox(sk.shapes);
-        return {
-          id: r[0], name: r[1], cat: r[2], items: r[3], ago: r[4],
-          pinned: r[5], temporary: r[6], tempLabel: r[7], path: r[9],
-          shapes: sk.shapes, arrows: sk.arrows,
-          viewBox: fit.viewBox, bx: fit.bx, by: fit.by, bw: fit.bw, bh: fit.bh
-        };
-      });
-    }
-    return this._base;
-  }
-
-  renderVals() {
-    const st = this.state;
-    const q = st.query.trim().toLowerCase();
-    const all = this.base();
-
-    const defs = [
-      { key: "all", name: "All", hasDot: false, color: "#d6d6d6" },
-      { key: "pinned", name: "Pinned", hasDot: false, color: "#d6d6d6" },
-      { key: "temp", name: "Temporary", hasDot: false, color: "#d6d6d6" },
-      { key: "cat:architecture", name: "architecture", hasDot: true, color: this.catColor("architecture") },
-      { key: "cat:product", name: "product", hasDot: true, color: this.catColor("product") },
-      { key: "cat:notes", name: "notes", hasDot: true, color: this.catColor("notes") }
-    ];
-
-    const match = (key, s) => {
-      if (key === "all") { return true; }
-      if (key === "pinned") { return s.pinned; }
-      if (key === "temp") { return s.temporary; }
-      return s.cat === key.slice(4);
-    };
-
-    const chips = defs.map((d) => ({
-      name: d.name,
-      hasDot: d.hasDot,
-      color: d.color,
-      count: all.filter((s) => match(d.key, s)).length,
-      active: st.filter === d.key,
-      pick: () => this.setState({ filter: d.key })
-    }));
-
-    let list = all.filter((s) => match(st.filter, s));
-    if (q) {
-      list = list.filter((s) => (s.name + " " + s.cat + " " + s.path).toLowerCase().indexOf(q) !== -1);
-    }
-    if (st.sort === "name") {
-      list = list.slice().sort((a, b) => (a.name < b.name ? -1 : a.name > b.name ? 1 : 0));
-    }
-
-    const n = list.length;
-
-    return {
-      theme: this.props.theme || "light",
-      accent: this.props.accent || "#6965db",
-      query: st.query,
-      onQuery: (e) => this.setState({ query: e.target.value }),
-      chips: chips,
-      scenes: list,
-      cycleSort: () => this.setState({ sort: st.sort === "edited" ? "name" : "edited" }),
-      resultLabel: (st.sort === "name" ? "A–Z · " : "") + (q
-        ? n + (n === 1 ? " match" : " matches")
-        : n + (n === 1 ? " drawing" : " drawings"))
-    };
-  }
-}
-</script>
-</body>
+    </script>
+  </body>
 </html>

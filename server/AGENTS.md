@@ -73,10 +73,30 @@ drift.
 | `flowchart` | `steps[]`, `direction: down\|right`, `endpoints` |
 | `decision` | `question`, `yes[]`, `no[]`, `then` |
 | `swimlane` | `lanes[{name, steps[]}]` |
+| `cycle` | `steps[]` |
+| `statemachine` | `states[]`, `transitions[{from, to, on}]`, `initial` |
+| `sequence` | `actors[]`, `messages[{from, to, text}]` |
+| `architecture` | `tiers[{name, nodes[{label, sub}]}]`, `links[[a,b]]` |
+| `layers` | `layers[{name, items[]}]` |
+| `erd` | `entities[{name, fields[]}]`, `relations[{from, to, label}]` |
+| `orgchart` | `root{label, sub, children[...]}` |
 | `mindmap` | `centre`, `branches[{label, children[]}]` |
+| `network` | `nodes[]`, `edges[[from, to, label]]` — the escape hatch |
+| `fishbone` | `problem`, `causes[{label, items[]}]` |
 | `kanban` | `columns[{name, cards[]}]` |
 | `timeline` | `events[{when, label}]` |
+| `gantt` | `tasks[{label, start, end}]`, `units[]` |
 | `matrix` | `rows[]`, `columns[]`, `cells[][]` |
+| `quadrant` | `xAxis[l,r]`, `yAxis[b,t]`, `items[{label, x, y}]` 0..1 |
+| `funnel` | `stages[]`, `direction: down\|up` (up = pyramid) |
+| `venn` | `sets[]` (2–3), `overlap` |
+| `proscons` | `subject`, `pros[]`, `cons[]` |
+| `wireframe` | `device: browser\|phone`, `nav[]`, `blocks[{label, height}]` |
+| `storyboard` | `frames[]`, `columns` |
+
+23 of them. `architecture` wires a tier to the one above only when it can be sure: one
+parent above means everything hangs off it, equal widths join index to index,
+anything else is left to `links`. `sub` is a second line — a port, a runtime.
 
 **Write** — `create_scene` · `update_scene` (replaces) · `append_to_scene` ·
 `set_scene_meta` · `delete_scene` · `generate_diagram`
