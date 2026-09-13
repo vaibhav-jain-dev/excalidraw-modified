@@ -19,6 +19,34 @@ Everything below follows from staring at that number.
 
 ---
 
+## Saving is not indexing
+
+A save writes one file, bumps the version row, reconciles the graph and
+returns — 16 ms on a small scene. Everything else is queued:
+`scene.semantic.json`, `scene.md`, `scene.mmd`, the FTS5 rows and the
+embeddings, all on a single background worker.
+
+| on the request | on the worker |
+| --- | --- |
+| write `scene.excalidraw` | derive the three views |
+| bump the version row | replace the FTS5 rows |
+| **reconcile the graph** | re-embed |
+| enqueue and return | |
+
+The graph stays on the request path deliberately. It is in-memory and cheap,
+and an agent that tags an element and then asks for that tag has to see it —
+read-after-write matters more there than the millisecond it costs. Only the
+expensive, eventually-consistent work is deferred.
+
+The queue is coalesced per scene (five saves in ten seconds index once,
+against the last state), runs one job at a time, re-reads the scene from disk
+so every job is idempotent, and persists its pending ids so a restart picks
+them back up. `index_status` (MCP) and `GET /api/index/status` report what is
+still draining — the drawing is already safe on disk; it is search that is a
+moment behind.
+
+---
+
 ## Round 1 — exploration cost
 
 The question an agent actually asks first is never "give me the geometry", it

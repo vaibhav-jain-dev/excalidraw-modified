@@ -7,6 +7,7 @@
 import fs from "node:fs";
 
 import { getActiveScene } from "../events.ts";
+import { status as indexStatus } from "../index-queue.ts";
 import {
   buildTemplate,
   listTemplates,
@@ -839,6 +840,13 @@ export const TOOLS: McpTool[] = [
       const hops = Math.min(4, Math.max(1, Number(args.hops) || 1));
       return text({ start, hops, neighbours: graphNeighbours(start, hops) });
     },
+  },
+  {
+    name: "index_status",
+    description:
+      "What the background indexer is still working through. A save returns before search catches up, so check this if a just-saved drawing has not shown up in results yet.",
+    inputSchema: { type: "object", properties: {} },
+    handler: () => text(indexStatus()),
   },
   {
     name: "graph_stats",

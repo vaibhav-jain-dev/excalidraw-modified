@@ -26,6 +26,11 @@ import {
 import { embedText } from "../search/embeddings.ts";
 import { reindexFts } from "../search/fts.ts";
 import { removeSceneVector, upsertSceneVector } from "../search/vector.ts";
+import {
+  enqueue as enqueueIndex,
+  resumePending,
+  setIndexer,
+} from "../index-queue.ts";
 import * as graph from "./graph.ts";
 
 /**
@@ -463,7 +468,9 @@ export const saveScene = (
   }
 
   pruneVersions(id);
-  regenerateDerived(id, elements);
+  reconcileGraph(id, elements);
+  // the drawing is safe on disk; search catches up in the background
+  enqueueIndex(id);
   refreshTempExpiry(id);
   broadcastSceneChanged({
     type: "scene-changed",
@@ -482,11 +489,45 @@ export const saveScene = (
  * off to the side — a save is never slowed down by, or fails because of,
  * Ollama being unavailable.
  */
-const regenerateDerived = (id: string, elements: unknown[]): void => {
+/**
+ * Reconcile the tag/link graph. Stays on the save path deliberately: it is
+ * in-memory and cheap, and an agent that tags an element then asks for the
+ * tag must see it. Everything expensive goes through the index queue below.
+ */
+const reconcileGraph = (id: string, elements: unknown[]): void => {
   try {
-    const semantic = toSemantic(elements as Array<Record<string, unknown>>);
     const summary = getSceneSummary(id);
-    const name = summary?.name ?? "Untitled";
+    graph.reconcileScene(
+      {
+        id,
+        name: summary?.name ?? "Untitled",
+        tags: summary?.tags ?? [],
+        category: summary?.category ?? "",
+        folder: summary?.folder ?? "",
+      },
+      elements as Array<Record<string, unknown>>,
+    );
+  } catch (error) {
+    console.warn(`failed to reconcile the graph for ${id}`, error);
+  }
+};
+
+/**
+ * Regenerate the derived views (`scene.semantic.json`, `scene.md`,
+ * `scene.mmd`) and the search indexes. Runs on the index queue, not on the
+ * save — so it re-reads the scene from disk rather than trusting a snapshot,
+ * which is what makes it idempotent and safe to re-run after a crash.
+ */
+const regenerateDerived = async (id: string): Promise<void> => {
+  try {
+    const content = getSceneContent(id);
+    const summary = getSceneSummary(id);
+    if (!content || !summary) {
+      return;
+    }
+    const elements = (content.elements ?? []) as Array<Record<string, unknown>>;
+    const semantic = toSemantic(elements);
+    const name = summary.name;
 
     fs.writeFileSync(
       semanticFile(id),
@@ -501,38 +542,28 @@ const regenerateDerived = (id: string, elements: unknown[]): void => {
       fs.rmSync(mermaidFile(id), { force: true });
     }
 
+    // the FTS body is the markdown, which carries every label, edge caption
+    // and note drawn on the canvas — that is how in-diagram text is searchable
     reindexFts(id, {
       name,
-      description: summary?.description ?? "",
-      category: summary?.category ?? "",
-      tags: summary?.tags ?? [],
+      description: summary.description,
+      category: summary.category,
+      tags: summary.tags,
       body: markdown,
     });
 
-    // the graph is derived, so it is rewritten from the scene every save and
-    // can never drift from what is actually drawn
-    graph.reconcileScene(
-      {
-        id,
-        name,
-        tags: summary?.tags ?? [],
-        category: summary?.category ?? "",
-        folder: summary?.folder ?? "",
-      },
-      elements as Array<Record<string, unknown>>,
-    );
-
-    // fire-and-forget: never let embedding latency or failure touch the save
-    void embedText(markdown).then((vector) => {
-      if (vector) {
-        upsertSceneVector(id, vector);
-      }
-    });
+    const vector = await embedText(markdown);
+    if (vector) {
+      upsertSceneVector(id, vector);
+    }
   } catch (error) {
-    // derived views are best-effort — a bad scene must not fail the save
+    // derived views are best-effort — a bad scene must not wedge the queue
     console.warn(`failed to regenerate derived views for ${id}`, error);
   }
 };
+
+setIndexer(regenerateDerived);
+resumePending();
 
 /**
  * Recompute every derived edge by walking each scene. Safe to run at any

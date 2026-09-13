@@ -53,8 +53,9 @@ agent can stop at step 0.
 Arguments are in each tool's schema — this is what the schema can't say: which
 one to reach for.
 
-**Find which drawing** — `list_scenes` · `search_scenes` · `get_active_scene`
-· `list_tags` · `get_tag` · `neighbours` · `graph_stats`
+**Find which drawing** — `list_scenes` · `search_scenes` (covers titles,
+categories and the text drawn inside diagrams) · `get_active_scene` ·
+`list_tags` · `get_tag` · `neighbours` · `graph_stats`
 
 **Read one** — `describe_scene` (graph only, no drawing opened) ·
 `get_scene_outline` · `get_scene_image` · `get_scene` · `links` ·
@@ -81,6 +82,10 @@ drift.
 `set_scene_meta` · `delete_scene` · `generate_diagram`
 
 **Review** — `list_comments` · `reply_to_comment` · `resolve_comment`
+
+A save returns before search catches up — tags and links are live at once, but
+derived text and embeddings are indexed in the background. `index_status` says
+what is still draining.
 
 ## Semantic format (writing)
 

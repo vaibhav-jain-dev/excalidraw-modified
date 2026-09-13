@@ -1,5 +1,7 @@
 import type { FastifyInstance, FastifyReply } from "fastify";
 
+import { status as indexStatus } from "../index-queue.ts";
+
 import {
   buildTemplate,
   listTemplates,
@@ -109,6 +111,8 @@ export const registerGraphRoutes = (app: FastifyInstance): void => {
   }));
 
   app.get("/api/graph/stats", async () => stats());
+
+  app.get("/api/index/status", async () => indexStatus());
 
   app.get<{
     Querystring: { node?: string; scene?: string; tag?: string; hops?: string };
