@@ -5,6 +5,7 @@ import {
   buildTemplate,
   listTemplates,
   TEMPLATE_NAMES,
+  templateExample,
   UnknownTemplateError,
 } from "./templates.ts";
 import { fromSemantic } from "./semantic.ts";
@@ -46,130 +47,6 @@ const overlaps = (scene: ReturnType<typeof buildTemplate>) => {
   return hits;
 };
 
-const SPECS: Record<string, Record<string, unknown>> = {
-  flowchart: { steps: ["Watch", "Parse", "Index"], endpoints: true },
-  decision: { question: "Parsed?", yes: ["Index"], no: ["Retry", "Quarantine"], then: "Done" },
-  swimlane: {
-    lanes: [
-      { name: "Editor", steps: ["Save"] },
-      { name: "Server", steps: ["Derive", "Index"] },
-    ],
-  },
-  mindmap: {
-    centre: "Local-first",
-    branches: [
-      { label: "Storage", children: ["SQLite", "graph.json"] },
-      { label: "Search" },
-      { label: "MCP" },
-    ],
-  },
-  kanban: { columns: [{ name: "Todo", cards: ["A", "B"] }, { name: "Done", cards: ["C"] }] },
-  timeline: { events: [{ when: "Mar", label: "Fork" }, { when: "Apr", label: "Graph" }] },
-  matrix: { rows: ["Fast", "Slow"], columns: ["Cheap", "Dear"], cells: [["yes", "no"]] },
-  architecture: {
-    tiers: [
-      { name: "control", nodes: [{ label: "base-fe", sub: ":3064" }] },
-      {
-        name: "apps",
-        nodes: [
-          { label: "fieldwork", sub: ":3065" },
-          { label: "common", sub: ":3066" },
-          { label: "lms", sub: ":3067" },
-        ],
-      },
-    ],
-    links: [["fieldwork", "common"]],
-  },
-  sequence: {
-    actors: ["Editor", "API", "Worker"],
-    messages: [
-      { from: "Editor", to: "API", text: "PUT /scenes/:id" },
-      { from: "API", to: "Worker", text: "enqueue index" },
-      { from: "Worker", to: "API", text: "done" },
-    ],
-  },
-  statemachine: {
-    states: ["queued", "running", "done"],
-    transitions: [
-      { from: "queued", to: "running", on: "drain" },
-      { from: "running", to: "done", on: "ok" },
-      { from: "running", to: "running", on: "retry" },
-    ],
-  },
-  erd: {
-    entities: [
-      { name: "scene", fields: ["id", "name", "category"] },
-      { name: "version", fields: ["scene_id", "n"] },
-    ],
-    relations: [{ from: "scene", to: "version", label: "1:N" }],
-  },
-  layers: {
-    layers: [
-      { name: "UI", items: ["dashboard", "editor"] },
-      { name: "API", items: ["REST", "MCP"] },
-      { name: "Store", items: ["SQLite", "graph.json"] },
-    ],
-  },
-  quadrant: {
-    xAxis: ["cheap", "costly"],
-    yAxis: ["low impact", "high impact"],
-    items: [
-      { label: "graph store", x: 0.1, y: 0.9 },
-      { label: "editor UI", x: 0.85, y: 0.85 },
-      { label: "cluster names", x: 0.15, y: 0.1 },
-    ],
-  },
-  wireframe: {
-    device: "browser",
-    title: "Library",
-    nav: ["All", "Pinned", "Tags"],
-    blocks: [{ label: "search + filters", height: 80 }, { label: "card grid" }],
-  },
-  venn: { sets: ["derived", "authored"], overlap: "the graph" },
-  storyboard: { frames: ["open library", "pick a drawing", "read-only view", "edit"] },
-  orgchart: {
-    root: {
-      label: "workspace",
-      children: [
-        { label: "base-fe", sub: ":3064", children: [{ label: "registry" }, { label: "runtime" }] },
-        { label: "apps", children: [{ label: "fieldwork" }, { label: "lms" }] },
-      ],
-    },
-  },
-  gantt: {
-    units: ["Mar", "Apr", "May", "Jun"],
-    tasks: [
-      { label: "graph store", start: 0, end: 2 },
-      { label: "search ladder", start: 1, end: 3 },
-      { label: "editor UI", start: 2, end: 4 },
-    ],
-  },
-  funnel: { stages: ["visitors", "signups", "active", "paying"] },
-  cycle: { steps: ["draw", "save", "index", "search"] },
-  fishbone: {
-    problem: "thumbnail wrong",
-    causes: [
-      { label: "layout", items: ["flex min-size"] },
-      { label: "render", items: ["scene bbox"] },
-      { label: "data", items: ["sparse board"] },
-    ],
-  },
-  proscons: {
-    subject: "JSON graph store",
-    pros: ["no migration per edge kind", "readable on disk"],
-    cons: ["loaded whole into memory"],
-  },
-  network: {
-    nodes: ["editor", "api", "worker", "sqlite", "graph.json"],
-    edges: [
-      ["editor", "api", "save"],
-      ["api", "worker", "enqueue"],
-      ["worker", "sqlite"],
-      ["api", "graph.json"],
-    ],
-  },
-};
-
 /** venn circles overlap by design — that is the diagram, not a layout bug */
 const OVERLAP_EXEMPT = new Set(["venn"]);
 
@@ -180,11 +57,18 @@ describe("diagram templates", () => {
     for (const info of listTemplates()) {
       assert.ok(info.takes.length > 0, `${info.name} documents its input`);
       assert.ok(info.gives.length > 0, `${info.name} documents its output`);
+      // the example an agent will copy has to be the one that is exercised
+      assert.deepEqual(info.example, templateExample(info.name));
     }
   });
 
-  it("has a worked example for every registered template", () => {
-    assert.deepEqual(Object.keys(SPECS).sort(), [...TEMPLATE_NAMES].sort());
+  it("ships a worked example for every registered template", () => {
+    for (const info of listTemplates()) {
+      assert.ok(
+        info.example && Object.keys(info.example).length > 0,
+        `${info.name} documents a usable example`,
+      );
+    }
   });
 
   for (const name of TEMPLATE_NAMES) {
@@ -193,13 +77,13 @@ describe("diagram templates", () => {
         t.skip("overlapping shapes are the point of this one");
         return;
       }
-      const scene = buildTemplate(name, SPECS[name]!);
+      const scene = buildTemplate(name, templateExample(name));
       assert.ok(scene.nodes.length > 0, "produced nodes");
       assert.deepEqual(overlaps(scene), [], "no two nodes overlap");
     });
 
     it(`${name}: every edge points at a node that exists`, () => {
-      const scene = buildTemplate(name, SPECS[name]!);
+      const scene = buildTemplate(name, templateExample(name));
       const ids = new Set(scene.nodes.map((n) => n.id));
       for (const edge of scene.edges) {
         assert.ok(ids.has(edge.from), `${edge.id} from ${edge.from}`);
@@ -208,7 +92,7 @@ describe("diagram templates", () => {
     });
 
     it(`${name}: compiles to real elements`, () => {
-      const scene = buildTemplate(name, SPECS[name]!);
+      const scene = buildTemplate(name, templateExample(name));
       const elements = fromSemantic(scene);
       assert.ok(elements.length >= scene.nodes.length);
     });
@@ -221,7 +105,7 @@ describe("diagram templates", () => {
   }
 
   it("chains flowchart steps in order", () => {
-    const scene = buildTemplate("flowchart", SPECS.flowchart!);
+    const scene = buildTemplate("flowchart", templateExample("flowchart"));
     assert.deepEqual(
       scene.edges.map((e) => `${e.from}->${e.to}`),
       ["n1->n2", "n2->n3"],
@@ -236,18 +120,18 @@ describe("diagram templates", () => {
   });
 
   it("labels the first edge of each decision branch", () => {
-    const scene = buildTemplate("decision", SPECS.decision!);
+    const scene = buildTemplate("decision", templateExample("decision"));
     const labelled = scene.edges.filter((e) => e.text).map((e) => e.text);
     assert.deepEqual(labelled.sort(), ["no", "yes"]);
   });
 
   it("rejoins both decision branches when `then` is given", () => {
-    const scene = buildTemplate("decision", SPECS.decision!);
+    const scene = buildTemplate("decision", templateExample("decision"));
     assert.equal(scene.edges.filter((e) => e.to === "end").length, 2);
   });
 
   it("wires an architecture tier that fans out from a single parent", () => {
-    const scene = buildTemplate("architecture", SPECS.architecture!);
+    const scene = buildTemplate("architecture", templateExample("architecture"));
     const fromRoot = scene.edges.filter((e) => e.from === "t1n1");
     assert.equal(fromRoot.length, 3, "all three apps hang off base-fe");
   });
@@ -276,7 +160,7 @@ describe("diagram templates", () => {
   });
 
   it("draws a lifeline per actor and an arrow per sequence message", () => {
-    const scene = buildTemplate("sequence", SPECS.sequence!);
+    const scene = buildTemplate("sequence", templateExample("sequence"));
     assert.equal(scene.nodes.length, 3, "one box per actor");
     const lifelines = scene.sketches.filter((s) => s.id.startsWith("life"));
     assert.equal(lifelines.length, 3);
@@ -295,19 +179,19 @@ describe("diagram templates", () => {
   });
 
   it("labels a self-transition instead of drawing an edge to nowhere", () => {
-    const scene = buildTemplate("statemachine", SPECS.statemachine!);
+    const scene = buildTemplate("statemachine", templateExample("statemachine"));
     assert.equal(scene.edges.length, 2, "only the two real transitions");
     assert.equal(scene.texts.length, 1);
     assert.match(scene.texts[0]!.text, /retry/);
   });
 
   it("marks the initial state differently", () => {
-    const scene = buildTemplate("statemachine", SPECS.statemachine!);
+    const scene = buildTemplate("statemachine", templateExample("statemachine"));
     assert.notEqual(scene.nodes[0]!.bg, scene.nodes[1]!.bg);
   });
 
   it("sizes an entity row to its tallest entity, and aligns the row", () => {
-    const scene = buildTemplate("erd", SPECS.erd!);
+    const scene = buildTemplate("erd", templateExample("erd"));
     // three fields plus the name has to fit
     assert.ok(scene.nodes[0]!.h! >= 54 + 3 * 24);
     // ...and neighbours in the same row match it, so the row reads as a row
@@ -316,7 +200,7 @@ describe("diagram templates", () => {
   });
 
   it("lists an entity's fields under its name and labels the relation", () => {
-    const scene = buildTemplate("erd", SPECS.erd!);
+    const scene = buildTemplate("erd", templateExample("erd"));
     assert.equal(scene.nodes[0]!.text, "scene\nid\nname\ncategory");
     assert.equal(scene.edges[0]!.text, "1:N");
   });
@@ -335,7 +219,7 @@ describe("diagram templates", () => {
   });
 
   it("puts every layer item inside its own band", () => {
-    const scene = buildTemplate("layers", SPECS.layers!);
+    const scene = buildTemplate("layers", templateExample("layers"));
     const band = scene.nodes.find((n) => n.id === "band1")!;
     const item = scene.nodes.find((n) => n.id === "b1i1")!;
     assert.ok(item.x! >= band.x! && item.y! >= band.y!);
@@ -344,7 +228,7 @@ describe("diagram templates", () => {
   });
 
   it("plots quadrant items from the bottom-left, the way a chart reads", () => {
-    const scene = buildTemplate("quadrant", SPECS.quadrant!);
+    const scene = buildTemplate("quadrant", templateExample("quadrant"));
     const byLabel = new Map(scene.nodes.map((n) => [n.text, n]));
     const high = byLabel.get("graph store")!;
     const low = byLabel.get("cluster names")!;
@@ -379,7 +263,7 @@ describe("diagram templates", () => {
   });
 
   it("sizes a wireframe to its content and keeps blocks inside the frame", () => {
-    const scene = buildTemplate("wireframe", SPECS.wireframe!);
+    const scene = buildTemplate("wireframe", templateExample("wireframe"));
     const frame = scene.nodes.find((n) => n.id === "frame")!;
     for (const block of scene.nodes.filter((n) => n.id.startsWith("blk"))) {
       assert.ok(block.y! + block.h! <= frame.y! + frame.h!, `${block.id} fits`);
@@ -394,7 +278,7 @@ describe("diagram templates", () => {
   });
 
   it("overlaps venn circles, which is the whole diagram", () => {
-    const scene = buildTemplate("venn", SPECS.venn!);
+    const scene = buildTemplate("venn", templateExample("venn"));
     assert.equal(scene.nodes.length, 2);
     assert.ok(overlaps(scene).length > 0, "the circles must intersect");
     assert.equal(scene.texts.length, 3, "two set labels plus the overlap");
@@ -418,7 +302,7 @@ describe("diagram templates", () => {
   });
 
   it("centres every org chart parent over its own children", () => {
-    const scene = buildTemplate("orgchart", SPECS.orgchart!);
+    const scene = buildTemplate("orgchart", templateExample("orgchart"));
     const byText = new Map(scene.nodes.map((n) => [n.text, n]));
     const apps = byText.get("apps")!;
     const fieldwork = byText.get("fieldwork")!;
@@ -430,12 +314,12 @@ describe("diagram templates", () => {
   });
 
   it("gives every org chart child an edge from its parent", () => {
-    const scene = buildTemplate("orgchart", SPECS.orgchart!);
+    const scene = buildTemplate("orgchart", templateExample("orgchart"));
     assert.equal(scene.edges.length, scene.nodes.length - 1, "a tree, not a forest");
   });
 
   it("draws a gantt bar spanning exactly its units", () => {
-    const scene = buildTemplate("gantt", SPECS.gantt!);
+    const scene = buildTemplate("gantt", templateExample("gantt"));
     const bar = scene.nodes.find((n) => n.id === "bar1")!;
     const unit0 = scene.nodes.find((n) => n.id === "u1")!;
     assert.equal(bar.x, unit0.x, "starts under its first column");
@@ -452,14 +336,14 @@ describe("diagram templates", () => {
   });
 
   it("narrows a funnel and widens a pyramid", () => {
-    const down = buildTemplate("funnel", SPECS.funnel!);
+    const down = buildTemplate("funnel", templateExample("funnel"));
     assert.ok(down.nodes[0]!.w! > down.nodes[3]!.w!);
     const up = buildTemplate("funnel", { stages: ["a", "b", "c"], direction: "up" });
     assert.ok(up.nodes[0]!.w! < up.nodes[2]!.w!);
   });
 
   it("closes the cycle back to the first step", () => {
-    const scene = buildTemplate("cycle", SPECS.cycle!);
+    const scene = buildTemplate("cycle", templateExample("cycle"));
     assert.equal(scene.edges.length, 4);
     assert.equal(scene.edges[3]!.to, "c1", "the last step returns to the first");
   });
@@ -474,7 +358,7 @@ describe("diagram templates", () => {
   });
 
   it("alternates fishbone causes above and below the spine", () => {
-    const scene = buildTemplate("fishbone", SPECS.fishbone!);
+    const scene = buildTemplate("fishbone", templateExample("fishbone"));
     const c1 = scene.nodes.find((n) => n.id === "c1")!;
     const c2 = scene.nodes.find((n) => n.id === "c2")!;
     assert.ok(c1.y! < 0, "first cause above the spine");
@@ -483,7 +367,7 @@ describe("diagram templates", () => {
   });
 
   it("colours pros and cons differently", () => {
-    const scene = buildTemplate("proscons", SPECS.proscons!);
+    const scene = buildTemplate("proscons", templateExample("proscons"));
     const pro = scene.nodes.find((n) => n.id === "pro1")!;
     const con = scene.nodes.find((n) => n.id === "con1")!;
     assert.notEqual(pro.bg, con.bg);
@@ -491,7 +375,7 @@ describe("diagram templates", () => {
   });
 
   it("wires a network by node label and ignores names it does not know", () => {
-    const scene = buildTemplate("network", SPECS.network!);
+    const scene = buildTemplate("network", templateExample("network"));
     assert.equal(scene.edges.length, 4);
     assert.equal(scene.edges[0]!.text, "save");
     const ghost = buildTemplate("network", {

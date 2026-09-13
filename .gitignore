@@ -27,3 +27,6 @@ dev-dist
 html
 meta*.json
 .claude
+
+# Generated design-canvas payload — rebuild with `make design` (design/README.md)
+design/**/excalidraw-library-redesign.html

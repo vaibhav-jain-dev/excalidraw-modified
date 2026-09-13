@@ -600,7 +600,7 @@ export const TOOLS: McpTool[] = [
   {
     name: "apply_template",
     description:
-      "Build a diagram from a template and save it. mode: \"new\" (creates, returns an id), \"replace\", \"append\". Template fields go in spec.",
+      "Build a diagram from a template and save it. mode: \"new\" (creates, returns an id), \"replace\", \"append\". Template fields go in spec — list_templates ships a working example for each, so copy that shape rather than guessing. On \"new\" you can file it straight away with category, folder and tags.",
     inputSchema: {
       type: "object",
       properties: {
@@ -609,6 +609,9 @@ export const TOOLS: McpTool[] = [
         mode: { type: "string", enum: ["new", "replace", "append"] },
         id: ID_PROP,
         name: { type: "string" },
+        category: { type: "string" },
+        folder: { type: "string" },
+        tags: { type: "array", items: { type: "string" } },
       },
       required: ["template", "spec"],
     },
@@ -636,6 +639,9 @@ export const TOOLS: McpTool[] = [
       if (mode === "new") {
         const created = createScene({
           name: String(args.name || scene.name || "Untitled"),
+          category: args.category ? String(args.category) : undefined,
+          folder: args.folder ? String(args.folder) : undefined,
+          tags: Array.isArray(args.tags) ? (args.tags as string[]) : undefined,
         });
         saveSceneFromSemantic(created.id, scene);
         return text({

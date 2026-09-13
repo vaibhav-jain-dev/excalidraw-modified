@@ -66,7 +66,9 @@ categories and the text drawn inside diagrams) · `get_active_scene` ·
 
 **Draw** — `list_templates` then `apply_template`. Templates solve the
 geometry; hand-placed coordinates are where generated diagrams overlap and
-drift.
+drift. Every entry ships a working `example` — copy that shape rather than
+inferring one from the table below. `apply_template` with `mode: "new"` takes
+`category`, `folder` and `tags`, so a new diagram lands filed.
 
 | template | spec |
 | --- | --- |

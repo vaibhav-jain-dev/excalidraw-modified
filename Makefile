@@ -41,3 +41,19 @@ status:
 	else \
 		echo "Not running."; \
 	fi
+
+# Re-seed the design canvas from its sources (see design/README.md).
+# SKILL points at the bundled /design skill that ships the payload template.
+SKILL ?= $(wildcard /tmp/claude-*/bundled-skills/*/*/design)
+DESIGN_DIR := design/dashboard-redesign
+DESIGN_OUT := $(DESIGN_DIR)/excalidraw-library-redesign.html
+
+.PHONY: design
+design:
+	@test -n "$(SKILL)" || { echo "design skill not found; run /design once to extract it"; exit 1; }
+	node "$(SKILL)/seed-canvas.mjs" \
+	  --template "$(SKILL)/payload.template.html" \
+	  --out $(DESIGN_OUT) --title "Excalidraw Library Redesign" \
+	  $(foreach f,$(wildcard $(DESIGN_DIR)/*.dc.html),--artboard $(f) ) \
+	  --canvas $(DESIGN_DIR)/canvas.json
+	node "$(SKILL)/seed-canvas.mjs" --check $(DESIGN_OUT)

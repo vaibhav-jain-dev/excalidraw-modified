@@ -393,7 +393,7 @@ export const clearAnnotations = (sceneId: string): number => {
 };
 
 /** Everything the graph knows about one drawing, in one read. */
-export interface SceneFacts_Read {
+export interface SceneGraphFacts {
   scene: string;
   name: string;
   note?: string;
@@ -405,14 +405,14 @@ export interface SceneFacts_Read {
   linksIn: Array<{ sceneId: string; name: string }>;
 }
 
-export const describeScene = (sceneId: string): SceneFacts_Read | null => {
+export const describeScene = (sceneId: string): SceneGraphFacts | null => {
   load();
   const sid = sceneNode(sceneId);
   const node = graph.nodes[sid];
   if (!node) {
     return null;
   }
-  const out: SceneFacts_Read = {
+  const out: SceneGraphFacts = {
     scene: sceneId,
     name: node.label,
     category: null,

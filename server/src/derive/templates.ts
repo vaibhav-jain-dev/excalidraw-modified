@@ -901,7 +901,7 @@ const gantt = (spec: GanttSpec): SemanticScene => {
 
 export interface FunnelSpec {
   title?: string;
-  stages: Array<Str & {}>;
+  stages: Str[];
   /** "down" narrows towards the bottom (a funnel); "up" is a pyramid */
   direction?: "down" | "up";
 }
@@ -1132,6 +1132,12 @@ export interface TemplateInfo {
   name: string;
   takes: string;
   gives: string;
+  /**
+   * A spec that actually builds. Prose describing a shape leaves an agent
+   * guessing at it; a working example does not. The tests build from these,
+   * so a documented example that stopped working fails the suite.
+   */
+  example: Record<string, unknown>;
 }
 
 const REGISTRY = {
@@ -1139,116 +1145,139 @@ const REGISTRY = {
     build: flowchart as (spec: any) => SemanticScene,
     takes: "steps[], direction: down|right, endpoints: bool, title",
     gives: "one chain of boxes joined by arrows",
+    example: { steps: ["Watch", "Parse", "Index"], endpoints: true },
   },
   decision: {
     build: decision as (spec: any) => SemanticScene,
     takes: "question, yes[], no[], then, title",
     gives: "a diamond splitting into two branches that can rejoin",
+    example: { question: "Parsed?", yes: ["Index"], no: ["Retry", "Quarantine"], then: "Done" },
   },
   swimlane: {
     build: swimlane as (spec: any) => SemanticScene,
     takes: "lanes[{name, steps[]}], title",
     gives: "one labelled row per lane, steps left to right",
+    example: { lanes: [{ name: "Editor", steps: ["Save"] }, { name: "Server", steps: ["Derive", "Index"] }] },
   },
   mindmap: {
     build: mindmap as (spec: any) => SemanticScene,
     takes: "centre, branches[{label, children[]}], title",
     gives: "a hub with branches radiating around it",
+    example: { centre: "Local-first", branches: [{ label: "Storage", children: ["SQLite", "graph.json"] }, { label: "Search" }, { label: "MCP" }] },
   },
   kanban: {
     build: kanban as (spec: any) => SemanticScene,
     takes: "columns[{name, cards[]}], title",
     gives: "columns of sticky notes",
+    example: { columns: [{ name: "Todo", cards: ["A", "B"] }, { name: "Done", cards: ["C"] }] },
   },
   timeline: {
     build: timeline as (spec: any) => SemanticScene,
     takes: "events[{when, label}], title",
     gives: "a left-to-right spine with a label under each point",
+    example: { events: [{ when: "Mar", label: "Fork" }, { when: "Apr", label: "Graph" }] },
   },
   matrix: {
     build: matrix as (spec: any) => SemanticScene,
     takes: "rows[], columns[], cells[][], title",
     gives: "a labelled grid",
+    example: { rows: ["Fast", "Slow"], columns: ["Cheap", "Dear"], cells: [["yes", "no"]] },
   },
   architecture: {
     build: architecture as (spec: any) => SemanticScene,
     takes: "tiers[{name, nodes[{label, sub}]}], links[[a,b]], title",
     gives: "services in tiers, wired top-down; sub is a second line (a port, a runtime)",
+    example: { tiers: [{ name: "control", nodes: [{ label: "base-fe", sub: ":3064" }] }, { name: "apps", nodes: [{ label: "fieldwork", sub: ":3065" }, { label: "common", sub: ":3066" }, { label: "lms", sub: ":3067" }] }], links: [["fieldwork", "common"]] },
   },
   sequence: {
     build: sequence as (spec: any) => SemanticScene,
     takes: "actors[], messages[{from, to, text}], title",
     gives: "lifelines with labelled arrows between them, in order",
+    example: { actors: ["Editor", "API", "Worker"], messages: [{ from: "Editor", to: "API", text: "PUT /scenes/:id" }, { from: "API", to: "Worker", text: "enqueue index" }, { from: "Worker", to: "API", text: "done" }] },
   },
   statemachine: {
     build: statemachine as (spec: any) => SemanticScene,
     takes: "states[], transitions[{from, to, on}], initial, title",
     gives: "states in a row with labelled transitions; self-transitions become a label",
+    example: { states: ["queued", "running", "done"], transitions: [{ from: "queued", to: "running", on: "drain" }, { from: "running", to: "done", on: "ok" }, { from: "running", to: "running", on: "retry" }] },
   },
   erd: {
     build: erd as (spec: any) => SemanticScene,
     takes: "entities[{name, fields[]}], relations[{from, to, label}], title",
     gives: "entity boxes listing their fields, joined by labelled relations",
+    example: { entities: [{ name: "scene", fields: ["id", "name", "category"] }, { name: "version", fields: ["scene_id", "n"] }], relations: [{ from: "scene", to: "version", label: "1:N" }] },
   },
   layers: {
     build: layers as (spec: any) => SemanticScene,
     takes: "layers[{name, items[]}], title",
     gives: "stacked bands, each holding its own items",
+    example: { layers: [{ name: "UI", items: ["dashboard", "editor"] }, { name: "API", items: ["REST", "MCP"] }, { name: "Store", items: ["SQLite", "graph.json"] }] },
   },
   quadrant: {
     build: quadrant as (spec: any) => SemanticScene,
     takes: "xAxis[left,right], yAxis[bottom,top], items[{label, x, y}] (0..1), title",
     gives: "a 2x2 with labelled axes and sticky notes plotted in it",
+    example: { xAxis: ["cheap", "costly"], yAxis: ["low impact", "high impact"], items: [{ label: "graph store", x: 0.1, y: 0.9 }, { label: "editor UI", x: 0.85, y: 0.85 }, { label: "cluster names", x: 0.15, y: 0.1 }] },
   },
   wireframe: {
     build: wireframe as (spec: any) => SemanticScene,
     takes: "device browser|phone, nav[], blocks[{label, height}], title",
     gives: "a UI sketch scaffold: frame, chrome strip, nav, stacked blocks",
+    example: { device: "browser", title: "Library", nav: ["All", "Pinned", "Tags"], blocks: [{ label: "search + filters", height: 80 }, { label: "card grid" }] },
   },
   venn: {
     build: venn as (spec: any) => SemanticScene,
     takes: "sets[] (two or three), overlap, title",
     gives: "overlapping circles with labels",
+    example: { sets: ["derived", "authored"], overlap: "the graph" },
   },
   storyboard: {
     build: storyboard as (spec: any) => SemanticScene,
     takes: "frames[], columns, title",
     gives: "numbered empty frames with a caption under each",
+    example: { frames: ["open library", "pick a drawing", "read-only view", "edit"] },
   },
   orgchart: {
     build: orgchart as (spec: any) => SemanticScene,
     takes: "root{label, sub, children[...]}, title",
     gives: "a tidy tree, every parent centred over its children",
+    example: { root: { label: "workspace", children: [{ label: "base-fe", sub: ":3064", children: [{ label: "registry" }, { label: "runtime" }] }, { label: "apps", children: [{ label: "fieldwork" }, { label: "lms" }] }] } },
   },
   gantt: {
     build: gantt as (spec: any) => SemanticScene,
     takes: "tasks[{label, start, end}], units[], title",
     gives: "a bar per task across labelled time columns",
+    example: { units: ["Mar", "Apr", "May", "Jun"], tasks: [{ label: "graph store", start: 0, end: 2 }, { label: "search ladder", start: 1, end: 3 }, { label: "editor UI", start: 2, end: 4 }] },
   },
   funnel: {
     build: funnel as (spec: any) => SemanticScene,
     takes: "stages[], direction down|up, title",
     gives: "stages narrowing downward, or widening upward as a pyramid",
+    example: { stages: ["visitors", "signups", "active", "paying"] },
   },
   cycle: {
     build: cycle as (spec: any) => SemanticScene,
     takes: "steps[], title",
     gives: "steps on a ring, each arrow returning to the start",
+    example: { steps: ["draw", "save", "index", "search"] },
   },
   fishbone: {
     build: fishbone as (spec: any) => SemanticScene,
     takes: "problem, causes[{label, items[]}], title",
     gives: "a spine running into the problem, causes branching off it",
+    example: { problem: "thumbnail wrong", causes: [{ label: "layout", items: ["flex min-size"] }, { label: "render", items: ["scene bbox"] }, { label: "data", items: ["sparse board"] }] },
   },
   proscons: {
     build: proscons as (spec: any) => SemanticScene,
     takes: "subject, pros[], cons[], title",
     gives: "two coloured columns under an optional subject",
+    example: { subject: "JSON graph store", pros: ["no migration per edge kind", "readable on disk"], cons: ["loaded whole into memory"] },
   },
   network: {
     build: network as (spec: any) => SemanticScene,
     takes: "nodes[], edges[[from, to, label]], title",
     gives: "arbitrary nodes on a ring with the edges you name — the escape hatch",
+    example: { nodes: ["editor", "api", "worker", "sqlite", "graph.json"], edges: [["editor", "api", "save"], ["api", "worker", "enqueue"], ["worker", "sqlite"], ["api", "graph.json"]] },
   },
 } as const;
 
@@ -1261,7 +1290,12 @@ export const listTemplates = (): TemplateInfo[] =>
     name,
     takes: REGISTRY[name].takes,
     gives: REGISTRY[name].gives,
+    example: REGISTRY[name].example as Record<string, unknown>,
   }));
+
+/** The worked example for one template, for tests and for `apply_template`. */
+export const templateExample = (name: string): Record<string, unknown> =>
+  (REGISTRY[name as TemplateName]?.example ?? {}) as Record<string, unknown>;
 
 export class UnknownTemplateError extends Error {
   constructor(name: string) {
