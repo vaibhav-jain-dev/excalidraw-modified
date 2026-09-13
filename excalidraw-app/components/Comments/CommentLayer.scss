@@ -1,0 +1,334 @@
+.comment-layer {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 5;
+
+  * {
+    box-sizing: border-box;
+  }
+}
+
+.comment-layer-capture {
+  position: absolute;
+  inset: 0;
+  pointer-events: auto;
+  cursor: crosshair;
+}
+
+/* region outline only — no fill, so it never obscures the drawing under it */
+.comment-region-outline {
+  position: absolute;
+  border: 1.5px dashed rgba(240, 180, 41, 0.75);
+  border-radius: 4px;
+  pointer-events: none;
+}
+
+/* the actual clickable marker: a small pin sitting at the region's corner,
+   above the artwork rather than covering it */
+.comment-pin {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  width: 1.9rem;
+  height: 1.9rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #e6e6e9;
+  border-radius: 999px 999px 999px 0;
+  background: #ffffff;
+  font-size: 1rem;
+  line-height: 1;
+  padding: 0;
+  pointer-events: auto;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.18);
+
+  @media (prefers-color-scheme: dark) {
+    background: #2a2a30;
+    border-color: #34343b;
+  }
+
+  &:hover {
+    border-color: #f0b429;
+  }
+}
+
+.comment-pin-badge {
+  position: absolute;
+  top: -0.35rem;
+  right: -0.35rem;
+  min-width: 1.1rem;
+  height: 1.1rem;
+  padding: 0 0.25rem;
+  border-radius: 999px;
+  background: #f0b429;
+  color: #1b1b1f;
+  font: 600 0.65rem/1.1rem system-ui, sans-serif;
+  text-align: center;
+}
+
+.comment-draft-region {
+  position: absolute;
+  border: 2px dashed #6741d9;
+  background: rgba(103, 65, 217, 0.1);
+  border-radius: 4px;
+  pointer-events: none;
+}
+
+.comment-composer,
+.comment-thread-popover {
+  position: absolute;
+  pointer-events: auto;
+  width: min(18rem, calc(100vw - 2rem));
+  background: #ffffff;
+  color: #1b1b1f;
+  border: 1px solid #e6e6e9;
+  border-radius: 10px;
+  padding: 0.6rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.16);
+  font: 13px system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+
+  @media (prefers-color-scheme: dark) {
+    background: #212126;
+    color: #ececef;
+    border-color: #34343b;
+  }
+
+  textarea {
+    font: inherit;
+    color: inherit;
+    background: transparent;
+    border: 1px solid #e6e6e9;
+    border-radius: 6px;
+    padding: 0.4rem 0.5rem;
+    resize: vertical;
+
+    @media (prefers-color-scheme: dark) {
+      border-color: #34343b;
+    }
+  }
+
+  button {
+    font: inherit;
+    cursor: pointer;
+    border: 1px solid #e6e6e9;
+    background: #ffffff;
+    color: inherit;
+    border-radius: 6px;
+    padding: 0.3rem 0.6rem;
+
+    @media (prefers-color-scheme: dark) {
+      background: #2a2a30;
+      border-color: #34343b;
+    }
+
+    &.primary {
+      background: #6741d9;
+      border-color: #6741d9;
+      color: #fff;
+      font-weight: 600;
+    }
+
+    &.danger:hover {
+      border-color: #c92a2a;
+      color: #c92a2a;
+    }
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: default;
+    }
+  }
+}
+
+.comment-composer-actions,
+.comment-thread-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.4rem;
+}
+
+.comment-thread-messages {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  max-height: 12rem;
+  overflow-y: auto;
+}
+
+.comment-message {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  padding: 0.35rem 0.5rem;
+  border-radius: 6px;
+  background: rgba(103, 65, 217, 0.08);
+}
+
+.comment-message-agent {
+  background: rgba(240, 180, 41, 0.12);
+}
+
+.comment-message-author {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #6b6b73;
+
+  @media (prefers-color-scheme: dark) {
+    color: #9a9aa4;
+  }
+}
+
+.comment-message-text {
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+// --- rich text inside a comment body (see ./richText.tsx for the subset) ---
+
+.comment-message-text {
+  code {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 0.85em;
+    padding: 0.05rem 0.3rem;
+    border-radius: 4px;
+    background: rgba(128, 128, 128, 0.16);
+    word-break: break-all;
+  }
+
+  mark {
+    padding: 0.02rem 0.2rem;
+    border-radius: 3px;
+    background: rgba(240, 180, 41, 0.42);
+    color: inherit;
+  }
+
+  del {
+    opacity: 0.65;
+  }
+
+  ul,
+  ol {
+    margin: 0.2rem 0;
+    padding-left: 1.15rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.1rem;
+  }
+
+  li {
+    white-space: normal;
+  }
+}
+
+.comment-swatch {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.comment-swatch-chip {
+  width: 0.7em;
+  height: 0.7em;
+  border-radius: 3px;
+  border: 1px solid rgba(0, 0, 0, 0.25);
+  flex: none;
+}
+
+// --- composer: formatting toolbar + preview ---
+
+.comment-composer-box {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  min-width: 0;
+
+  textarea {
+    width: 100%;
+  }
+}
+
+.comment-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 0.15rem;
+  flex-wrap: wrap;
+}
+
+.comment-toolbar-sep {
+  width: 1px;
+  height: 1rem;
+  margin: 0 0.2rem;
+  background: var(--dash-border, #e6e6e9);
+}
+
+.comment-tool {
+  min-width: 1.6rem;
+  height: 1.6rem;
+  padding: 0 0.35rem;
+  font: inherit;
+  font-size: 0.75rem;
+  font-weight: 700;
+  line-height: 1;
+  color: #6b6b73;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 5px;
+  cursor: pointer;
+
+  &:hover:not(:disabled) {
+    background: rgba(128, 128, 128, 0.14);
+    color: inherit;
+  }
+
+  &:disabled {
+    opacity: 0.45;
+    cursor: default;
+  }
+
+  &[aria-pressed="true"] {
+    background: rgba(103, 65, 217, 0.14);
+    color: #6741d9;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    color: #9a9aa4;
+  }
+}
+
+.comment-tool-italic {
+  font-style: italic;
+}
+
+.comment-tool-strikethrough {
+  text-decoration: line-through;
+}
+
+.comment-tool-code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.68rem;
+}
+
+.comment-tool-highlight {
+  background: rgba(240, 180, 41, 0.3);
+}
+
+.comment-tool-preview {
+  margin-left: auto;
+  font-size: 0.7rem;
+}
+
+.comment-preview {
+  min-height: 3rem;
+  padding: 0.4rem 0.5rem;
+  border: 1px dashed rgba(128, 128, 128, 0.4);
+  border-radius: 6px;
+  font-size: 0.85rem;
+  white-space: pre-wrap;
+  word-break: break-word;
+}

@@ -109,6 +109,47 @@ const MIGRATIONS: ReadonlyArray<readonly [number, string]> = [
     );
   `,
   ],
+  [
+    6,
+    `
+    -- Region comments: a marked rectangle on a scene with a message thread.
+    -- Resolving a comment deletes it (and its messages) entirely — there is
+    -- no archive; once addressed, the data is no longer needed.
+    CREATE TABLE comments (
+      id         TEXT PRIMARY KEY,
+      scene_id   TEXT NOT NULL REFERENCES scenes (id) ON DELETE CASCADE,
+      x          REAL NOT NULL,
+      y          REAL NOT NULL,
+      width      REAL NOT NULL,
+      height     REAL NOT NULL,
+      created_at TEXT NOT NULL,
+      updated_at TEXT NOT NULL
+    );
+
+    CREATE INDEX idx_comments_scene ON comments (scene_id);
+
+    CREATE TABLE comment_messages (
+      id         TEXT PRIMARY KEY,
+      comment_id TEXT NOT NULL REFERENCES comments (id) ON DELETE CASCADE,
+      author     TEXT NOT NULL DEFAULT 'user',
+      text       TEXT NOT NULL,
+      created_at TEXT NOT NULL
+    );
+
+    CREATE INDEX idx_comment_messages_comment
+      ON comment_messages (comment_id, created_at);
+  `,
+  ],
+  [
+    7,
+    `
+    -- where the drawing sits for a human: a slash-separated path, independent
+    -- of category. Displayed on every card and indexed; the graph turns it
+    -- into a chain of folder nodes.
+    ALTER TABLE scenes ADD COLUMN folder TEXT NOT NULL DEFAULT '';
+    CREATE INDEX idx_scenes_folder ON scenes (folder);
+  `,
+  ],
 ];
 
 const migrate = (): void => {

@@ -1,0 +1,432 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Assistant:wght@400;500;600;700&display=swap">
+  <style>
+    body { margin: 0; }
+    a { color: #6965db; text-decoration: none; }
+    a:hover { color: #5753d0; }
+    @media (prefers-color-scheme: dark) { a { color: #a8a5ff; } a:hover { color: #bbb8ff; } }
+
+    .set {
+      --bg: #f6f6f9; --surface: #ffffff; --surface-high: #f1f0ff;
+      --border: #ebebeb; --border-strong: #c5c5d0;
+      --text: #1b1b1f; --muted: #7a7a7a; --muted-dark: #5c5c5c;
+      --accent: var(--accent-src, #6965db); --on-accent: #ffffff;
+      --accent-container: #e0dfff; --on-accent-container: #030064;
+      --danger: #d1413c; --danger-bg: #fff0f0;
+      --warn-bg: #fceeca; --warn-line: #f5c354; --warn-text: #3d3d3d;
+      --island: 0px 0px 1px 0px rgba(0,0,0,0.17), 0px 0px 3px 0px rgba(0,0,0,0.08), 0px 7px 14px 0px rgba(0,0,0,0.05);
+
+      width: 1240px; height: 900px; overflow: hidden;
+      display: flex; flex-direction: column;
+      background: var(--bg); color: var(--text);
+      font-family: Assistant, system-ui, BlinkMacSystemFont, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      font-size: 14px; -webkit-font-smoothing: antialiased;
+    }
+    .set * { box-sizing: border-box; }
+    .set[data-theme="dark"] {
+      --bg: #18181b; --surface: #232329; --surface-high: #2e2d39;
+      --border: #2e2e2e; --border-strong: #46464f;
+      --text: #e3e3e8; --muted: #999999; --muted-dark: #b8b8b8;
+      --accent: color-mix(in oklab, var(--accent-src, #6965db) 60%, #ffffff); --on-accent: #1e1e1e;
+      --accent-container: #403e6a; --on-accent-container: #e0dfff;
+      --danger: #ffa8a5; --danger-bg: #2a1a1a;
+      --warn-bg: #3a3020; --warn-text: #ebebeb;
+    }
+
+    .top {
+      flex: none; display: flex; align-items: center; gap: 12px;
+      height: 68px; padding: 0 28px;
+      background: var(--surface); border-bottom: 1px solid var(--border);
+    }
+    .top-title { font-size: 18px; font-weight: 700; letter-spacing: -0.015em; }
+    .top-sub { font-size: 13px; color: var(--muted); }
+    .spacer { flex: 1; }
+
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: 7px;
+      height: 32px; padding: 0 12px;
+      font: inherit; font-size: 13.5px; font-weight: 600;
+      color: var(--text); background: var(--surface);
+      border: 1px solid var(--border-strong); border-radius: 8px; cursor: pointer;
+    }
+    .btn:hover { background: var(--surface-high); border-color: var(--accent); }
+    .btn-primary { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+    .btn-ghost { border-color: transparent; background: transparent; }
+    .btn-ghost:hover { background: var(--surface-high); border-color: transparent; }
+    .btn-danger { color: var(--danger); }
+    .btn-danger:hover { background: var(--danger-bg); border-color: var(--danger); }
+    .btn-sm { height: 28px; padding: 0 10px; font-size: 12.5px; }
+
+    .cols { flex: 1; min-height: 0; display: flex; gap: 20px; padding: 20px 28px 24px; }
+
+    .tree-pane {
+      width: 470px; flex: none; display: flex; flex-direction: column; gap: 10px;
+      padding: 14px; overflow: hidden;
+      background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
+    }
+    .pane-label {
+      font-size: 11px; font-weight: 700; letter-spacing: .09em; text-transform: uppercase;
+      color: var(--muted);
+    }
+    .tree { display: flex; flex-direction: column; gap: 1px; overflow: hidden; }
+    .trow {
+      display: flex; align-items: center; gap: 8px;
+      height: 38px; padding: 0 9px 0 6px;
+      border-radius: 8px; cursor: pointer; border: 1px solid transparent;
+      font: inherit; text-align: left; background: transparent; color: var(--text);
+      width: 100%;
+    }
+    .trow:hover { background: var(--surface-high); }
+    .trow[data-on="true"] { background: var(--accent-container); border-color: var(--accent); color: var(--on-accent-container); }
+    .trow[data-archived="true"] { color: var(--muted); }
+    .twisty {
+      width: 16px; height: 24px; flex: none;
+      display: flex; align-items: center; justify-content: center;
+      padding: 0; border: 0; background: transparent; color: var(--muted);
+      cursor: pointer; border-radius: 4px;
+    }
+    .twisty[data-has="false"] { visibility: hidden; }
+    .twisty[data-open="true"] { transform: rotate(90deg); }
+    .cat-icon {
+      width: 26px; height: 26px; flex: none;
+      display: flex; align-items: center; justify-content: center;
+      border-radius: 7px; color: #1b1b1f;
+    }
+    .trow-name { flex: 1; min-width: 0; font-size: 14px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .trow-id { font-size: 11px; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; color: var(--muted); }
+    .trow-count { font-size: 12.5px; color: var(--muted); min-width: 22px; text-align: right; font-variant-numeric: tabular-nums; }
+    .arch-tag {
+      font-size: 10px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase;
+      padding: 1px 6px; border-radius: 999px; background: var(--warn-bg); color: var(--warn-text);
+    }
+    .tree-foot { margin-top: auto; padding-top: 12px; border-top: 1px solid var(--border); display: flex; gap: 8px; }
+
+    .detail {
+      flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 18px;
+      padding: 18px; overflow: hidden;
+      background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
+    }
+    .d-head { display: flex; align-items: center; gap: 12px; }
+    .d-icon { width: 44px; height: 44px; flex: none; display: flex; align-items: center; justify-content: center; border-radius: 11px; color: #1b1b1f; }
+    .d-title { font-size: 19px; font-weight: 700; letter-spacing: -0.015em; }
+    .d-id { font-size: 12px; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; color: var(--muted); margin-top: 1px; }
+
+    .field { display: flex; flex-direction: column; gap: 6px; }
+    .field-label { font-size: 12px; font-weight: 700; letter-spacing: .03em; text-transform: uppercase; color: var(--muted); }
+    .field input {
+      font: inherit; font-size: 14px; color: var(--text);
+      background: var(--bg); border: 1px solid var(--border-strong); border-radius: 8px;
+      padding: 9px 11px;
+    }
+    .field input:focus { outline: 2px solid var(--accent); outline-offset: -1px; border-color: transparent; }
+    .hint { font-size: 12.5px; color: var(--muted); line-height: 1.45; }
+
+    .two { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+    .swatches { display: flex; flex-wrap: wrap; gap: 7px; }
+    .sw {
+      width: 30px; height: 30px; padding: 0; cursor: pointer;
+      border-radius: 8px; border: 2px solid transparent;
+    }
+    .sw[data-on="true"] { border-color: var(--text); }
+    .drop {
+      display: flex; align-items: center; gap: 12px;
+      padding: 12px; border-radius: 10px;
+      border: 1.5px dashed var(--border-strong); background: var(--bg);
+    }
+    .drop-art { width: 40px; height: 40px; flex: none; display: flex; align-items: center; justify-content: center; border-radius: 9px; background: var(--surface); border: 1px solid var(--border); color: var(--muted); }
+    .drop-main { flex: 1; min-width: 0; }
+    .drop-t { font-size: 13px; font-weight: 600; }
+    .drop-s { font-size: 12px; color: var(--muted); }
+
+    .rule { height: 1px; background: var(--border); }
+    .danger-zone {
+      display: flex; align-items: center; gap: 14px;
+      padding: 13px 14px; border-radius: 10px;
+      background: var(--warn-bg); border-left: 3px solid var(--warn-line);
+    }
+    .dz-main { flex: 1; min-width: 0; }
+    .dz-t { font-size: 13.5px; font-weight: 700; color: var(--warn-text); }
+    .dz-s { font-size: 12.5px; color: var(--warn-text); opacity: .82; line-height: 1.45; }
+
+    .subcats { display: flex; flex-direction: column; gap: 6px; }
+    .subrow {
+      display: flex; align-items: center; gap: 9px;
+      padding: 7px 10px; border: 1px solid var(--border); border-radius: 8px;
+      font-size: 13.5px;
+    }
+    .subrow-name { flex: 1; min-width: 0; font-weight: 600; }
+    .empty-sub { font-size: 12.5px; color: var(--muted); padding: 2px 0; }
+  </style>
+</helmet>
+
+<div class="set" data-theme="{{theme}}" style="--accent-src: {{accent}}">
+
+  <div class="top">
+    <div>
+      <div class="top-title">Manage categories</div>
+      <div class="top-sub">Dashboard settings · categories nest as deep as you need</div>
+    </div>
+    <span class="spacer"></span>
+    <button type="button" class="btn">Show archived</button>
+    <button type="button" class="btn btn-primary" onClick="{{stop}}">
+      <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M8 3v10M3 8h10"></path></svg>
+      New top-level
+    </button>
+  </div>
+
+  <div class="cols">
+
+    <div class="tree-pane">
+      <div class="pane-label">All categories</div>
+      <div class="tree">
+        <sc-for list="{{rows}}" as="c" hint-placeholder-count="8">
+          <div style="display: flex; align-items: center; padding-left: {{c.pad}}px">
+            <button type="button" class="twisty" data-has="{{c.hasKids}}" data-open="{{c.open}}" onClick="{{c.toggle}}" aria-label="Expand">
+              <svg width="11" height="11" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3.5L10.5 8 6 12.5"></path></svg>
+            </button>
+            <button type="button" class="trow" data-on="{{c.active}}" data-archived="{{c.archived}}" onClick="{{c.pick}}">
+              <span class="cat-icon" style="background: {{c.color}}">
+                <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round">
+                  <path d="M2 4.4h4.2l1.2 1.6H14v6.4a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1z"></path>
+                </svg>
+              </span>
+              <span class="trow-name">{{c.name}}</span>
+              <sc-if value="{{c.archived}}" hint-placeholder-val="{{false}}">
+                <span class="arch-tag">archived</span>
+              </sc-if>
+              <span class="trow-id">{{c.id}}</span>
+              <span class="trow-count">{{c.count}}</span>
+            </button>
+          </div>
+        </sc-for>
+      </div>
+      <div class="tree-foot">
+        <button type="button" class="btn btn-sm btn-ghost">Drag to re-parent</button>
+        <span class="spacer"></span>
+        <span class="hint">{{treeSummary}}</span>
+      </div>
+    </div>
+
+    <div class="detail">
+      <div class="d-head">
+        <span class="d-icon" style="background: {{sel.color}}">
+          <svg width="22" height="22" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round">
+            <path d="M2 4.4h4.2l1.2 1.6H14v6.4a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1z"></path>
+          </svg>
+        </span>
+        <div>
+          <div class="d-title">{{sel.name}}</div>
+          <div class="d-id">{{sel.idLine}}</div>
+        </div>
+      </div>
+
+      <div class="two">
+        <label class="field">
+          <span class="field-label">Name</span>
+          <input type="text" value="{{sel.name}}" onChange="{{onName}}" />
+          <span class="hint">Renaming only changes the label. Every drawing keeps pointing at the same id, so nothing is re-filed and no link breaks.</span>
+        </label>
+        <div class="field">
+          <span class="field-label">Parent</span>
+          <input type="text" value="{{sel.parentLabel}}" readonly />
+          <span class="hint">Drag a row in the tree to move it. Children move with it.</span>
+        </div>
+      </div>
+
+      <div class="field">
+        <span class="field-label">Colour</span>
+        <div class="swatches">
+          <sc-for list="{{swatches}}" as="w" hint-placeholder-count="8">
+            <button type="button" class="sw" data-on="{{w.active}}" style="background: {{w.hex}}" onClick="{{w.pick}}" aria-label="Colour"></button>
+          </sc-for>
+        </div>
+        <span class="hint">Used for the dot in the sidebar, the pill on a card, and the node in the graph.</span>
+      </div>
+
+      <div class="field">
+        <span class="field-label">Icon</span>
+        <div class="drop">
+          <span class="drop-art">
+            <svg width="20" height="20" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M8 11.4V3.2"></path><path d="M4.8 6.4L8 3.2l3.2 3.2"></path><path d="M2.8 12.8h10.4"></path>
+            </svg>
+          </span>
+          <div class="drop-main">
+            <div class="drop-t">Drop an SVG or PNG, or click to choose</div>
+            <div class="drop-s">Square, 64px or larger. Falls back to the folder glyph when empty.</div>
+          </div>
+          <button type="button" class="btn btn-sm">Upload</button>
+        </div>
+      </div>
+
+      <div class="rule"></div>
+
+      <div class="field">
+        <span class="field-label">Sub-categories</span>
+        <div class="subcats">
+          <sc-for list="{{sel.kids}}" as="k" hint-placeholder-count="2">
+            <div class="subrow">
+              <span class="cat-icon" style="background: {{k.color}}; width: 20px; height: 20px; border-radius: 5px;"></span>
+              <span class="subrow-name">{{k.name}}</span>
+              <span class="trow-id">{{k.id}}</span>
+              <span class="trow-count">{{k.count}}</span>
+            </div>
+          </sc-for>
+          <sc-if value="{{sel.noKids}}" hint-placeholder-val="{{false}}">
+            <div class="empty-sub">No sub-categories yet.</div>
+          </sc-if>
+        </div>
+        <div>
+          <button type="button" class="btn btn-sm" onClick="{{stop}}">
+            <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M8 3v10M3 8h10"></path></svg>
+            Add sub-category
+          </button>
+        </div>
+      </div>
+
+      <div class="danger-zone">
+        <div class="dz-main">
+          <div class="dz-t">{{archTitle}}</div>
+          <div class="dz-s">{{archNote}}</div>
+        </div>
+        <button type="button" class="btn btn-sm btn-danger" onClick="{{toggleArchive}}">{{archAction}}</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+</x-dc>
+
+<script data-dc-script data-props='{"theme":{"editor":"enum","options":["light","dark"],"default":"light","section":"Theme"},"accent":{"editor":"color","default":"#6965db","options":["#6965db","#1971c2","#2f9e44","#e03131"],"section":"Theme"},"$preview":{"width":1240,"height":900}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = {
+      selId: "cat_store",
+      open: { cat_arch: true, cat_store: true, cat_prod: true },
+      names: {},
+      colors: {},
+      archived: { cat_scratch: true }
+    };
+  }
+
+  defs() {
+    return [
+      { id: "cat_arch", name: "Architecture", color: "#a5d8ff", parent: null, n: 2 },
+      { id: "cat_store", name: "Storage", color: "#74c0fc", parent: "cat_arch", n: 2 },
+      { id: "cat_graph", name: "Graph store", color: "#4dabf7", parent: "cat_store", n: 1 },
+      { id: "cat_mcp", name: "MCP", color: "#74c0fc", parent: "cat_arch", n: 1 },
+      { id: "cat_prod", name: "Product", color: "#b2f2bb", parent: null, n: 0 },
+      { id: "cat_ux", name: "UX flows", color: "#69db7c", parent: "cat_prod", n: 4 },
+      { id: "cat_notes", name: "Notes", color: "#ffec99", parent: null, n: 1 },
+      { id: "cat_scratch", name: "Scratch", color: "#ffc9c9", parent: null, n: 1 }
+    ];
+  }
+
+  name(d) { return this.state.names[d.id] || d.name; }
+  color(d) { return this.state.colors[d.id] || d.color; }
+  isArchived(d) { return this.state.archived[d.id] === true; }
+
+  rollup(id) {
+    const defs = this.defs();
+    let total = 0;
+    const walk = (cur) => {
+      const d = defs.filter((x) => x.id === cur)[0];
+      if (d) { total += d.n; }
+      defs.filter((x) => x.parent === cur).forEach((k) => walk(k.id));
+    };
+    walk(id);
+    return total;
+  }
+
+  renderVals() {
+    const st = this.state;
+    const defs = this.defs();
+
+    const rows = [];
+    const walk = (parent, depth) => {
+      defs.filter((d) => d.parent === parent).forEach((d) => {
+        const kids = defs.filter((k) => k.parent === d.id);
+        rows.push({
+          id: d.id,
+          name: this.name(d),
+          color: this.color(d),
+          pad: depth * 18,
+          hasKids: kids.length > 0,
+          open: st.open[d.id] === true,
+          active: st.selId === d.id,
+          archived: this.isArchived(d),
+          count: this.rollup(d.id),
+          pick: () => this.setState({ selId: d.id }),
+          toggle: () => {
+            const open = Object.assign({}, st.open);
+            open[d.id] = !open[d.id];
+            this.setState({ open: open });
+          }
+        });
+        if (st.open[d.id] === true) { walk(d.id, depth + 1); }
+      });
+    };
+    walk(null, 0);
+
+    const d = defs.filter((x) => x.id === st.selId)[0] || defs[0];
+    const parent = defs.filter((x) => x.id === d.parent)[0];
+    const kids = defs.filter((k) => k.parent === d.id).map((k) => ({
+      id: k.id, name: this.name(k), color: this.color(k), count: this.rollup(k.id)
+    }));
+    const archived = this.isArchived(d);
+
+    const palette = ["#a5d8ff", "#74c0fc", "#4dabf7", "#b2f2bb", "#69db7c", "#ffec99", "#ffd43b", "#ffc9c9", "#e0dfff", "#c5c5d0"];
+
+    return {
+      theme: this.props.theme || "light",
+      accent: this.props.accent || "#6965db",
+      rows: rows,
+      treeSummary: defs.length + " categories · " + defs.filter((x) => this.isArchived(x)).length + " archived",
+      sel: {
+        name: this.name(d),
+        color: this.color(d),
+        idLine: "id " + d.id + " · created 4 Mar · " + this.rollup(d.id) + " drawings including sub-categories",
+        parentLabel: parent ? this.name(parent) : "— top level —",
+        kids: kids,
+        noKids: kids.length === 0
+      },
+      swatches: palette.map((hex) => ({
+        hex: hex,
+        active: this.color(d) === hex,
+        pick: () => {
+          const colors = Object.assign({}, st.colors);
+          colors[d.id] = hex;
+          this.setState({ colors: colors });
+        }
+      })),
+      onName: (e) => {
+        const names = Object.assign({}, st.names);
+        names[d.id] = e.target.value;
+        this.setState({ names: names });
+      },
+      archTitle: archived ? "This category is archived" : "Archiving, not deleting",
+      archNote: archived
+        ? "It is hidden from the sidebar and from the category picker. The " + this.rollup(d.id) + " drawings filed under it keep the category and still show it on their cards."
+        : "Categories are never deleted — a drawing that points at one must always resolve. Archiving hides it from browsing and from the picker while every existing drawing keeps its category.",
+      archAction: archived ? "Restore" : "Archive",
+      toggleArchive: () => {
+        const a = Object.assign({}, st.archived);
+        a[d.id] = !archived;
+        this.setState({ archived: a });
+      },
+      stop: (e) => { if (e && e.stopPropagation) { e.stopPropagation(); } }
+    };
+  }
+}
+</script>
+</body>
+</html>

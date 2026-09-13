@@ -125,24 +125,74 @@
 }
 
 .dash-card {
+  position: relative;
   display: flex;
   flex-direction: column;
   background: var(--dash-surface);
   border: 1px solid var(--dash-border);
   border-radius: 12px;
   overflow: hidden;
-  transition: transform 0.12s ease, box-shadow 0.12s ease;
+  transition: transform 0.12s ease, box-shadow 0.12s ease,
+    border-color 0.12s ease;
 
   &:hover {
     transform: translateY(-2px);
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
   }
+
+  &.dash-card-selected {
+    border-color: var(--dash-accent);
+    box-shadow: 0 0 0 2px var(--dash-accent);
+  }
+}
+
+.dash-card-select {
+  position: absolute;
+  top: 0.5rem;
+  left: 0.5rem;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.4rem;
+  height: 1.4rem;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.85);
+  cursor: pointer;
+
+  input {
+    margin: 0;
+    padding: 0;
+    width: auto;
+  }
+}
+
+.dash-selection-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-top: 0.75rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: 8px;
+  background: rgba(103, 65, 217, 0.1);
+  font-size: 0.85rem;
+
+  span {
+    color: var(--dash-muted);
+    font-weight: 600;
+    margin-right: auto;
+  }
 }
 
 .dash-card-thumb {
   position: relative;
-  aspect-ratio: 4 / 3;
+  aspect-ratio: 1 / 1;
   width: 100%;
+  // a flex item's automatic minimum size is its content's — without this the
+  // thumbnail PNG's intrinsic height wins over `aspect-ratio` and a tall
+  // sparse scene stretches the card to the height of its own render
+  min-height: 0;
+  overflow: hidden;
   padding: 0;
   border: 0;
   border-bottom: 1px solid var(--dash-border);
@@ -156,7 +206,11 @@
   align-items: center;
   justify-content: center;
 
+  // taken out of flow entirely, so the render can never drive the box: the
+  // square is fixed and the scene is scaled down to fit inside it
   img {
+    position: absolute;
+    inset: 0;
     width: 100%;
     height: 100%;
     object-fit: contain;
@@ -298,6 +352,64 @@
 
 .dash-history {
   width: min(34rem, 100%);
+}
+
+.dash-save-gallery {
+  width: min(38rem, 100%);
+}
+
+.dash-save-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 0.6rem;
+  max-height: min(55vh, 26rem);
+  overflow-y: auto;
+  padding-right: 0.1rem;
+}
+
+.dash-save-tile {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  padding: 0.4rem;
+  text-align: left;
+  overflow: hidden;
+
+  .dash-save-name {
+    font-size: 0.78rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}
+
+.dash-save-thumb {
+  aspect-ratio: 4 / 3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  overflow: hidden;
+  background: repeating-conic-gradient(
+      rgba(128, 128, 128, 0.08) 0% 25%,
+      transparent 0% 50%
+    )
+    50% / 16px 16px;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+}
+
+.dash-save-tile-new {
+  align-items: center;
+  justify-content: center;
+  color: var(--dash-accent);
+  font-weight: 600;
+  border-style: dashed;
+  aspect-ratio: 4 / 3;
 }
 
 .dash-empty-inline {

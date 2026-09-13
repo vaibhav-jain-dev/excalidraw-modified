@@ -13,7 +13,15 @@ export interface SceneChangedEvent {
   originClientId?: string;
 }
 
-type Listener = (event: SceneChangedEvent) => void;
+/** A comment thread was created, replied to, or resolved (removed). */
+export interface CommentsChangedEvent {
+  type: "comments-changed";
+  sceneId: string;
+}
+
+export type LiveEvent = SceneChangedEvent | CommentsChangedEvent;
+
+type Listener = (event: LiveEvent) => void;
 
 const listeners = new Set<Listener>();
 
@@ -22,7 +30,7 @@ export const subscribeEvents = (listener: Listener): (() => void) => {
   return () => listeners.delete(listener);
 };
 
-export const broadcastSceneChanged = (event: SceneChangedEvent): void => {
+const broadcast = (event: LiveEvent): void => {
   for (const listener of listeners) {
     try {
       listener(event);
@@ -31,6 +39,12 @@ export const broadcastSceneChanged = (event: SceneChangedEvent): void => {
     }
   }
 };
+
+export const broadcastSceneChanged = (event: SceneChangedEvent): void =>
+  broadcast(event);
+
+export const broadcastCommentsChanged = (sceneId: string): void =>
+  broadcast({ type: "comments-changed", sceneId });
 
 // ---------------------------------------------------------------------------
 // active scene (what the editor has open right now)

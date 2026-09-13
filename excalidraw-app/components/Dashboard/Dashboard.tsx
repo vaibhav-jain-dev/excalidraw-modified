@@ -252,20 +252,35 @@ const VersionHistory = ({
 
 const SceneCard = ({
   scene,
+  selected,
   onOpen,
   onEdit,
   onHistory,
   onDelete,
   onTogglePin,
+  onToggleSelect,
 }: {
   scene: RemoteSceneSummary;
+  selected: boolean;
   onOpen: () => void;
   onEdit: () => void;
   onHistory: () => void;
   onDelete: () => void;
   onTogglePin: () => void;
+  onToggleSelect: () => void;
 }) => (
-  <div className="dash-card">
+  <div className={`dash-card${selected ? " dash-card-selected" : ""}`}>
+    <label
+      className="dash-card-select"
+      onClick={(event) => event.stopPropagation()}
+    >
+      <input
+        type="checkbox"
+        checked={selected}
+        onChange={onToggleSelect}
+        aria-label={`Select ${scene.name || "Untitled"}`}
+      />
+    </label>
     <button
       type="button"
       className="dash-card-thumb"
@@ -337,6 +352,8 @@ export const Dashboard = () => {
   const [categoryFilter, setCategoryFilter] = useState("");
   const [edit, setEdit] = useState<EditState | null>(null);
   const [historyFor, setHistoryFor] = useState<RemoteSceneSummary | null>(null);
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [saving, setSaving] = useState(false);
 
   const refresh = useCallback(async () => {
     try {
@@ -438,6 +455,69 @@ export const Dashboard = () => {
     await refresh();
   };
 
+  const toggleSelect = (id: string) => {
+    setSelected((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) {
+        next.delete(id);
+      } else {
+        next.add(id);
+      }
+      return next;
+    });
+  };
+
+  const clearSelection = () => setSelected(new Set());
+
+  const downloadFile = (blob: Blob, filename: string) => {
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(url);
+  };
+
+  const handleSaveSelected = async () => {
+    const targets = (scenes ?? []).filter((scene) => selected.has(scene.id));
+    if (targets.length === 0) {
+      return;
+    }
+    setSaving(true);
+    try {
+      for (const scene of targets) {
+        if (!scene.hasThumbnail) {
+          continue;
+        }
+        try {
+          const response = await fetch(
+            ServerData.thumbnailUrl(scene.id, scene.updatedAt),
+          );
+          if (!response.ok) {
+            continue;
+          }
+          const blob = await response.blob();
+          const safeName = (scene.name || "untitled")
+            .replace(/[^a-z0-9-_ ]/gi, "_")
+            .trim();
+          downloadFile(blob, `${safeName || "untitled"}.png`);
+          // give the browser a beat between downloads so it doesn't
+          // treat them as a popup flood and block them
+          await new Promise((resolve) => window.setTimeout(resolve, 200));
+        } catch (err: any) {
+          setError(
+            err?.message ?? "Could not save one of the selected drawings.",
+          );
+        }
+      }
+    } finally {
+      setSaving(false);
+      clearSelection();
+    }
+  };
+
   return (
     <div className="dash">
       <header className="dash-header">
@@ -471,6 +551,22 @@ export const Dashboard = () => {
             ))}
           </select>
         </div>
+        {selected.size > 0 && (
+          <div className="dash-selection-bar">
+            <span>{selected.size} selected</span>
+            <button type="button" onClick={clearSelection} disabled={saving}>
+              Clear
+            </button>
+            <button
+              type="button"
+              className="primary"
+              onClick={handleSaveSelected}
+              disabled={saving}
+            >
+              {saving ? "Saving…" : "Save selected"}
+            </button>
+          </div>
+        )}
       </header>
 
       {error && <div className="dash-error">{error}</div>}
@@ -489,6 +585,8 @@ export const Dashboard = () => {
             <SceneCard
               key={scene.id}
               scene={scene}
+              selected={selected.has(scene.id)}
+              onToggleSelect={() => toggleSelect(scene.id)}
               onOpen={() => openScene(scene.id)}
               onEdit={() =>
                 setEdit({

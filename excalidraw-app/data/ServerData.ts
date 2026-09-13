@@ -51,6 +51,25 @@ export interface RemoteSceneMeta {
   temporary?: boolean;
 }
 
+export interface RemoteCommentMessage {
+  id: string;
+  author: string;
+  text: string;
+  createdAt: string;
+}
+
+export interface RemoteCommentThread {
+  id: string;
+  sceneId: string;
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  createdAt: string;
+  updatedAt: string;
+  messages: RemoteCommentMessage[];
+}
+
 const asJSON = async (response: Response) => {
   if (!response.ok) {
     throw new Error(
@@ -218,5 +237,55 @@ export const ServerData = {
   thumbnailUrl(id: string, cacheKey?: string | number): string {
     const suffix = cacheKey ? `?v=${encodeURIComponent(cacheKey)}` : "";
     return `${API}/scenes/${encodeURIComponent(id)}/thumbnail${suffix}`;
+  },
+
+  // --- region comments ---
+
+  async listComments(sceneId: string): Promise<RemoteCommentThread[]> {
+    return (
+      await asJSON(
+        await fetch(`${API}/scenes/${encodeURIComponent(sceneId)}/comments`),
+      )
+    ).comments;
+  },
+
+  async createComment(
+    sceneId: string,
+    region: { x: number; y: number; width: number; height: number },
+    text: string,
+  ): Promise<RemoteCommentThread> {
+    return (
+      await asJSON(
+        await fetch(`${API}/scenes/${encodeURIComponent(sceneId)}/comments`, {
+          method: "POST",
+          headers: jsonHeaders,
+          body: JSON.stringify({ ...region, text, author: "user" }),
+        }),
+      )
+    ).comment;
+  },
+
+  async replyToComment(
+    commentId: string,
+    text: string,
+  ): Promise<RemoteCommentThread> {
+    return (
+      await asJSON(
+        await fetch(
+          `${API}/comments/${encodeURIComponent(commentId)}/messages`,
+          {
+            method: "POST",
+            headers: jsonHeaders,
+            body: JSON.stringify({ text, author: "user" }),
+          },
+        ),
+      )
+    ).comment;
+  },
+
+  async resolveComment(commentId: string): Promise<void> {
+    await fetch(`${API}/comments/${encodeURIComponent(commentId)}`, {
+      method: "DELETE",
+    });
   },
 };

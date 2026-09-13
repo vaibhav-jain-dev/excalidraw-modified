@@ -10,6 +10,7 @@ import {
   type SemanticScene,
 } from "../derive/semantic.ts";
 import { isGraphShaped, toMermaid } from "../derive/mermaid.ts";
+import { toOutline, toSummary, type Region } from "../derive/outline.ts";
 import { broadcastSceneChanged } from "../events.ts";
 import { newId } from "../id.ts";
 import {
@@ -25,6 +26,7 @@ import {
 import { embedText } from "../search/embeddings.ts";
 import { reindexFts } from "../search/fts.ts";
 import { removeSceneVector, upsertSceneVector } from "../search/vector.ts";
+import * as graph from "./graph.ts";
 
 /**
  * Scene CRUD + version history. The SQLite row is the index; the authoritative
@@ -49,6 +51,8 @@ export interface SceneSummary {
   name: string;
   description: string;
   category: string;
+  /** slash-separated path the drawing lives at, independent of category */
+  folder: string;
   tags: string[];
   createdAt: string;
   updatedAt: string;
@@ -84,6 +88,7 @@ interface SceneRow {
   name: string;
   description: string;
   category: string;
+  folder: string;
   tags: string;
   created_at: string;
   updated_at: string;
@@ -106,6 +111,7 @@ const rowToSummary = (row: SceneRow): SceneSummary => ({
   name: row.name,
   description: row.description ?? "",
   category: row.category ?? "",
+  folder: row.folder ?? "",
   tags: parseTags(row.tags),
   createdAt: row.created_at,
   updatedAt: row.updated_at,
@@ -158,6 +164,7 @@ export const createScene = (
     name?: string;
     description?: string;
     category?: string;
+    folder?: string;
     tags?: string[];
     temporary?: boolean;
   } = {},
@@ -172,14 +179,15 @@ export const createScene = (
 
   db.prepare(
     `INSERT INTO scenes
-       (id, name, description, category, tags, created_at, updated_at,
-        temporary, expires_at)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+       (id, name, description, category, folder, tags, created_at,
+        updated_at, temporary, expires_at)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
   ).run(
     id,
     name,
     opts.description?.trim() ?? "",
     opts.category?.trim() ?? "",
+    opts.folder?.trim() ?? "",
     tags,
     now,
     now,
@@ -220,6 +228,7 @@ export const updateSceneMeta = (
     name?: string;
     description?: string;
     category?: string;
+    folder?: string;
     tags?: string[];
     pinned?: boolean;
   },
@@ -232,18 +241,20 @@ export const updateSceneMeta = (
   const name = patch.name?.trim() || summary.name;
   const description = patch.description?.trim() ?? summary.description;
   const category = patch.category?.trim() ?? summary.category;
+  const folder = patch.folder?.trim() ?? summary.folder;
   const tags = JSON.stringify(patch.tags ?? summary.tags);
   const pinned = (patch.pinned ?? summary.pinned) ? 1 : 0;
 
   db.prepare(
     `UPDATE scenes
-     SET name = ?, description = ?, category = ?, tags = ?, pinned = ?,
-         updated_at = ?
+     SET name = ?, description = ?, category = ?, folder = ?, tags = ?,
+         pinned = ?, updated_at = ?
      WHERE id = ?`,
   ).run(
     name,
     description,
     category,
+    folder,
     tags,
     pinned,
     new Date().toISOString(),
@@ -252,6 +263,21 @@ export const updateSceneMeta = (
 
   const updated = getSceneSummary(id) as SceneSummary;
   reindexMetaOnly(updated);
+
+  // tags, category and folder are all graph edges — a metadata edit has to
+  // reconcile straight away, or the graph stays stale until the next save
+  const content = getSceneContent(id);
+  graph.reconcileScene(
+    {
+      id,
+      name: updated.name,
+      tags: updated.tags,
+      category: updated.category,
+      folder: updated.folder,
+    },
+    (content?.elements ?? []) as Array<Record<string, unknown>>,
+  );
+
   return updated;
 };
 
@@ -289,6 +315,7 @@ export const hardDeleteScene = (id: string): void => {
   // scene delete below invalidates
   removeSceneVector(id);
   reindexFts(id, null);
+  graph.removeScene(id);
   db.prepare("DELETE FROM scene_versions WHERE scene_id = ?").run(id);
   db.prepare("DELETE FROM scenes WHERE id = ?").run(id);
   try {
@@ -482,6 +509,19 @@ const regenerateDerived = (id: string, elements: unknown[]): void => {
       body: markdown,
     });
 
+    // the graph is derived, so it is rewritten from the scene every save and
+    // can never drift from what is actually drawn
+    graph.reconcileScene(
+      {
+        id,
+        name,
+        tags: summary?.tags ?? [],
+        category: summary?.category ?? "",
+        folder: summary?.folder ?? "",
+      },
+      elements as Array<Record<string, unknown>>,
+    );
+
     // fire-and-forget: never let embedding latency or failure touch the save
     void embedText(markdown).then((vector) => {
       if (vector) {
@@ -494,6 +534,137 @@ const regenerateDerived = (id: string, elements: unknown[]): void => {
   }
 };
 
+/**
+ * Recompute every derived edge by walking each scene. Safe to run at any
+ * time — after an import, a hand-edit of the files on disk, or a lost
+ * `graph.json`. Agent annotations are NOT derived and are preserved.
+ */
+export const rebuildGraph = (): { scenes: number; edges: number } => {
+  graph.resetDerived();
+  const rows = queryRows<{ id: string }>(
+    "SELECT id FROM scenes WHERE deleted_at IS NULL",
+  );
+  let scenes = 0;
+  for (const row of rows) {
+    const content = getSceneContent(row.id);
+    const summary = getSceneSummary(row.id);
+    if (!content || !summary) {
+      continue;
+    }
+    graph.reconcileScene(
+      {
+        id: row.id,
+        name: summary.name,
+        tags: summary.tags,
+        category: summary.category,
+        folder: summary.folder,
+      },
+      (content.elements ?? []) as Array<Record<string, unknown>>,
+    );
+    scenes += 1;
+  }
+  graph.flush(true);
+  return { scenes, edges: graph.stats().edges };
+};
+
+/**
+ * Set the tag list on a single element (`customData.tags`) and re-save, which
+ * reconciles the graph. Passing an empty list untags it.
+ */
+export const setElementTags = (
+  id: string,
+  elementId: string,
+  tags: readonly string[],
+): { version: number; tags: string[] } | null => {
+  const content = getSceneContent(id);
+  if (!content) {
+    return null;
+  }
+  const elements = (content.elements ?? []) as Array<Record<string, any>>;
+  let found = false;
+  const clean = [...new Set(tags.map((t) => String(t).trim()).filter(Boolean))];
+  const next = elements.map((element) => {
+    if (!element || element.id !== elementId) {
+      return element;
+    }
+    found = true;
+    const customData = { ...(element.customData ?? {}) };
+    if (clean.length) {
+      customData.tags = clean;
+    } else {
+      delete customData.tags;
+    }
+    return { ...element, customData };
+  });
+  if (!found) {
+    return null;
+  }
+  const { version } = saveScene(id, { ...content, elements: next }, "api");
+  return { version, tags: clean };
+};
+
+/**
+ * Point one drawing at another. The reference is an element in the host
+ * scene, so it lives with the drawing and travels with its version history.
+ */
+export const linkScene = (
+  id: string,
+  targetSceneId: string,
+  render: "embed" | "title" = "embed",
+  at?: { x: number; y: number },
+): { version: number } | null => {
+  const content = getSceneContent(id);
+  const target = getSceneSummary(targetSceneId);
+  if (!content || !target) {
+    return null;
+  }
+  const elements = (content.elements ?? []) as Array<Record<string, any>>;
+  const already = elements.some(
+    (el) => el && !el.isDeleted && el.customData?.link?.sceneId === targetSceneId,
+  );
+  if (already) {
+    return { version: getSceneSummary(id)?.latestVersion ?? 0 };
+  }
+  const width = render === "embed" ? 276 : 220;
+  const height = render === "embed" ? 220 : 40;
+  const element = {
+    id: newId(),
+    type: "rectangle",
+    x: at?.x ?? 40,
+    y: at?.y ?? 40,
+    width,
+    height,
+    angle: 0,
+    strokeColor: "#6965db",
+    backgroundColor: "#e0dfff",
+    fillStyle: "solid",
+    strokeWidth: 2,
+    strokeStyle: "solid",
+    roughness: 0,
+    opacity: 100,
+    groupIds: [],
+    frameId: null,
+    roundness: { type: 3 },
+    seed: Math.floor(Math.random() * 2 ** 31),
+    versionNonce: Math.floor(Math.random() * 2 ** 31),
+    version: 1,
+    isDeleted: false,
+    boundElements: null,
+    updated: Date.now(),
+    link: null,
+    locked: false,
+    customData: {
+      link: { sceneId: targetSceneId, name: target.name, render },
+    },
+  };
+  const { version } = saveScene(
+    id,
+    { ...content, elements: [...elements, element] },
+    "api",
+  );
+  return { version };
+};
+
 // ---------------------------------------------------------------------------
 // semantic (bot-friendly) access
 // ---------------------------------------------------------------------------
@@ -504,6 +675,35 @@ export const getSemantic = (id: string): SemanticScene | null => {
     return null;
   }
   return toSemantic(content.elements as Array<Record<string, unknown>>);
+};
+
+/**
+ * The compact read view (see `../derive/outline.ts`). Lossy on purpose and
+ * never written back — `getSemantic` stays the round-trippable format.
+ */
+export const getOutline = (id: string, region?: Region) => {
+  const content = getSceneContent(id);
+  if (!content) {
+    return null;
+  }
+  return toOutline(
+    (content.elements ?? []) as Array<Record<string, unknown>>,
+    getSceneSummary(id)?.name ?? "Untitled",
+    region,
+  );
+};
+
+/** Orientation only: name, extent, counts, clusters. */
+export const getOutlineSummary = (id: string, region?: Region) => {
+  const content = getSceneContent(id);
+  if (!content) {
+    return null;
+  }
+  return toSummary(
+    (content.elements ?? []) as Array<Record<string, unknown>>,
+    getSceneSummary(id)?.name ?? "Untitled",
+    region,
+  );
 };
 
 export const getMarkdown = (id: string): string | null => {

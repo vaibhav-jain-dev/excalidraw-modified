@@ -17,6 +17,9 @@ export const AppMainMenu: React.FC<{
   isCollabEnabled: boolean;
   theme: Theme | "system";
   refresh: () => void;
+  onSaveToGallery?: () => void;
+  onToggleCommentMode?: () => void;
+  commentModeActive?: boolean;
 }> = React.memo((props) => {
   return (
     <MainMenu>
@@ -26,6 +29,18 @@ export const AppMainMenu: React.FC<{
       <MainMenu.Separator />
       <MainMenu.DefaultItems.LoadScene />
       <MainMenu.DefaultItems.SaveToActiveFile />
+      {props.onSaveToGallery && (
+        <MainMenu.Item onSelect={props.onSaveToGallery}>
+          Save to Drawings…
+        </MainMenu.Item>
+      )}
+      {props.onToggleCommentMode && (
+        <MainMenu.Item onSelect={props.onToggleCommentMode}>
+          {props.commentModeActive
+            ? "Cancel comment"
+            : "Add comment (drag on canvas)"}
+        </MainMenu.Item>
+      )}
       <MainMenu.DefaultItems.Export />
       <MainMenu.DefaultItems.SaveAsImage />
       <MainMenu.DefaultItems.CommandPalette className="highlighted" />

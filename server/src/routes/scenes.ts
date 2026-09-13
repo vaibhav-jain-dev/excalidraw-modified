@@ -3,11 +3,7 @@ import fs from "node:fs";
 import type { FastifyInstance, FastifyReply } from "fastify";
 
 import type { SemanticScene } from "../derive/semantic.ts";
-import {
-  reportPresence,
-  subscribeEvents,
-  type SceneChangedEvent,
-} from "../events.ts";
+import { reportPresence, subscribeEvents, type LiveEvent } from "../events.ts";
 import { ensureDir, thumbFile, thumbsDir } from "../paths.ts";
 import { renderScenePng } from "../render/browser.ts";
 import {
@@ -39,6 +35,7 @@ interface SceneMetaBody {
   name?: string;
   description?: string;
   category?: string;
+  folder?: string;
   tags?: string[];
   pinned?: boolean;
   temporary?: boolean;
@@ -88,6 +85,7 @@ export const registerSceneRoutes = (app: FastifyInstance): void => {
       name: body.name,
       description: body.description,
       category: body.category,
+      folder: body.folder,
       tags: body.tags,
       temporary: body.temporary === true,
     });
@@ -148,7 +146,7 @@ export const registerSceneRoutes = (app: FastifyInstance): void => {
     });
     reply.raw.write(": connected\n\n");
 
-    const send = (event: SceneChangedEvent) => {
+    const send = (event: LiveEvent) => {
       reply.raw.write(`data: ${JSON.stringify(event)}\n\n`);
     };
     const heartbeat = setInterval(() => reply.raw.write(": ping\n\n"), 25_000);

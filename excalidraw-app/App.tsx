@@ -96,6 +96,8 @@ import Collab, {
 } from "./collab/Collab";
 import { AppFooter } from "./components/AppFooter";
 import { AppMainMenu } from "./components/AppMainMenu";
+import { CommentLayer } from "./components/Comments/CommentLayer";
+import { SaveToGalleryDialog } from "./components/Dashboard/SaveToGalleryDialog";
 import { AppWelcomeScreen } from "./components/AppWelcomeScreen";
 import { ExportToExcalidrawPlus } from "./components/ExportToExcalidrawPlus";
 import { TopErrorBoundary } from "./components/TopErrorBoundary";
@@ -483,6 +485,35 @@ const ExcalidrawWrapper = () => {
   });
 
   const [, forceRefresh] = useState(false);
+  const [saveGalleryOpen, setSaveGalleryOpen] = useState(false);
+  const [commentModeActive, setCommentModeActive] = useState(false);
+  const commentSceneId = getRouteSceneId();
+
+  // a drawing opened from the library already lives on disk and saves itself.
+  // "Save to Drawings…" only means something for a scratch canvas or a
+  // temporary drawing, which is the case where you want to keep it for good.
+  const [sceneIsTemporary, setSceneIsTemporary] = useState(false);
+  useEffect(() => {
+    if (!commentSceneId) {
+      setSceneIsTemporary(false);
+      return;
+    }
+    let cancelled = false;
+    ServerData.getScene(commentSceneId)
+      .then((remote) => {
+        if (!cancelled) {
+          setSceneIsTemporary(remote.scene.temporary === true);
+        }
+      })
+      .catch(() => {
+        if (!cancelled) {
+          setSceneIsTemporary(false);
+        }
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [commentSceneId]);
 
   useEffect(() => {
     if (isDevEnv()) {
@@ -1026,7 +1057,32 @@ const ExcalidrawWrapper = () => {
           isCollabEnabled={!isCollabDisabled}
           theme={appTheme}
           refresh={() => forceRefresh((prev) => !prev)}
+          onSaveToGallery={
+            excalidrawAPI && (!commentSceneId || sceneIsTemporary)
+              ? () => setSaveGalleryOpen(true)
+              : undefined
+          }
+          onToggleCommentMode={
+            excalidrawAPI && commentSceneId
+              ? () => setCommentModeActive((prev) => !prev)
+              : undefined
+          }
+          commentModeActive={commentModeActive}
         />
+        {saveGalleryOpen && excalidrawAPI && (
+          <SaveToGalleryDialog
+            excalidrawAPI={excalidrawAPI}
+            onClose={() => setSaveGalleryOpen(false)}
+          />
+        )}
+        {excalidrawAPI && commentSceneId && (
+          <CommentLayer
+            excalidrawAPI={excalidrawAPI}
+            sceneId={commentSceneId}
+            active={commentModeActive}
+            onExitActive={() => setCommentModeActive(false)}
+          />
+        )}
         <AppWelcomeScreen
           onCollabDialogOpen={onCollabDialogOpen}
           isCollabEnabled={!isCollabDisabled}

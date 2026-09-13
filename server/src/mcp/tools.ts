@@ -7,23 +7,48 @@
 import fs from "node:fs";
 
 import { getActiveScene } from "../events.ts";
+import {
+  buildTemplate,
+  listTemplates,
+  UnknownTemplateError,
+} from "../derive/templates.ts";
 import { generateSemanticFromPrompt } from "../generate.ts";
 import { thumbFile } from "../paths.ts";
 import { renderScenePng } from "../render/browser.ts";
 import { searchScenes } from "../search/index.ts";
 import {
+  addMessage,
+  CommentNotFoundError,
+  listComments,
+  resolveComment,
+} from "../store/comments.ts";
+import {
+  annotate,
+  describeScene,
+  getTag,
+  linksFrom,
+  linksTo,
+  listTags,
+  neighbours as graphNeighbours,
+  stats as graphStats,
+} from "../store/graph.ts";
+import {
+  SceneNotFoundError,
   appendSemantic,
   createScene,
   getMarkdown,
   getMermaid,
+  getOutline,
+  getOutlineSummary,
   getSceneContent,
   getSceneSummary,
   getSemantic,
+  linkScene,
   listAnchors,
   listScenes,
   saveSceneFromSemantic,
-  SceneNotFoundError,
   setElementAnchor,
+  setElementTags,
   softDeleteScene,
   updateSceneMeta,
 } from "../store/scenes.ts";
@@ -335,7 +360,8 @@ export const TOOLS: McpTool[] = [
   },
   {
     name: "set_scene_meta",
-    description: "Update a drawing's title, description or category.",
+    description:
+      "Update title, description, category, folder or tags. category and folder are slash-separated and nest; tags is recorded as the user's, not yours.",
     inputSchema: {
       type: "object",
       properties: {
@@ -343,6 +369,8 @@ export const TOOLS: McpTool[] = [
         name: { type: "string" },
         description: { type: "string" },
         category: { type: "string" },
+        folder: { type: "string" },
+        tags: { type: "array", items: { type: "string" } },
       },
     },
     handler: (args) => {
@@ -355,12 +383,16 @@ export const TOOLS: McpTool[] = [
           name: args.name,
           description: args.description,
           category: args.category,
+          folder: args.folder,
+          tags: Array.isArray(args.tags) ? (args.tags as string[]) : undefined,
         });
         return text({
           id: scene.id,
           name: scene.name,
           description: scene.description,
           category: scene.category,
+          folder: scene.folder,
+          tags: scene.tags,
         });
       } catch (error) {
         return fail(
@@ -469,6 +501,68 @@ export const TOOLS: McpTool[] = [
     },
   },
   {
+    name: "list_comments",
+    description:
+      "Region notes a person left on a drawing, each with the box it points at and its messages. Check before editing.",
+    inputSchema: { type: "object", properties: { id: ID_PROP } },
+    handler: (args) => {
+      const id = resolveId(args.id);
+      if (!id) {
+        return fail("No scene is open.");
+      }
+      try {
+        return text(listComments(id));
+      } catch (error) {
+        return fail(
+          error instanceof SceneNotFoundError ? error.message : String(error),
+        );
+      }
+    },
+  },
+  {
+    name: "reply_to_comment",
+    description:
+      "Reply on a comment thread. Supports `code`, **bold**, *italic*, ==highlight==, ~~strike~~, - bullets, 1. numbers.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        commentId: { type: "string" },
+        text: { type: "string" },
+      },
+      required: ["commentId", "text"],
+    },
+    handler: (args) => {
+      try {
+        const comment = addMessage(
+          String(args.commentId),
+          String(args.text),
+          "agent",
+        );
+        return text(comment);
+      } catch (error) {
+        return fail(
+          error instanceof CommentNotFoundError
+            ? error.message
+            : String(error),
+        );
+      }
+    },
+  },
+  {
+    name: "resolve_comment",
+    description:
+      "Mark a thread resolved. This deletes it.",
+    inputSchema: {
+      type: "object",
+      properties: { commentId: { type: "string" } },
+      required: ["commentId"],
+    },
+    handler: (args) => {
+      const ok = resolveComment(String(args.commentId));
+      return ok ? text({ ok: true }) : fail(`No comment ${args.commentId}`);
+    },
+  },
+  {
     name: "generate_diagram",
     description:
       "Ask the local model (Ollama) to turn a short prompt into a diagram " +
@@ -494,6 +588,264 @@ export const TOOLS: McpTool[] = [
       saveSceneFromSemantic(scene.id, result.scene);
       return text({ id: scene.id, name: scene.name, url: `/d/${scene.id}` });
     },
+  },
+  {
+    name: "list_templates",
+    description:
+      "Ready-made diagram layouts and what each one takes. Use one instead of inventing coordinates.",
+    inputSchema: { type: "object", properties: {} },
+    handler: () => text(listTemplates()),
+  },
+  {
+    name: "apply_template",
+    description:
+      "Build a diagram from a template and save it. mode: \"new\" (creates, returns an id), \"replace\", \"append\". Template fields go in spec.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        template: { type: "string" },
+        spec: { type: "object" },
+        mode: { type: "string", enum: ["new", "replace", "append"] },
+        id: ID_PROP,
+        name: { type: "string" },
+      },
+      required: ["template", "spec"],
+    },
+    handler: (args) => {
+      let scene;
+      try {
+        scene = buildTemplate(
+          String(args.template),
+          (args.spec ?? {}) as Record<string, unknown>,
+        );
+      } catch (error) {
+        return fail(
+          error instanceof UnknownTemplateError
+            ? error.message
+            : String(error),
+        );
+      }
+      if (!scene.nodes.length) {
+        return fail(
+          `The ${args.template} template produced nothing — check spec against list_templates.`,
+        );
+      }
+
+      const mode = args.mode ?? "new";
+      if (mode === "new") {
+        const created = createScene({
+          name: String(args.name || scene.name || "Untitled"),
+        });
+        saveSceneFromSemantic(created.id, scene);
+        return text({
+          id: created.id,
+          name: created.name,
+          url: `/d/${created.id}`,
+          nodes: scene.nodes.length,
+        });
+      }
+
+      const id = resolveId(args.id);
+      if (!id) {
+        return fail("No scene is open — pass id, or use mode \"new\".");
+      }
+      const result =
+        mode === "append"
+          ? appendSemantic(id, scene)
+          : saveSceneFromSemantic(id, scene);
+      return text({ id, mode, version: result.version, nodes: scene.nodes.length });
+    },
+  },
+  {
+    name: "get_scene_outline",
+    description:
+      "What is on a drawing and where, with real element ids, WITHOUT geometry: strokes become a bbox plus a point count. summary:true gives just name, extent, counts and clusters; bbox [x,y,w,h] limits it to one region — use it with a comment's region to answer \"what is inside that box\". Read with this; write with get_scene.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        id: ID_PROP,
+        summary: { type: "boolean" },
+        bbox: {
+          type: "array",
+          items: { type: "number" },
+          minItems: 4,
+          maxItems: 4,
+        },
+      },
+    },
+    handler: (args) => {
+      const id = resolveId(args.id);
+      if (!id) {
+        return fail("No scene is open.");
+      }
+      const raw = args.bbox;
+      let region;
+      if (Array.isArray(raw)) {
+        if (raw.length !== 4 || raw.some((n) => !Number.isFinite(Number(n)))) {
+          return fail("bbox must be [x, y, width, height].");
+        }
+        region = raw.map(Number) as [number, number, number, number];
+      }
+      const result = args.summary
+        ? getOutlineSummary(id, region)
+        : getOutline(id, region);
+      return result ? text(result) : fail("No such drawing.");
+    },
+  },
+  {
+    name: "describe_scene",
+    description:
+      "Everything the graph knows about one drawing — folder, category, tags (each marked person or agent), tagged boxes, links both ways — without opening it.",
+    inputSchema: { type: "object", properties: { id: ID_PROP } },
+    handler: (args) => {
+      const id = resolveId(args.id);
+      if (!id) {
+        return fail("No scene is open.");
+      }
+      const facts = describeScene(id);
+      return facts ? text(facts) : fail("The graph has not seen that drawing.");
+    },
+  },
+  {
+    name: "annotate_scene",
+    description:
+      "Record what looking at the image told you: extra tags and a one-line note. Marked as yours, survives saves and rebuilds, clearable in one call.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        id: ID_PROP,
+        tags: { type: "array", items: { type: "string" } },
+        note: { type: "string" },
+      },
+    },
+    handler: (args) => {
+      const id = resolveId(args.id);
+      if (!id) {
+        return fail("No scene is open.");
+      }
+      return text(
+        annotate(id, {
+          tags: Array.isArray(args.tags) ? (args.tags as string[]) : [],
+          note: typeof args.note === "string" ? args.note : undefined,
+        }),
+      );
+    },
+  },
+  {
+    name: "list_tags",
+    description:
+      "Every tag, with how many whole drawings and how many individual boxes carry it.",
+    inputSchema: { type: "object", properties: {} },
+    handler: () => text(listTags()),
+  },
+  {
+    name: "get_tag",
+    description:
+      "The drawings and the individual boxes carrying one tag, each with the ids needed to act on it.",
+    inputSchema: {
+      type: "object",
+      properties: { tag: { type: "string" } },
+      required: ["tag"],
+    },
+    handler: (args) => text(getTag(String(args.tag))),
+  },
+  {
+    name: "tag_element",
+    description:
+      "Set the tags on ONE element, so the tag points at that box rather than the whole file. The list replaces; [] clears.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        id: ID_PROP,
+        elementId: { type: "string" },
+        tags: { type: "array", items: { type: "string" } },
+      },
+      required: ["elementId", "tags"],
+    },
+    handler: (args) => {
+      const id = resolveId(args.id);
+      if (!id) {
+        return fail("No scene is open.");
+      }
+      const result = setElementTags(
+        id,
+        String(args.elementId),
+        Array.isArray(args.tags) ? (args.tags as string[]) : [],
+      );
+      return result ? text(result) : fail("No such element in that drawing.");
+    },
+  },
+  {
+    name: "link_drawings",
+    description:
+      "Point one drawing at another. render \"embed\" (read-only block) or \"title\". The target is never edited through the link.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        id: ID_PROP,
+        targetSceneId: { type: "string" },
+        render: { type: "string", enum: ["embed", "title"] },
+      },
+      required: ["targetSceneId"],
+    },
+    handler: (args) => {
+      const id = resolveId(args.id);
+      if (!id) {
+        return fail("No scene is open.");
+      }
+      const result = linkScene(
+        id,
+        String(args.targetSceneId),
+        args.render === "title" ? "title" : "embed",
+      );
+      return result ? text(result) : fail("Scene or target not found.");
+    },
+  },
+  {
+    name: "links",
+    description:
+      "The drawings this one points at, and the ones pointing back.",
+    inputSchema: { type: "object", properties: { id: ID_PROP } },
+    handler: (args) => {
+      const id = resolveId(args.id);
+      if (!id) {
+        return fail("No scene is open.");
+      }
+      return text({ out: linksFrom(id), in: linksTo(id) });
+    },
+  },
+  {
+    name: "neighbours",
+    description:
+      "Walk outward from a node (\"tag:x\", \"scene:id\", \"box:scene/element\") and report what you reach — context without opening anything.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        node: { type: "string" },
+        scene: { type: "string" },
+        tag: { type: "string" },
+        hops: { type: "number" },
+      },
+    },
+    handler: (args) => {
+      const start =
+        (args.node && String(args.node)) ||
+        (args.scene && `scene:${String(args.scene)}`) ||
+        (args.tag && `tag:${String(args.tag)}`) ||
+        null;
+      if (!start) {
+        return fail("Pass one of node, scene or tag.");
+      }
+      const hops = Math.min(4, Math.max(1, Number(args.hops) || 1));
+      return text({ start, hops, neighbours: graphNeighbours(start, hops) });
+    },
+  },
+  {
+    name: "graph_stats",
+    description:
+      "Node and edge counts by kind.",
+    inputSchema: { type: "object", properties: {} },
+    handler: () => text(graphStats()),
   },
 ];
 

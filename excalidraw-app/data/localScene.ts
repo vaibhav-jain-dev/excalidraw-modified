@@ -18,6 +18,7 @@ import type {
 } from "@excalidraw/excalidraw/types";
 
 import { CLIENT_ID, ServerData } from "./ServerData";
+import { pickThumbnailElements } from "./thumbnail";
 
 const SAVE_DEBOUNCE_MS = 1200;
 const THUMBNAIL_DEBOUNCE_MS = 5000;
@@ -68,7 +69,8 @@ const pushThumbnail = debounce(
     whenIdle(async () => {
       try {
         const blob = await exportToBlob({
-          elements: getNonDeletedElements(elements),
+          elements: pickThumbnailElements(getNonDeletedElements(elements))
+            .elements,
           appState: {
             ...appState,
             exportBackground: true,

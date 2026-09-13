@@ -1,0 +1,445 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Assistant:wght@400;500;600;700&display=swap">
+  <style>
+    body { margin: 0; }
+    a { color: #6965db; text-decoration: none; }
+    a:hover { color: #5753d0; }
+    @media (prefers-color-scheme: dark) { a { color: #a8a5ff; } a:hover { color: #bbb8ff; } }
+
+    .doc {
+      --bg: #ffffff; --panel: #f6f6f9; --border: #ebebeb; --border-strong: #c5c5d0;
+      --text: #1b1b1f; --muted: #7a7a7a; --muted-dark: #5c5c5c;
+      --accent: var(--accent-src, #6965db);
+      --accent-container: #e0dfff; --on-accent-container: #030064;
+      --warn-bg: #fceeca; --warn-line: #f5c354; --warn-text: #3d3d3d;
+      --good-bg: #d3ffd2; --good-text: #0b6513;
+      --ink: #1e1e1e;
+      --sketch-filter: none;
+
+      width: 1100px; min-height: 3900px;
+      display: flex; flex-direction: column; gap: 36px;
+      padding: 52px 60px 60px;
+      background: var(--bg); color: var(--text);
+      font-family: Assistant, system-ui, BlinkMacSystemFont, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      font-size: 14.5px; line-height: 1.55;
+      -webkit-font-smoothing: antialiased;
+    }
+    .doc * { box-sizing: border-box; }
+    .doc[data-theme="dark"] {
+      --bg: #18181b; --panel: #232329; --border: #2e2e2e; --border-strong: #46464f;
+      --text: #e3e3e8; --muted: #999999; --muted-dark: #b8b8b8;
+      --accent: color-mix(in oklab, var(--accent-src, #6965db) 60%, #ffffff);
+      --accent-container: #403e6a; --on-accent-container: #e0dfff;
+      --warn-bg: #3a3020; --warn-text: #ebebeb;
+      --good-bg: #16301a; --good-text: #8fdc93;
+      --sketch-filter: invert(93%) hue-rotate(180deg);
+    }
+
+    .kicker { font-size: 12px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--accent); }
+    h1 { margin: 6px 0 0; font-size: 38px; font-weight: 700; letter-spacing: -0.03em; line-height: 1.1; }
+    .lede { margin-top: 14px; font-size: 17px; line-height: 1.5; color: var(--muted-dark); max-width: 760px; }
+    .lede strong { color: var(--text); font-weight: 700; }
+
+    .sec { display: flex; flex-direction: column; gap: 16px; }
+    h2 {
+      margin: 0; font-size: 13px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase;
+      color: var(--muted); padding-bottom: 10px; border-bottom: 1px solid var(--border);
+    }
+    p { margin: 0; max-width: 860px; }
+    .muted { color: var(--muted-dark); }
+
+    .figure { filter: var(--sketch-filter); }
+    .figure rect { stroke: var(--ink); stroke-width: 2.2; }
+    .figure path { fill: none; stroke: var(--ink); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+    .figure path.soft { stroke-dasharray: 5 5; }
+    .figure path.linky { stroke: #6965db; stroke-dasharray: 2 6; stroke-width: 2.6; }
+    .figure text { font-family: Assistant, system-ui, sans-serif; fill: #1b1b1f; }
+    .f-title { font-size: 17px; font-weight: 700; }
+    .f-note { font-size: 12.5px; fill: #5c5c5c; }
+    .f-edge { font-size: 12.5px; font-weight: 700; fill: #5c5c5c; }
+
+    .two { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    .card {
+      display: flex; flex-direction: column; gap: 10px;
+      padding: 18px 20px;
+      background: var(--panel); border: 1px solid var(--border); border-radius: 12px;
+    }
+    .card-h { display: flex; align-items: center; gap: 9px; }
+    .card-t { font-size: 15.5px; font-weight: 700; letter-spacing: -0.01em; }
+    .pill {
+      display: inline-flex; align-items: center; height: 20px; padding: 0 8px;
+      font-size: 11px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase;
+      border-radius: 999px; background: var(--good-bg); color: var(--good-text);
+    }
+    .pill-warn { background: var(--warn-bg); color: var(--warn-text); }
+    ul { margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 6px; }
+    li { line-height: 1.5; }
+    code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 0.88em; padding: 1px 5px; border-radius: 5px;
+      background: var(--panel); border: 1px solid var(--border);
+    }
+    .doc[data-theme="dark"] code { background: #2e2d39; }
+
+    pre {
+      margin: 0; padding: 18px 20px; overflow: hidden;
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 12.5px; line-height: 1.65; color: var(--muted-dark);
+      background: var(--panel); border: 1px solid var(--border); border-radius: 12px;
+      white-space: pre-wrap;
+    }
+
+    .ladder { display: flex; flex-direction: column; gap: 10px; }
+    .rung { display: flex; align-items: flex-start; gap: 14px; padding: 13px 16px; border: 1px solid var(--border); border-radius: 11px; }
+    .rung-n {
+      width: 26px; height: 26px; flex: none;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 13px; font-weight: 700; border-radius: 8px;
+      background: var(--accent-container); color: var(--on-accent-container);
+    }
+    .rung-main { flex: 1; min-width: 0; }
+    .rung-t { font-size: 14.5px; font-weight: 700; }
+    .rung-s { font-size: 13.5px; color: var(--muted-dark); }
+    .rung-src { font-size: 12px; color: var(--muted); font-family: ui-monospace, SFMono-Regular, Menlo, monospace; white-space: nowrap; padding-top: 3px; }
+
+    .tools { display: flex; flex-direction: column; gap: 8px; }
+    .tool { display: flex; align-items: baseline; gap: 14px; padding: 10px 0; border-bottom: 1px dashed var(--border); }
+    .tool-n { width: 216px; flex: none; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 13px; font-weight: 600; color: var(--accent); }
+    .tool-d { flex: 1; min-width: 0; font-size: 13.5px; color: var(--muted-dark); }
+    .tool-s { flex: none; font-size: 11px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; color: var(--muted); }
+
+    .rules { display: flex; flex-direction: column; gap: 12px; }
+    .rule {
+      display: flex; gap: 13px; padding: 14px 16px;
+      background: var(--warn-bg); border-left: 3px solid var(--warn-line); border-radius: 10px;
+    }
+    .rule-t { font-size: 14px; font-weight: 700; color: var(--warn-text); }
+    .rule-s { font-size: 13.5px; color: var(--warn-text); opacity: .85; line-height: 1.5; }
+  </style>
+</helmet>
+
+<div class="doc" data-theme="{{theme}}" style="--accent-src: {{accent}}">
+
+  <div>
+    <div class="kicker">Local-first Excalidraw · built</div>
+    <h1>Diagrams as the store of record</h1>
+    <p class="lede">The library is not a folder of pictures. A drawing is a place you put something you worked out, and the thing you want back later is usually <strong>one box inside it</strong> — not the file. So the box is addressable: any rectangle can be marked as a tag, a tag is a node, and the edges between boxes, drawings and tags are the map. <strong>The graph is the memory; the diagrams are how you write to it.</strong></p>
+  </div>
+
+  <div class="sec">
+    <h2>The model</h2>
+    <svg class="figure" width="980" height="392" viewBox="0 0 980 392">
+      <rect x="20" y="46" width="196" height="76" rx="5" fill="#a5d8ff" transform="rotate(-0.5 118 84)"></rect>
+      <text class="f-title" x="42" y="80">Folder</text>
+      <text class="f-note" x="42" y="101">the path on disk</text>
+
+      <rect x="392" y="20" width="200" height="76" rx="5" fill="#b2f2bb" transform="rotate(0.4 492 58)"></rect>
+      <text class="f-title" x="414" y="54">Category</text>
+      <text class="f-note" x="414" y="75">stable id, renameable</text>
+
+      <rect x="760" y="46" width="196" height="76" rx="5" fill="#e0dfff" transform="rotate(-0.4 858 84)"></rect>
+      <text class="f-title" x="782" y="80">Tag</text>
+      <text class="f-note" x="782" y="101">a concept node</text>
+
+      <rect x="382" y="168" width="220" height="80" rx="5" fill="#ffec99" transform="rotate(0.3 492 208)"></rect>
+      <text class="f-title" x="404" y="202">Drawing</text>
+      <text class="f-note" x="404" y="223">.excalidraw, canonical</text>
+
+      <rect x="382" y="300" width="220" height="72" rx="5" fill="#ffc9c9" transform="rotate(-0.4 492 336)"></rect>
+      <text class="f-title" x="404" y="332">Box</text>
+      <text class="f-note" x="404" y="353">one element id</text>
+
+      <path d="M216 88 L378 196 M368 190 L380 198 L369 202"></path>
+      <text class="f-edge" x="238" y="152">lives at</text>
+
+      <path d="M492 168 L492 100 M487 110 L492 98 L497 110"></path>
+      <text class="f-edge" x="506" y="140">filed under — exactly one</text>
+
+      <path d="M602 196 L756 108 M745 108 L758 106 L750 117"></path>
+      <text class="f-edge" x="632" y="168">tagged — whole drawing</text>
+
+      <path class="soft" d="M602 330 L900 330 L900 128 M895 139 L901 126 L906 139"></path>
+      <text class="f-edge" x="628" y="320">tagged — this box only</text>
+
+      <path d="M492 248 L492 296 M487 286 L492 298 L497 286"></path>
+      <text class="f-edge" x="506" y="278">contains</text>
+
+      <path class="linky" d="M382 208 L300 208 L300 340 L378 340"></path>
+      <text class="f-edge" x="206" y="272">links to</text>
+      <text class="f-note" x="206" y="290">embedded, or title only</text>
+    </svg>
+    <p class="muted">A drawing sits in exactly one category and at exactly one path, and carries any number of tags. A box carries any number of tags of its own. That last edge is the one that matters: it is what lets a search land on the part of the picture you meant.</p>
+  </div>
+
+  <div class="sec">
+    <h2>Where each thing lives</h2>
+    <div class="two">
+      <div class="card">
+        <div class="card-h">
+          <span class="card-t">SQLite — stays</span>
+          <span class="pill">unchanged</span>
+        </div>
+        <ul>
+          <li>Drawing metadata: id, path, category id, title, description, timestamps.</li>
+          <li><code>FTS5</code> over the title, description <em>and every string drawn inside the diagram</em>.</li>
+          <li><code>sqlite-vec</code> embeddings for the meaning rung of the search ladder.</li>
+          <li>Version history rows.</li>
+        </ul>
+        <p class="muted">Relational, set-shaped, already fast. Nothing here needs to change.</p>
+      </div>
+      <div class="card">
+        <div class="card-h">
+          <span class="card-t">JSON graph store</span>
+          <span class="pill">built</span>
+        </div>
+        <ul>
+          <li>Nodes: <code>scene</code>, <code>box</code>, <code>tag</code>, <code>category</code>, <code>folder</code>.</li>
+          <li>Edges: <code>tagged</code>, <code>tagged-part</code>, <code>contains</code>, <code>links-to</code>, <code>filed-under</code>, <code>lives-in</code>, <code>child-of</code>.</li>
+          <li>Loaded whole into memory at boot; re-derived per scene on save; flushed as one file.</li>
+          <li>Category and folder are separate axes, both nesting: a slash path becomes a chain joined by <code>child-of</code>.</li>
+        </ul>
+        <p class="muted">A recursive-CTE tag walk in SQLite buys nothing at this size and costs a schema migration every time an edge kind is added. The graph is small, read constantly and traversed in every direction — hold it in memory and persist it as plain JSON that a person (and an agent) can read.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="sec">
+    <h2>graph.json</h2>
+    <pre>{
+  "version": 1,
+  "nodes": {
+    "tag:broken-code":     { "kind": "tag",      "label": "broken-code", "created": "2026-03-04" },
+    "scene:ingest":        { "kind": "drawing",  "path": "work/local-first", "category": "cat_store" },
+    "box:ingest/el_7f21":  { "kind": "box",      "scene": "scene:ingest", "label": "Broken code path" },
+    "cat:cat_store":       { "kind": "category", "label": "Storage", "parent": "cat:cat_arch", "archived": false }
+  },
+  "edges": [
+    { "from": "scene:ingest",       "to": "cat:cat_store",     "kind": "filed-under" },
+    { "from": "scene:ingest",       "to": "tag:local-first",   "kind": "tagged" },
+    { "from": "box:ingest/el_7f21", "to": "tag:broken-code",   "kind": "tagged-part" },
+    { "from": "box:ingest/el_7f21", "to": "tag:error-path",    "kind": "tagged-part" },
+    { "from": "scene:ingest",       "to": "scene:graph-store", "kind": "links-to" }
+  ]
+}</pre>
+    <p class="muted">Box ids are Excalidraw element ids, which already survive save → load → restore, so a part-tag keeps pointing at the same rectangle across edits. A box that is deleted leaves a dangling edge; the loader drops those on the next boot rather than blocking the save.</p>
+  </div>
+
+  <div class="sec">
+    <h2>Linking one drawing from another</h2>
+    <p class="muted">Right-click in the editor gives two ways to write to the graph: <strong>Add tag</strong> and <strong>Link drawing…</strong>. The link picker is the ordinary library list with a search box over it — same rows, same thumbnails. Picking one writes a <code>links-to</code> edge and drops a reference on the canvas in one of two shapes.</p>
+    <div class="two">
+      <div class="card">
+        <div class="card-h"><span class="card-t">Title only</span></div>
+        <ul>
+          <li>Renders as a small chip carrying the target's title and an external-link mark.</li>
+          <li>Clicking it opens a preview popup — thumbnail, path, category, slug.</li>
+          <li>Cheap: nothing of the target is rendered until asked for.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <div class="card-h"><span class="card-t">Embedded block</span></div>
+        <ul>
+          <li>Renders the target inline, like an image, with a header carrying its title.</li>
+          <li>Marked <code>read-only</code> and it means it: the host drawing can move and resize the block but can never edit what is inside it.</li>
+          <li>The thumbnail is the target's own rendered PNG, so it refreshes when the target is saved.</li>
+        </ul>
+      </div>
+    </div>
+    <p class="muted">Either shape can be flipped to the other at any time — the edge does not change, only <code>render</code>. Both carry the target's slug, and opening one is always a <strong>new tab</strong> at <code>localhost:3056/d/&lt;slug&gt;</code>, never an in-place takeover of the drawing you are in. A link to a drawing that is later deleted keeps the edge and renders as a dead reference rather than vanishing silently.</p>
+    <pre>{ "from": "scene:retry-queue", "to": "scene:graph-store-vs-sqlite",
+  "kind": "links-to", "render": "embed" }</pre>
+  </div>
+
+  <div class="sec">
+    <h2>Saving is not indexing</h2>
+    <p class="muted">A save writes one file and returns. Everything derived from it — and there is a lot now — is queued for a background worker, so the editor never waits on an embedding run or a PNG render.</p>
+    <div class="two">
+      <div class="card">
+        <div class="card-h"><span class="card-t">On the request</span></div>
+        <ul>
+          <li>Write <code>scene.excalidraw</code>.</li>
+          <li>Bump the version row.</li>
+          <li>Enqueue <code>index(sceneId)</code> and return.</li>
+        </ul>
+        <p class="muted">Single file write, one row, one enqueue. Nothing else.</p>
+      </div>
+      <div class="card">
+        <div class="card-h"><span class="card-t">On the worker</span></div>
+        <ul>
+          <li>Derive <code>scene.md</code>, <code>scene.semantic.json</code>, <code>scene.mmd</code>.</li>
+          <li>Render the square thumbnail.</li>
+          <li>Replace the FTS5 rows, including every string drawn on the canvas.</li>
+          <li>Re-embed changed chunks.</li>
+          <li>Reconcile tag and link edges into <code>graph.json</code>.</li>
+        </ul>
+      </div>
+    </div>
+    <p class="muted">One worker, a persisted FIFO queue, jobs <strong>coalesced per scene</strong> — save five times in ten seconds and the scene is indexed once, against the last state. Every step is idempotent and re-runnable, so a crash mid-job costs a redo and never a corrupt index. The queue survives restart; on boot, anything left pending is picked back up. Until a scene's job drains, its card carries an <code>indexing</code> chip: the drawing is already safe on disk, it is search that is a moment behind.</p>
+  </div>
+
+  <div class="sec">
+    <h2>Thumbnails</h2>
+    <p class="muted">A drawing is whatever size it grew to. A thumbnail is always the same fixed square, and the job is to make a board recognisable at 200px without lying about it.</p>
+    <ul>
+      <li><strong>Fit, never crop.</strong> The scene is scaled down into the square with a small margin. A board ten screens wide zooms out; it does not show its top-left corner at 1:1.</li>
+      <li><strong>Draw the extent.</strong> A dashed boundary marks the drawing's real bounds, so a small diagram floating in a big canvas still reads as a small diagram.</li>
+      <li><strong>Best area when fitting would render a speck.</strong> When the bounding box is far larger than the area you actually drew on, the thumbnail shows the densest region instead. The heuristic is cheap and needs no render: bucket element bounding boxes into a coarse grid, take the heaviest contiguous window, pad it. O(n) over elements, run inside the same worker job that produces the PNG.</li>
+      <li><strong>Say when it is a detail.</strong> Those thumbnails carry a <code>detail</code> chip with a minimap showing which part of the board is in frame. A cropped view never passes for the whole thing.</li>
+    </ul>
+  </div>
+
+  <div class="sec">
+    <h2>Opening a drawing</h2>
+    <p class="muted">Clicking a card opens the drawing <strong>read-only</strong>, over the live socket — it renders immediately, follows saves made elsewhere, and takes no write lease. Editing is a deliberate second step behind the <strong>Edit</strong> button.</p>
+    <ul>
+      <li>Read-only is the cheap path: no editor state to build, no lock to take, safe to open from a link or a search result you are only checking.</li>
+      <li>Embedded drawings inside another drawing are the same view, which is why they can never be edited in place.</li>
+      <li>Edit takes the write lease. A second tab that already holds it keeps it; the newcomer stays read-only and says so rather than silently forking the scene.</li>
+    </ul>
+  </div>
+
+  <div class="sec">
+    <h2>Derived, except where it cannot be</h2>
+    <p class="muted">Every edge above is re-derived from the drawing on every save and on every metadata edit, so the graph cannot drift from what is drawn — which is why a lost <code>graph.json</code> costs a rebuild and never data.</p>
+    <p class="muted">The exception is the reason the graph exists at all. An LLM can <strong>look at the rendered image</strong> and add what no amount of parsing would find: that a diagram is a state machine, that a scribble is a retry ladder. Those edges are written <code>by: "agent"</code>, and they are the one thing a re-derive must not destroy — reconciling skips them, and a rebuild keeps them along with the note attached to each scene.</p>
+    <div class="two">
+      <div class="card">
+        <div class="card-h"><span class="card-t">Derived from the file</span></div>
+        <ul>
+          <li>Tags on the scene and on individual boxes.</li>
+          <li>Category and folder chains.</li>
+          <li>Links to other drawings, with their render mode.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <div class="card-h"><span class="card-t">Added by looking</span><span class="pill">agent</span></div>
+        <ul>
+          <li>Extra tags a person would not have bothered to type.</li>
+          <li>A one-line note on what the drawing shows.</li>
+          <li>Survives saves and rebuilds; clearable in one call.</li>
+        </ul>
+      </div>
+    </div>
+    <p class="muted">So the graph is the image's information layer: folder, category, tags, boxes and links derived from the file; meaning added on top by something that can see. <code>describe_scene</code> returns all of it in one read, every tag marked as a person's or a model's.</p>
+  </div>
+
+  <div class="sec">
+    <h2>Templates, so an agent never places boxes by hand</h2>
+    <p class="muted">Hand-computed coordinates are where generated diagrams go wrong: overlapping boxes, crossing arrows, spacing that drifts. Each template takes content and returns finished geometry.</p>
+    <div class="tools">
+      <div class="tool"><span class="tool-n">flowchart</span><span class="tool-d">steps[], direction down|right, endpoints — one chain of boxes joined by arrows.</span><span class="tool-s">built</span></div>
+      <div class="tool"><span class="tool-n">decision</span><span class="tool-d">question, yes[], no[], then — a diamond splitting into two branches that can rejoin.</span><span class="tool-s">built</span></div>
+      <div class="tool"><span class="tool-n">swimlane</span><span class="tool-d">lanes[{name, steps[]}] — one labelled row per lane.</span><span class="tool-s">built</span></div>
+      <div class="tool"><span class="tool-n">mindmap</span><span class="tool-d">centre, branches[{label, children[]}] — a hub with branches radiating out.</span><span class="tool-s">built</span></div>
+      <div class="tool"><span class="tool-n">kanban</span><span class="tool-d">columns[{name, cards[]}] — columns of sticky notes.</span><span class="tool-s">built</span></div>
+      <div class="tool"><span class="tool-n">timeline</span><span class="tool-d">events[{when, label}] — a spine with a label under each point.</span><span class="tool-s">built</span></div>
+      <div class="tool"><span class="tool-n">matrix</span><span class="tool-d">rows[], columns[], cells[][] — a labelled grid.</span><span class="tool-s">built</span></div>
+    </div>
+    <p class="muted">Every one is tested for <strong>zero overlapping nodes</strong>, edges that point at nodes that exist, and compiling to real elements. That check caught a real bug: mindmap children were landing on top of their own branch.</p>
+  </div>
+
+  <div class="sec">
+    <h2>The search ladder</h2>
+    <p class="muted">One query, four passes, results grouped by which pass caught them so the ranking is legible instead of magic.</p>
+    <div class="ladder">
+      <div class="rung">
+        <span class="rung-n">1</span>
+        <div class="rung-main">
+          <div class="rung-t">Category path</div>
+          <div class="rung-s">Matches the whole ancestry, so “storage” finds everything under Architecture → Storage → Graph store.</div>
+        </div>
+        <span class="rung-src">sqlite · categories</span>
+      </div>
+      <div class="rung">
+        <span class="rung-n">2</span>
+        <div class="rung-main">
+          <div class="rung-t">Title and description</div>
+          <div class="rung-s">What you called it when you filed it.</div>
+        </div>
+        <span class="rung-src">sqlite · fts5</span>
+      </div>
+      <div class="rung">
+        <span class="rung-n">3</span>
+        <div class="rung-main">
+          <div class="rung-t">Text drawn inside the diagram</div>
+          <div class="rung-s">Every label, sticky and arrow caption is indexed with the drawing. Search “broken code”, get back the drawings where you wrote it on a box — and the result highlights that box rather than just naming the file.</div>
+        </div>
+        <span class="rung-src">sqlite · fts5</span>
+      </div>
+      <div class="rung">
+        <span class="rung-n">4</span>
+        <div class="rung-main">
+          <div class="rung-t">Close in meaning</div>
+          <div class="rung-s">Embeddings over the same text, for when you remember the idea and not the words. Ties break on recency, then on how many edges the node has.</div>
+        </div>
+        <span class="rung-src">sqlite-vec + graph</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="sec">
+    <h2>MCP surface</h2>
+    <div class="tools">
+      <div class="tool"><span class="tool-n">search_drawings</span><span class="tool-d">Returns the four rungs separately, each hit carrying the element id it matched on.</span><span class="tool-s">changed</span></div>
+      <div class="tool"><span class="tool-n">get_drawing</span><span class="tool-d">Semantic JSON, now with per-element tags inline.</span><span class="tool-s">changed</span></div>
+      <div class="tool"><span class="tool-n">list_tags</span><span class="tool-d">Every tag with its drawing and box counts.</span><span class="tool-s">new</span></div>
+      <div class="tool"><span class="tool-n">get_tag</span><span class="tool-d">One tag: the drawings tagged whole, and the boxes tagged individually.</span><span class="tool-s">new</span></div>
+      <div class="tool"><span class="tool-n">tag_element</span><span class="tool-d">Add or remove tags on one box. Multiple tags per call.</span><span class="tool-s">new</span></div>
+      <div class="tool"><span class="tool-n">link_drawings</span><span class="tool-d">Create or drop a links-to edge between two drawings, with the render mode.</span><span class="tool-s">new</span></div>
+      <div class="tool"><span class="tool-n">neighbours</span><span class="tool-d">Walk the graph N hops from any node — the agent's way of asking “what did I already work out near this?”</span><span class="tool-s">new</span></div>
+      <div class="tool"><span class="tool-n">get_scene_outline</span><span class="tool-d">The cheap read: what is on a drawing, with real element ids, without geometry. bbox limits it to one region.</span><span class="tool-s">built</span></div>
+      <div class="tool"><span class="tool-n">describe_scene</span><span class="tool-d">Folder, category, tags with provenance, tagged boxes, links both ways — without opening the drawing.</span><span class="tool-s">built</span></div>
+      <div class="tool"><span class="tool-n">annotate_scene</span><span class="tool-d">Write back what looking at the image taught you.</span><span class="tool-s">built</span></div>
+      <div class="tool"><span class="tool-n">list_templates / apply_template</span><span class="tool-d">Build a diagram from a solved layout.</span><span class="tool-s">built</span></div>
+      <div class="tool"><span class="tool-n">index_status</span><span class="tool-d">What the worker is still chewing on, so an agent knows when search is current.</span><span class="tool-s">new</span></div>
+      <div class="tool"><span class="tool-n">list_categories</span><span class="tool-d">The tree, with ids, colours, icons and the archived flag.</span><span class="tool-s">changed</span></div>
+    </div>
+  </div>
+
+  <div class="sec">
+    <h2>Rules that do not bend</h2>
+    <div class="rules">
+      <div class="rule">
+        <div>
+          <div class="rule-t">A category id is permanent</div>
+          <div class="rule-s">Renaming changes the label and nothing else. Every drawing keeps pointing at the same id, so a rename never re-files anything and never breaks a link or a saved filter.</div>
+        </div>
+      </div>
+      <div class="rule">
+        <div>
+          <div class="rule-t">Categories are archived, never deleted</div>
+          <div class="rule-s">A drawing that points at a category must always resolve. Archiving hides it from the sidebar and the picker; the drawings filed under it keep it and still show it on their cards.</div>
+        </div>
+      </div>
+      <div class="rule">
+        <div>
+          <div class="rule-t">A folder is a path, not a category</div>
+          <div class="rule-s">Every file knows where it sits on disk and the card shows it. Filtering the library by folder is the one thing deliberately left for later — the path is displayed and indexed now, so nothing has to be re-modelled when it lands.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</x-dc>
+
+<script data-dc-script data-props='{"theme":{"editor":"enum","options":["light","dark"],"default":"light","section":"Theme"},"accent":{"editor":"color","default":"#6965db","options":["#6965db","#1971c2","#2f9e44","#e03131"],"section":"Theme"},"$preview":{"width":1100,"height":3900}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return {
+      theme: this.props.theme || "light",
+      accent: this.props.accent || "#6965db"
+    };
+  }
+}
+</script>
+</body>
+</html>

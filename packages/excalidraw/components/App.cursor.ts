@@ -22,6 +22,26 @@ const laserPointerCursorDataURL_darkMode = `data:${
   `${laserPointerCursorSVG_tag}${laserPointerCursorBackgroundSVG}${laserPointerCursorIconSVG}</svg>`,
 )}`;
 
+// the pencil from FreedrawIcon, drawn twice: a white halo underneath so the
+// cursor stays legible on a dark canvas, the icon stroke on top. Theme-
+// independent, so unlike the eraser/laser cursors it needs no variants.
+const freedrawCursorSvgPaths = [
+  "m7.643 15.69 7.774-7.773a2.357 2.357 0 1 0-3.334-3.334L4.31 12.357a3.333 3.333 0 0 0-.977 2.357v1.953h1.953c.884 0 1.732-.352 2.357-.977Z",
+  "m11.25 5.417 3.333 3.333",
+];
+
+const freedrawCursorDataURL = `data:${MIME_TYPES.svg},${encodeURIComponent(
+  `<svg viewBox="0 0 20 20" width="24" height="24" fill="none" xmlns="http://www.w3.org/2000/svg" stroke-linecap="round" stroke-linejoin="round">${
+    `<g stroke="#fff" stroke-width="3.5">${freedrawCursorSvgPaths
+      .map((path) => `<path d="${path}" />`)
+      .join("")}</g>`
+  }${
+    `<g stroke="#1b1b1f" stroke-width="1.25">${freedrawCursorSvgPaths
+      .map((path) => `<path d="${path}" />`)
+      .join("")}</g>`
+  }</svg>`,
+)}`;
+
 const createBucketFillCursorDataURL = (color: string) => {
   const paths = bucketFillIconSvgPaths
     .map(
@@ -132,6 +152,9 @@ export class AppCursor {
       this.applyEraser();
     } else if (activeTool.type === "autoshape") {
       this.set(CURSOR_TYPE.CROSSHAIR);
+    } else if (activeTool.type === "freedraw") {
+      // The hotspot is the pencil tip, the icon's bottom-left corner.
+      this.set(`url(${freedrawCursorDataURL}) 4 20, auto`);
     } else if (activeTool.type === "bucketfill") {
       // The hotspot is the center of the paint droplet in the icon.
       this.set(

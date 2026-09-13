@@ -1,0 +1,163 @@
+{
+  "pages": [
+    {
+      "id": "page-1",
+      "name": "Library & search"
+    },
+    {
+      "id": "page-2",
+      "name": "Tags, categories & graph"
+    }
+  ],
+  "artboards": [
+    {
+      "file": "Main.dc.html",
+      "title": "Library — desktop",
+      "page": "page-1",
+      "x": 0,
+      "y": 0,
+      "w": 1440,
+      "h": 900,
+      "is_interactive": true
+    },
+    {
+      "file": "Mobile.dc.html",
+      "title": "Library — phone",
+      "page": "page-1",
+      "x": 1560,
+      "y": 0,
+      "w": 390,
+      "h": 844,
+      "is_interactive": true
+    },
+    {
+      "file": "Search.dc.html",
+      "title": "Search — \"broken code\"",
+      "page": "page-1",
+      "x": 0,
+      "y": 1020,
+      "w": 1080,
+      "h": 900,
+      "is_interactive": true
+    },
+    {
+      "file": "States.dc.html",
+      "title": "States, vocabulary & tokens",
+      "page": "page-1",
+      "x": 1200,
+      "y": 1020,
+      "w": 1240,
+      "h": 2080
+    },
+    {
+      "file": "Tagging.dc.html",
+      "title": "Tagging inside a drawing",
+      "page": "page-2",
+      "x": 0,
+      "y": 0,
+      "w": 1240,
+      "h": 880,
+      "is_interactive": true
+    },
+    {
+      "file": "Settings.dc.html",
+      "title": "Manage categories",
+      "page": "page-2",
+      "x": 1360,
+      "y": 0,
+      "w": 1240,
+      "h": 900,
+      "is_interactive": true
+    },
+    {
+      "file": "Model.dc.html",
+      "title": "Graph model & architecture",
+      "page": "page-2",
+      "x": 0,
+      "y": 1020,
+      "w": 1100,
+      "h": 3940,
+      "print": "flow"
+    },
+    {
+      "file": "Linking.dc.html",
+      "title": "Linking drawings",
+      "page": "page-2",
+      "x": 1360,
+      "y": 1020,
+      "w": 1240,
+      "h": 900,
+      "is_interactive": true
+    }
+  ],
+  "annotations": [
+    {
+      "id": "brief",
+      "page": "page-1",
+      "x": -350,
+      "y": 0,
+      "w": 300,
+      "text": "Library — local-first Excalidraw\n\nEverything is built from the real tokens in packages/excalidraw/css/theme.scss: Assistant, #6965db primary, #e0dfff containers, 6/8/12px radii, --shadow-island, and the editor's own dark palette behind the Theme tweak.\n\nThe desktop board is live — search, sidebar filters, sort, the grid / list / graph toggle, card selection, the row menu, New drawing."
+    },
+    {
+      "id": "note-model",
+      "page": "page-1",
+      "x": -350,
+      "y": 520,
+      "w": 300,
+      "text": "Three separate axes, corrected\n\nFolder is the file's path on disk — shown on every card, indexed, not yet filterable (your call to defer).\n\nCategory is exactly one per drawing, nested as deep as you like, with a stable id.\n\nTags are many, and a tag can hang off the whole drawing or off a single box inside it. Dashed chip = box-level.\n\nThe third toggle in the toolbar is the graph these tags make."
+    },
+    {
+      "id": "note-search",
+      "page": "page-1",
+      "x": -350,
+      "y": 1020,
+      "w": 300,
+      "text": "Search is a ladder, not one box\n\nCategory path, then title, then the text you drew inside the diagram, then meaning. Results stay grouped by which rung caught them so the ranking is legible.\n\nYour example works: type \"broken code\" and the in-diagram hits come back with the matching box outlined in the thumbnail, not just the filename. Retype the query — it really re-ranks."
+    },
+    {
+      "id": "note-states",
+      "page": "page-1",
+      "x": 2560,
+      "y": 1020,
+      "w": 300,
+      "text": "Card states, the new tag/path/category vocabulary, empty and error states, and the token set underneath.\n\nTwo small wins: the temporary pill counts down instead of just saying \"temporary\", and loading is skeleton cards in the real grid geometry so nothing jumps when data lands."
+    },
+    {
+      "id": "note-tagging",
+      "page": "page-2",
+      "x": -350,
+      "y": 0,
+      "w": 300,
+      "text": "Tagging inside a drawing\n\nClick any box — it selects, and the popover shows that box's tags. Add as many as you like from the existing vocabulary, or remove one. The panel on the right lists every box that carries tags, and shows exactly what gets written to the graph.\n\n\"Tag whole drawing\" in the header is the other scope: the file as a whole."
+    },
+    {
+      "id": "note-settings",
+      "page": "page-2",
+      "x": 2720,
+      "y": 0,
+      "w": 300,
+      "text": "Manage categories\n\nPick a row to edit it. Rename, recolour, upload an icon, add a sub-category at any depth.\n\nThe two rules you set are enforced in the UI: the id is shown next to the name and never changes on rename, and the only destructive action is Archive — try it on Scratch and back again."
+    },
+    {
+      "id": "note-graphdb",
+      "page": "page-2",
+      "x": 1200,
+      "y": 1020,
+      "w": 320,
+      "text": "The written-up model\n\nWhat stays in SQLite (FTS5 over in-diagram text, vectors, metadata, versions) and what lives in the JSON graph store, the graph.json shape, the four search rungs, the diagram templates and the MCP surface.\n\nThis is now built, not proposed: server/src/store/graph.ts, derive/outline.ts, derive/templates.ts, with 83 tests. The agent-facing guide is server/AGENTS.md."
+    },
+    {
+      "id": "note-linking",
+      "page": "page-2",
+      "x": 2720,
+      "y": 1020,
+      "w": 300,
+      "text": "Linking drawings\n\nRight-click the canvas (a real right-click works) and pick “Link drawing…”. The picker is the library list with a search box over it.\n\nTwo shapes, switchable any time from the panel: an embedded read-only block, or just the title. Clicking a title opens the preview with the slug; opening is always a new tab, never an edit in place.\n\nBoth write the same links-to edge into the graph — the panel shows exactly what."
+    }
+  ],
+  "launch": {
+    "view": "canvas",
+    "page": "page-1"
+  }
+}

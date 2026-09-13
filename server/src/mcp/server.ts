@@ -1,3 +1,5 @@
+import fs from "node:fs";
+import path from "node:path";
 /**
  * A minimal Model Context Protocol server — JSON-RPC 2.0, no SDK.
  *
@@ -7,6 +9,26 @@
  */
 
 import { TOOL_BY_NAME, TOOLS } from "./tools.ts";
+
+/**
+ * Handed to every client on `initialize`. Kept in `AGENTS.md` next to the
+ * server rather than inline, so the file a human reads and the instructions
+ * an agent receives are the same text and cannot drift apart.
+ */
+const AGENT_INSTRUCTIONS = ((): string => {
+  try {
+    return fs.readFileSync(
+      path.join(import.meta.dirname, "../../AGENTS.md"),
+      "utf8",
+    );
+  } catch {
+    return (
+      "Work with drawings through get_scene_outline (cheap, lossy) and " +
+      "get_scene (lossless, for writing). Never invent ids. See AGENTS.md."
+    );
+  }
+})();
+
 
 const PROTOCOL_VERSION = "2025-06-18";
 const SERVER_INFO = { name: "excalidraw-local", version: "0.2.0" };
@@ -51,10 +73,7 @@ export const handleMcpMessage = async (
         protocolVersion: PROTOCOL_VERSION,
         capabilities: { tools: { listChanged: false } },
         serverInfo: SERVER_INFO,
-        instructions:
-          "Work with Excalidraw drawings through the compact semantic scene " +
-          "graph (nodes, edges, texts, sketches). Use get_scene before " +
-          "editing so ids line up.",
+        instructions: AGENT_INSTRUCTIONS,
       });
 
     case "notifications/initialized":

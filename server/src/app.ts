@@ -2,6 +2,8 @@ import Fastify, { type FastifyInstance } from "fastify";
 
 import { config } from "./config.ts";
 import { handleMcpHttp } from "./mcp/server.ts";
+import { registerCommentRoutes } from "./routes/comments.ts";
+import { registerGraphRoutes } from "./routes/graph.ts";
 import { registerSceneRoutes } from "./routes/scenes.ts";
 import { registerSearchRoutes } from "./routes/search.ts";
 
@@ -42,6 +44,8 @@ export const buildApp = (): FastifyInstance => {
 
   registerSceneRoutes(app);
   registerSearchRoutes(app);
+  registerCommentRoutes(app);
+  registerGraphRoutes(app);
 
   return app;
 };
